@@ -2,27 +2,42 @@
 using Dalamud.Plugin;
 using System;
 
-namespace SamplePlugin
+namespace CritPlugin
 {
     [Serializable]
     public class Configuration : IPluginConfiguration
     {
         public int Version { get; set; } = 0;
 
-        public bool SomePropertyToBeSavedAndWithADefault { get; set; } = true;
+        public SubConfiguration Critical = new("Critical and direct critical hits");
+        public SubConfiguration Direct = new("Non-critical direct hits (minicrits)");
+        
+        public class SubConfiguration
+        {
+            internal SubConfiguration(String title)
+            {
+                this.Title = title;
+            }
 
+            [NonSerialized]
+            public readonly string Title;
+            public string FilePath = "";
+            public int Volume = 12;
+            public bool ShowText = false;
+        }
+        
         // the below exist just to make saving less cumbersome
         [NonSerialized]
-        private DalamudPluginInterface? PluginInterface;
+        private DalamudPluginInterface? pluginInterface;
 
         public void Initialize(DalamudPluginInterface pluginInterface)
         {
-            this.PluginInterface = pluginInterface;
+            this.pluginInterface = pluginInterface;
         }
 
         public void Save()
         {
-            this.PluginInterface!.SavePluginConfig(this);
+            this.pluginInterface!.SavePluginConfig(this);
         }
     }
 }

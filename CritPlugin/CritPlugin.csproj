@@ -7,7 +7,7 @@
     <Description>A sample plugin.</Description>
     <Copyright></Copyright>
     <PackageProjectUrl>https://github.com/goatcorp/SamplePlugin</PackageProjectUrl>
-    <RootNamespace>SamplePlugin</RootNamespace>
+    <RootNamespace>CritPlugin</RootNamespace>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -37,7 +37,9 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Dalamud.DrunkenToad" Version="1.5.6" />
     <PackageReference Include="DalamudPackager" Version="2.1.10" />
+    <PackageReference Include="NAudio" Version="2.1.0" />
     <Reference Include="FFXIVClientStructs">
       <HintPath>$(DalamudLibPath)FFXIVClientStructs.dll</HintPath>
       <Private>false</Private>

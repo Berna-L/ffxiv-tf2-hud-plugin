@@ -2,14 +2,12 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="5a1422d7-eb68-4b24-b854-a29ac008fcb5" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/SamplePlugin.sln" beforeDir="false" afterPath="$PROJECT_DIR$/CritPlugin.sln" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SamplePlugin/Configuration.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CritPlugin/Configuration.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SamplePlugin/Plugin.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CritPlugin/Plugin.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SamplePlugin/SamplePlugin.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/CritPlugin/CritPlugin.csproj" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SamplePlugin/SamplePlugin.json" beforeDir="false" afterPath="$PROJECT_DIR$/CritPlugin/SamplePlugin.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SamplePlugin/Windows/ConfigWindow.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CritPlugin/Windows/ConfigWindow.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SamplePlugin/Windows/MainWindow.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CritPlugin/Windows/MainWindow.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SamplePlugin/packages.lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/CritPlugin/packages.lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.idea.SamplePlugin/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.SamplePlugin/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CritPlugin/Configuration.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CritPlugin/Configuration.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CritPlugin/Plugin.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CritPlugin/Plugin.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CritPlugin/SamplePlugin.json" beforeDir="false" afterPath="$PROJECT_DIR$/CritPlugin/CritPlugin.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CritPlugin/Windows/ConfigWindow.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CritPlugin/Windows/ConfigWindow.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CritPlugin/Windows/MainWindow.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CritPlugin/Windows/MainWindow.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -17,12 +15,15 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="HighlightingSettingsPerFile">
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/6cecb5e4a77f45e0a19dd7319885887c114000/79/a37718bd/Window.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/6cecb5e4a77f45e0a19dd7319885887c114000/b0/b9fb4deb/FileDialogManager.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/CritPlugin/Configuration.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/CritPlugin/Plugin.cs" root0="FORCE_HIGHLIGHTING" />
   </component>
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
   </component>
+  <component name="MetaFilesCheckinStateConfiguration" checkMetaFiles="true" />
   <component name="ProjectId" id="2KKlHneuozgoMiRxb5OfWViybh0" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectViewState">
@@ -35,6 +36,7 @@
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "WebServerToolWindowFactoryState": "false",
     "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "SolutionBuilderGeneralOptionsPage",
     "vue.rearranger.settings.migration": "true"
   },
   "keyToStringList": {
@@ -53,15 +55,30 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1673731071457</updated>
-      <workItem from="1673731075815" duration="317000" />
+      <workItem from="1673731075815" duration="5748000" />
     </task>
+    <task id="LOCAL-00001" summary="Changed solution/project name and metadata.">
+      <created>1673731937858</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1673731937858</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
   </component>
+  <component name="UnityCheckinConfiguration" checkUnsavedScenes="true" />
   <component name="UnityUnitTestConfiguration" currentTestLauncher="NUnit" />
   <component name="VcsManagerConfiguration">
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
+    <MESSAGE value="Changed solution/project name and metadata." />
+    <option name="LAST_COMMIT_MESSAGE" value="Changed solution/project name and metadata." />
+  </component>
+  <component name="XSLT-Support.FileAssociations.UIState">
+    <expand />
+    <select />
   </component>
 </project>
