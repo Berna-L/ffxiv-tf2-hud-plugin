@@ -23,7 +23,8 @@ namespace CritPlugin
             public readonly string Title;
             public string FilePath = "";
             public int Volume = 12;
-            public bool ShowText = false;
+            public bool PlaySound = true;
+            public bool ShowText = true;
         }
         
         // the below exist just to make saving less cumbersome

@@ -46,37 +46,46 @@ public class ConfigWindow : Window, IDisposable
     private void DrawSection(Configuration.SubConfiguration config)
     {
         if (!ImGui.TreeNode(config.Title)) return;
-        var path = config.FilePath;
-        ImGui.InputText("", ref path, 512, ImGuiInputTextFlags.ReadOnly);
-        ImGui.SameLine();
-
-
-        void UpdatePath(bool success, List<string> paths)
+        var playSound = config.PlaySound;
+        if (ImGui.Checkbox("Play sound", ref playSound))
         {
-            if (success && paths.Count > 0)
+            config.PlaySound = playSound;
+        }
+
+        if (config.PlaySound)
+        {
+            var path = config.FilePath;
+            ImGui.InputText("", ref path, 512, ImGuiInputTextFlags.ReadOnly);
+            ImGui.SameLine();
+
+
+            void UpdatePath(bool success, List<string> paths)
+            {
+                if (success && paths.Count > 0)
+                {
+                    PluginLog.Debug(config.Title);
+                    config.FilePath = paths[0];
+                }
+            }
+
+            if (ImGuiComponents.IconButton(FontAwesomeIcon.Folder))
             {
                 PluginLog.Debug(config.Title);
-                config.FilePath = paths[0];
+                _dialogManager.OpenFileDialog("Select the file", "Audio files{.wav,.mp3}", UpdatePath, 1, config.FilePath);
             }
-        }
 
-        if (ImGuiComponents.IconButton(FontAwesomeIcon.Folder))
-        {
-            PluginLog.Debug(config.Title);
-            _dialogManager.OpenFileDialog("Select the file", "Audio files{.wav,.mp3}", UpdatePath, 1, config.FilePath);
-        }
-
-        var volume = config.Volume;
-        if (ImGui.SliderInt("Volume", ref volume, 0, 100))
-        {
-            config.Volume = volume;
+            var volume = config.Volume;
+            if (ImGui.SliderInt("Volume", ref volume, 0, 100))
+            {
+                config.Volume = volume;
+            }
         }
 
         var initialShowTextValue = config.ShowText;
         if (ImGui.Checkbox("Show text with floating damage", ref initialShowTextValue))
         {
             config.ShowText = initialShowTextValue;
-        }
+        } 
         ImGui.TreePop();
     }
 
