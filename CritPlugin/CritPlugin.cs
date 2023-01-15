@@ -93,17 +93,31 @@ namespace CritPlugin
             ref float yOffset,
             ref bool handled)
         {
-            if (CriticalKinds.Contains(kind) && Configuration.Critical.ShowText)
+            if (CriticalKinds.Contains(kind))
             {
-                Dalamud.Logging.PluginLog.LogDebug("Critical! FlyText with text " + text1.ToString() + " and color " + color);
-                text2 = critText;
-                SoundEngine.PlaySound(Configuration.Critical.FilePath, volume: Configuration.Critical.Volume * 0.01f);
+                Dalamud.Logging.PluginLog.LogDebug("Critical!");
+                if (Configuration.Critical.ShowText)
+                {
+                    text2 = critText;
+                }
+
+                if (Configuration.Critical.PlaySound)
+                {
+                    SoundEngine.PlaySound(Configuration.Critical.FilePath, volume: Configuration.Critical.Volume * 0.01f);
+                }
             }
-            if (MiniCritKinds.Contains(kind) && Configuration.Direct.ShowText)
+            if (MiniCritKinds.Contains(kind))
             {
-                Dalamud.Logging.PluginLog.LogDebug("Direct! FlyText with text " + text1.ToString() + " and color " + color);
-                text2 = MiniCritText;
-                SoundEngine.PlaySound(Configuration.Direct.FilePath, volume: Configuration.Direct.Volume * 0.01f);
+                Dalamud.Logging.PluginLog.LogDebug("Direct hit!");
+                if (Configuration.Direct.ShowText)
+                {
+                    text2 = MiniCritText;
+                }
+
+                if (Configuration.Direct.PlaySound)
+                {
+                    SoundEngine.PlaySound(Configuration.Direct.FilePath, volume: Configuration.Direct.Volume * 0.01f);
+                }
             }
         }
 
