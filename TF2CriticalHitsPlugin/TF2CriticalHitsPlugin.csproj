@@ -29,7 +29,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Dalamud.DrunkenToad" Version="1.5.6" />
     <PackageReference Include="DalamudPackager" Version="2.1.10" />
     <PackageReference Include="NAudio" Version="2.1.0" />
     <Reference Include="FFXIVClientStructs">
