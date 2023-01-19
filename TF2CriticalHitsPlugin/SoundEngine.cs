@@ -4,7 +4,7 @@ using System.Threading;
 using Dalamud.Utility;
 using NAudio.Wave;
 
-namespace CritPlugin;
+namespace Tf2CriticalHitsPlugin;
 
 public class SoundEngine
 {

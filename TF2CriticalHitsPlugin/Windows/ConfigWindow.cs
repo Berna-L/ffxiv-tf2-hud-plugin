@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Numerics;
-using Dalamud.DrunkenToad;
 using Dalamud.Interface;
 using Dalamud.Interface.Components;
 using Dalamud.Interface.ImGuiFileDialog;
@@ -9,33 +8,33 @@ using Dalamud.Interface.Windowing;
 using Dalamud.Logging;
 using ImGuiNET;
 
-namespace CritPlugin.Windows;
+namespace Tf2CriticalHitsPlugin.Windows;
 
 public class ConfigWindow : Window, IDisposable
 {
-    public static String Title = "Crit Plugin Configuration";
+    public static String Title = "TF2-ish Critical Hits Configuration";
     
     private readonly Configuration configuration;
 
-    private readonly FileDialogManager _dialogManager;
+    private readonly FileDialogManager dialogManager;
 
-    public ConfigWindow(CritPlugin critPlugin) : base(
+    public ConfigWindow(Tf2CriticalHitsPlugin tf2CriticalHitsPlugin) : base(
         Title,
         ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoScrollbar |
         ImGuiWindowFlags.NoScrollWithMouse)
     {
-        this.Size = new Vector2(500, 300);
+        this.Size = new Vector2(500, 500);
         this.SizeCondition = ImGuiCond.Appearing;
 
-        this.configuration = critPlugin.Configuration;
-        _dialogManager = new FileDialogManager { AddedWindowFlags = ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoDocking};
+        this.configuration = tf2CriticalHitsPlugin.Configuration;
+        dialogManager = new FileDialogManager { AddedWindowFlags = ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoDocking};
     }
     
     public override void Draw()
     {
         DrawSection(configuration.Critical);
         DrawSection(configuration.Direct);
-        _dialogManager.Draw();
+        dialogManager.Draw();
 
         if (ImGui.Button("Save"))
         {
@@ -71,7 +70,7 @@ public class ConfigWindow : Window, IDisposable
             if (ImGuiComponents.IconButton(FontAwesomeIcon.Folder))
             {
                 PluginLog.Debug(config.Title);
-                _dialogManager.OpenFileDialog("Select the file", "Audio files{.wav,.mp3}", UpdatePath, 1, config.FilePath);
+                dialogManager.OpenFileDialog("Select the file", "Audio files{.wav,.mp3}", UpdatePath, 1, config.FilePath);
             }
 
             var volume = config.Volume;
@@ -82,22 +81,31 @@ public class ConfigWindow : Window, IDisposable
         }
 
         var initialShowTextValue = config.ShowText;
-        if (ImGui.Checkbox("Show text with floating damage", ref initialShowTextValue))
+        if (ImGui.Checkbox("Show flavor text with floating damage", ref initialShowTextValue))
         {
             config.ShowText = initialShowTextValue;
-        } 
+        }
+
+        if (config.ShowText)
+        {
+            var initialText = config.Text;
+            if (ImGui.InputText("Text", ref initialText, 20))
+            {
+                config.Text = initialText;
+            }
+        }
         ImGui.TreePop();
     }
 
     public override void OnClose()
     {
-        _dialogManager.Reset();
+        dialogManager.Reset();
     }
     
     
 
     public void Dispose()
     {
-        _dialogManager.Reset();
+        dialogManager.Reset();
     }
 }

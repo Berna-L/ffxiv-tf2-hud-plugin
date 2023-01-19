@@ -1,38 +1,31 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Dalamud.Game.Command;
 using Dalamud.IoC;
 using Dalamud.Plugin;
 using System.IO;
-using System.Reflection;
-using CritPlugin.Windows;
 using Dalamud.Game.Gui.FlyText;
 using Dalamud.Game.Text.SeStringHandling;
 using Dalamud.Interface.Windowing;
+using Tf2CriticalHitsPlugin.Windows;
 
-namespace CritPlugin
+namespace Tf2CriticalHitsPlugin
 {
-    public sealed class CritPlugin : IDalamudPlugin
+    public sealed class Tf2CriticalHitsPlugin : IDalamudPlugin
     {
-        public string Name => "Crit Plugin";
+        public string Name => "TF2-ish Critical Hits";
         private const string CommandName = "/critconfig";
 
         private DalamudPluginInterface PluginInterface { get; init; }
         private CommandManager CommandManager { get; init; }
         public Configuration Configuration { get; init; }
-        public readonly WindowSystem WindowSystem = new("CritPlugin");
+        public readonly WindowSystem WindowSystem = new("TF2CriticalHitsPlugin");
         
         private readonly FlyTextGui flyTextGui;
-        private static readonly ISet<FlyTextKind> CriticalKinds = new HashSet<FlyTextKind>();
-        private static readonly string CritString = "CRITICAL HIT!";
-        private static readonly SeString critText = new SeStringBuilder().AddUiForeground(60).AddUiGlow(100).AddItalics(CritString).AddUiForegroundOff().AddUiGlowOff().Build();
+        
+        private static readonly ISet<FlyTextKind> CriticalHitKinds = new HashSet<FlyTextKind>();
+        private static readonly ISet<FlyTextKind> DirectHitKinds = new HashSet<FlyTextKind>();
 
-        private static readonly ISet<FlyTextKind> MiniCritKinds = new HashSet<FlyTextKind>();
-        private static readonly string MiniCritString = "Mini crit!";
-        private static readonly SeString MiniCritText = new SeStringBuilder().AddText(MiniCritString).Build();
-
-
-        public CritPlugin(
+        public Tf2CriticalHitsPlugin(
             [RequiredVersion("1.0")] DalamudPluginInterface pluginInterface,
             [RequiredVersion("1.0")] CommandManager commandManager,
             [RequiredVersion("1.0")] FlyTextGui flyText)
@@ -42,16 +35,12 @@ namespace CritPlugin
 
             this.Configuration = this.PluginInterface.GetPluginConfig() as Configuration ?? new Configuration();
             this.Configuration.Initialize(this.PluginInterface);
-
-            // you might normally want to embed resources and load them from the manifest stream
-            var imagePath = Path.Combine(PluginInterface.AssemblyLocation.Directory?.FullName!, "goat.png");
-            var goatImage = this.PluginInterface.UiBuilder.LoadImage(imagePath);
-
+            
             WindowSystem.AddWindow(new ConfigWindow(this));
 
             this.CommandManager.AddHandler(CommandName, new CommandInfo(OnConfigCommand)
             {
-                HelpMessage = "Opens the Crit Plugin configuration window."
+                HelpMessage = "Opens the TF2-ish Critical Hits configuration window"
             });
 
             this.PluginInterface.UiBuilder.Draw += DrawUserInterface;
@@ -59,28 +48,33 @@ namespace CritPlugin
             
             this.flyTextGui = flyText;
 
-            CriticalKinds.Add(FlyTextKind.CriticalDirectHit);
-            CriticalKinds.Add(FlyTextKind.CriticalDirectHit2);
+            AddCriticalHitKinds();
 
-            CriticalKinds.Add(FlyTextKind.CriticalHit);
-            CriticalKinds.Add(FlyTextKind.CriticalHit2);
-            CriticalKinds.Add(FlyTextKind.CriticalHit3);
-            CriticalKinds.Add(FlyTextKind.CriticalHit4);
+            DirectHitKinds.Add(FlyTextKind.DirectHit);
+            DirectHitKinds.Add(FlyTextKind.DirectHit2);
 
-            CriticalKinds.Add(FlyTextKind.NamedCriticalHit);
-            CriticalKinds.Add(FlyTextKind.NamedCriticalHit2);
-
-            CriticalKinds.Add(FlyTextKind.NamedCriticalDirectHit);
-
-            MiniCritKinds.Add(FlyTextKind.DirectHit);
-            MiniCritKinds.Add(FlyTextKind.DirectHit2);
-
-            MiniCritKinds.Add(FlyTextKind.NamedDirectHit);
+            DirectHitKinds.Add(FlyTextKind.NamedDirectHit);
 
             this.flyTextGui.FlyTextCreated += this.FlyTextCreate;
 
         }
-        
+
+        private static void AddCriticalHitKinds()
+        {
+            CriticalHitKinds.Add(FlyTextKind.CriticalDirectHit);
+            CriticalHitKinds.Add(FlyTextKind.CriticalDirectHit2);
+
+            CriticalHitKinds.Add(FlyTextKind.CriticalHit);
+            CriticalHitKinds.Add(FlyTextKind.CriticalHit2);
+            CriticalHitKinds.Add(FlyTextKind.CriticalHit3);
+            CriticalHitKinds.Add(FlyTextKind.CriticalHit4);
+
+            CriticalHitKinds.Add(FlyTextKind.NamedCriticalHit);
+            CriticalHitKinds.Add(FlyTextKind.NamedCriticalHit2);
+
+            CriticalHitKinds.Add(FlyTextKind.NamedCriticalDirectHit);
+        }
+
         public void FlyTextCreate(
             ref FlyTextKind kind,
             ref int val1,
@@ -93,12 +87,12 @@ namespace CritPlugin
             ref float yOffset,
             ref bool handled)
         {
-            if (CriticalKinds.Contains(kind))
+            if (CriticalHitKinds.Contains(kind))
             {
                 Dalamud.Logging.PluginLog.LogDebug("Critical!");
                 if (Configuration.Critical.ShowText)
                 {
-                    text2 = critText;
+                    text2 = GenerateCriticalHitText();
                 }
 
                 if (Configuration.Critical.PlaySound)
@@ -106,12 +100,12 @@ namespace CritPlugin
                     SoundEngine.PlaySound(Configuration.Critical.FilePath, volume: Configuration.Critical.Volume * 0.01f);
                 }
             }
-            if (MiniCritKinds.Contains(kind))
+            if (DirectHitKinds.Contains(kind))
             {
                 Dalamud.Logging.PluginLog.LogDebug("Direct hit!");
                 if (Configuration.Direct.ShowText)
                 {
-                    text2 = MiniCritText;
+                    text2 = GenerateDirectHitText();
                 }
 
                 if (Configuration.Direct.PlaySound)
@@ -120,6 +114,22 @@ namespace CritPlugin
                 }
             }
         }
+        
+        private SeString GenerateCriticalHitText()
+        {
+            return new SeStringBuilder().AddUiForeground(60)
+                                        .AddUiGlow(100)
+                                        .AddItalics(Configuration.Critical.Text)
+                                        .AddUiForegroundOff()
+                                        .AddUiGlowOff()
+                                        .Build();
+        }
+        
+        private SeString GenerateDirectHitText()
+        {
+            return new SeStringBuilder().AddText(Configuration.Direct.Text).Build();
+        }
+
 
 
         public void Dispose()

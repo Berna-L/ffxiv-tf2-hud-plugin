@@ -1,0 +1,12 @@
+{
+  "Author": "Berna",
+  "Name": "TF2-ish Critical Hits Plugin",
+  "Punchline": "Deal critical hits just like in the #1 hat simulator, Team Fortress 2.",
+  "Description": "Deal critical hits just like in the #1 hat simulator, Team Fortress 2. /critconfig to configure.",
+  "InternalName": "tf2CriticalHitsPlugin",
+  "IconUrl": "https://raw.githubusercontent.com/Berna-L/ffxiv-tf2-crit-plugin/master/Data/image.png",
+  "ApplicableVersion": "any",
+  "Tags": [
+    "plugin"
+  ]
+}

@@ -3,11 +3,10 @@
   <PropertyGroup>
     <Authors></Authors>
     <Company></Company>
-    <Version>0.0.0.1</Version>
-    <Description>A sample plugin.</Description>
+    <Version>1.0.0.0-SNAPSHOT</Version>
+    <Description>Deal critical hits just like in the #1 hat simulator, Team Fortress 2.</Description>
     <Copyright></Copyright>
-    <PackageProjectUrl>https://github.com/goatcorp/SamplePlugin</PackageProjectUrl>
-    <RootNamespace>CritPlugin</RootNamespace>
+    <PackageProjectUrl>https://github.com/Berna-L/ffxiv-tf2-crit-plugin</PackageProjectUrl>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -20,13 +19,6 @@
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
   </PropertyGroup>
-
-  <ItemGroup>
-    <Content Include="..\Data\goat.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <Visible>false</Visible>
-    </Content>
-  </ItemGroup>
 
   <PropertyGroup>
     <DalamudLibPath>$(appdata)\XIVLauncher\addon\Hooks\dev\</DalamudLibPath>
