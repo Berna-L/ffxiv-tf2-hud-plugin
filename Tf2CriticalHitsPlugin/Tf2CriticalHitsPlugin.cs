@@ -18,7 +18,7 @@ namespace Tf2CriticalHitsPlugin
         private DalamudPluginInterface PluginInterface { get; init; }
         private CommandManager CommandManager { get; init; }
         public Configuration Configuration { get; init; }
-        public readonly WindowSystem WindowSystem = new("Tf2CriticalHitsPlugin");
+        public readonly WindowSystem WindowSystem = new("TF2CriticalHitsPlugin");
         
         private readonly FlyTextGui flyTextGui;
         
@@ -49,14 +49,18 @@ namespace Tf2CriticalHitsPlugin
             this.flyTextGui = flyText;
 
             AddCriticalHitKinds();
+            AddDirectHitKinds();
 
+            this.flyTextGui.FlyTextCreated += this.FlyTextCreate;
+
+        }
+
+        private static void AddDirectHitKinds()
+        {
             DirectHitKinds.Add(FlyTextKind.DirectHit);
             DirectHitKinds.Add(FlyTextKind.DirectHit2);
 
             DirectHitKinds.Add(FlyTextKind.NamedDirectHit);
-
-            this.flyTextGui.FlyTextCreated += this.FlyTextCreate;
-
         }
 
         private static void AddCriticalHitKinds()

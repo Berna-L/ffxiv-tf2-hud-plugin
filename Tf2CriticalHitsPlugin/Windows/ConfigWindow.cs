@@ -12,7 +12,7 @@ namespace Tf2CriticalHitsPlugin.Windows;
 
 public class ConfigWindow : Window, IDisposable
 {
-    public static String Title = "TF2-ish Critical Hits Configuration";
+    public static readonly String Title = "TF2-ish Critical Hits Configuration";
     
     private readonly Configuration configuration;
 
@@ -28,6 +28,7 @@ public class ConfigWindow : Window, IDisposable
 
         this.configuration = tf2CriticalHitsPlugin.Configuration;
         dialogManager = new FileDialogManager { AddedWindowFlags = ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoDocking};
+        dialogManager.CustomSideBarItems.Add((Environment.ExpandEnvironmentVariables("%USERNAME%"), Environment.ExpandEnvironmentVariables("%USERPROFILE%"), FontAwesomeIcon.User, 0));
     }
     
     public override void Draw()
@@ -44,7 +45,7 @@ public class ConfigWindow : Window, IDisposable
 
     private void DrawSection(Configuration.SubConfiguration config)
     {
-        if (!ImGui.TreeNode(config.Title)) return;
+        if (!ImGui.TreeNode(config.SectionTitle)) return;
         var playSound = config.PlaySound;
         if (ImGui.Checkbox("Play sound", ref playSound))
         {
@@ -62,15 +63,34 @@ public class ConfigWindow : Window, IDisposable
             {
                 if (success && paths.Count > 0)
                 {
-                    PluginLog.Debug(config.Title);
+                    PluginLog.Debug(config.SectionTitle);
                     config.FilePath = paths[0];
                 }
             }
 
             if (ImGuiComponents.IconButton(FontAwesomeIcon.Folder))
             {
-                PluginLog.Debug(config.Title);
-                dialogManager.OpenFileDialog("Select the file", "Audio files{.wav,.mp3}", UpdatePath, 1, config.FilePath);
+                PluginLog.Debug(config.SectionTitle);
+                dialogManager.OpenFileDialog("Select the file", "Audio files{.wav,.mp3}", UpdatePath, 1,
+                                             config.FilePath ??
+                                             Environment.ExpandEnvironmentVariables("%USERPROFILE%"));
+            }
+
+            if (ImGui.IsItemHovered())
+            {
+               ImGui.SetTooltip("Open file browser..."); 
+            }
+
+            ImGui.SameLine();
+
+            if (ImGuiComponents.IconButton(FontAwesomeIcon.Play))
+            {
+                SoundEngine.PlaySound(config.FilePath, config.Volume * 0.01f);
+            }
+
+            if (ImGui.IsItemHovered())
+            {
+                ImGui.SetTooltip("Preview sound");
             }
 
             var volume = config.Volume;

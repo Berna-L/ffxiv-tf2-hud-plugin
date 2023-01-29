@@ -31,7 +31,8 @@ public static class SoundEngine
             }
 
             using var channel = new WaveChannel32(reader) {
-                Volume = volume,
+                // prevent the user from bursting their eardrums if they decide to put an absurd value in the JSON
+                Volume = Math.Min(volume, 1.0f),
                 PadWithZeroes = false,
             };
 

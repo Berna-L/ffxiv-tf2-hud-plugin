@@ -14,15 +14,15 @@ namespace Tf2CriticalHitsPlugin
         
         public class SubConfiguration
         {
-            internal SubConfiguration(String title, String text)
+            internal SubConfiguration(String sectionTitle, String defaultText)
             {
-                this.Title = title;
-                this.Text = text;
+                this.SectionTitle = sectionTitle;
+                this.Text = defaultText;
             }
 
             [NonSerialized]
-            public readonly string Title;
-            public string FilePath = "";
+            public readonly string SectionTitle;
+            public string? FilePath;
             public int Volume = 12;
             public bool PlaySound = true;
             public bool ShowText = true;
