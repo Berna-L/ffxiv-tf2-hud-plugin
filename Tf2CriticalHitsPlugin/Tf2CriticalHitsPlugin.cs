@@ -18,7 +18,7 @@ namespace Tf2CriticalHitsPlugin
         private DalamudPluginInterface PluginInterface { get; init; }
         private CommandManager CommandManager { get; init; }
         public Configuration Configuration { get; init; }
-        public readonly WindowSystem WindowSystem = new("TF2CriticalHitsPlugin");
+        public readonly WindowSystem WindowSystem = new("Tf2CriticalHitsPlugin");
         
         private readonly FlyTextGui flyTextGui;
         
