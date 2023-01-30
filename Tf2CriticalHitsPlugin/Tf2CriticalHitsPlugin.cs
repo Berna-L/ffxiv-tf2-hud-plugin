@@ -22,9 +22,14 @@ namespace Tf2CriticalHitsPlugin
         
         private readonly FlyTextGui flyTextGui;
 
-        private static readonly ISet<FlyTextKind> DirectCriticalHitKinds = new HashSet<FlyTextKind>();
-        private static readonly ISet<FlyTextKind> CriticalHitKinds = new HashSet<FlyTextKind>();
-        private static readonly ISet<FlyTextKind> DirectHitKinds = new HashSet<FlyTextKind>();
+        private static readonly ISet<FlyTextKind> AutoDirectCriticalHit = new HashSet<FlyTextKind>();
+        private static readonly ISet<FlyTextKind> ActionDirectCriticalHit = new HashSet<FlyTextKind>();
+
+        private static readonly ISet<FlyTextKind> AutoCriticalHit = new HashSet<FlyTextKind>();
+        private static readonly ISet<FlyTextKind> ActionCriticalHit = new HashSet<FlyTextKind>();
+
+        private static readonly ISet<FlyTextKind> AutoDirectHit = new HashSet<FlyTextKind>();
+        private static readonly ISet<FlyTextKind> ActionDirectHit = new HashSet<FlyTextKind>();
 
         public Tf2CriticalHitsPlugin(
             [RequiredVersion("1.0")] DalamudPluginInterface pluginInterface,
@@ -60,29 +65,29 @@ namespace Tf2CriticalHitsPlugin
 
         private static void AddDirectCriticalHitKinds()
         {
-            DirectCriticalHitKinds.Add(FlyTextKind.CriticalDirectHit);
-            DirectCriticalHitKinds.Add(FlyTextKind.CriticalDirectHit2);
+            AutoDirectCriticalHit.Add(FlyTextKind.CriticalDirectHit);
+            AutoDirectCriticalHit.Add(FlyTextKind.CriticalDirectHit2);
 
-            DirectCriticalHitKinds.Add(FlyTextKind.NamedCriticalDirectHit);
+            ActionDirectCriticalHit.Add(FlyTextKind.NamedCriticalDirectHit);
         }
         
         private static void AddCriticalHitKinds()
         {
-            CriticalHitKinds.Add(FlyTextKind.CriticalHit);
-            CriticalHitKinds.Add(FlyTextKind.CriticalHit2);
-            CriticalHitKinds.Add(FlyTextKind.CriticalHit3);
-            CriticalHitKinds.Add(FlyTextKind.CriticalHit4);
+            AutoCriticalHit.Add(FlyTextKind.CriticalHit);
+            AutoCriticalHit.Add(FlyTextKind.CriticalHit2);
+            AutoCriticalHit.Add(FlyTextKind.CriticalHit3);
+            AutoCriticalHit.Add(FlyTextKind.CriticalHit4);
 
-            CriticalHitKinds.Add(FlyTextKind.NamedCriticalHit);
-            CriticalHitKinds.Add(FlyTextKind.NamedCriticalHit2);
+            ActionCriticalHit.Add(FlyTextKind.NamedCriticalHit);
+            ActionCriticalHit.Add(FlyTextKind.NamedCriticalHit2);
         }
 
         private static void AddDirectHitKinds()
         {
-            DirectHitKinds.Add(FlyTextKind.DirectHit);
-            DirectHitKinds.Add(FlyTextKind.DirectHit2);
+            AutoDirectHit.Add(FlyTextKind.DirectHit);
+            AutoDirectHit.Add(FlyTextKind.DirectHit2);
 
-            DirectHitKinds.Add(FlyTextKind.NamedDirectHit);
+            ActionDirectHit.Add(FlyTextKind.NamedDirectHit);
         }
         
         public void FlyTextCreate(
@@ -97,7 +102,7 @@ namespace Tf2CriticalHitsPlugin
             ref float yOffset,
             ref bool handled)
         {
-            if (DirectCriticalHitKinds.Contains(kind))
+            if (ActionDirectCriticalHit.Contains(kind) || AutoDirectCriticalHit.Contains(kind))
             {
                 LogDebug("Direct critical!");
                 if (Configuration.DirectCritical.ShowText)
@@ -105,13 +110,13 @@ namespace Tf2CriticalHitsPlugin
                     text2 = GenerateDirectCriticalHitText();
                 }
 
-                if (Configuration.DirectCritical.PlaySound)
+                if (Configuration.DirectCritical.PlaySound && (!Configuration.DirectCritical.SoundForActionsOnly || ActionDirectCriticalHit.Contains(kind)))
                 {
                     SoundEngine.PlaySound(Configuration.DirectCritical.FilePath, volume: Configuration.DirectCritical.Volume * 0.01f);
                 }
                 
             }
-            if (CriticalHitKinds.Contains(kind))
+            if (ActionCriticalHit.Contains(kind) || AutoCriticalHit.Contains(kind))
             {
                 LogDebug("Critical!");
                 if (Configuration.Critical.ShowText)
@@ -119,12 +124,12 @@ namespace Tf2CriticalHitsPlugin
                     text2 = GenerateCriticalHitText();
                 }
 
-                if (Configuration.Critical.PlaySound)
+                if (Configuration.Critical.PlaySound  && (!Configuration.Critical.SoundForActionsOnly || ActionCriticalHit.Contains(kind)))
                 {
                     SoundEngine.PlaySound(Configuration.Critical.FilePath, volume: Configuration.Critical.Volume * 0.01f);
                 }
             }
-            if (DirectHitKinds.Contains(kind))
+            if (ActionDirectHit.Contains(kind) || AutoDirectHit.Contains(kind))
             {
                 LogDebug("Direct hit!");
                 if (Configuration.Direct.ShowText)
@@ -132,7 +137,7 @@ namespace Tf2CriticalHitsPlugin
                     text2 = GenerateDirectHitText();
                 }
 
-                if (Configuration.Direct.PlaySound)
+                if (Configuration.Direct.PlaySound  && (!Configuration.Direct.SoundForActionsOnly || ActionDirectHit.Contains(kind)))
                 {
                     SoundEngine.PlaySound(Configuration.Direct.FilePath, volume: Configuration.Direct.Volume * 0.01f);
                 }

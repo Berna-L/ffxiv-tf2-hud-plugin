@@ -26,6 +26,7 @@ namespace Tf2CriticalHitsPlugin
             public string? FilePath;
             public int Volume = 12;
             public bool PlaySound = true;
+            public bool SoundForActionsOnly = false;
             public bool ShowText = true;
             public string Text;
         }

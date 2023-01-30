@@ -55,6 +55,11 @@ public class ConfigWindow : Window, IDisposable
 
         if (config.PlaySound)
         {
+            var soundForActionsOnly = config.SoundForActionsOnly;
+            if (ImGui.Checkbox("Play sound only for actions (ignore auto-attacks)", ref soundForActionsOnly))
+            {
+                config.SoundForActionsOnly = soundForActionsOnly;
+            }
             var path = config.FilePath ?? "";
             ImGui.InputText("", ref path, 512, ImGuiInputTextFlags.ReadOnly);
             ImGui.SameLine();
