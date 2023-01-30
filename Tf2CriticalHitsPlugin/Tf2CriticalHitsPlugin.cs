@@ -2,11 +2,11 @@
 using Dalamud.Game.Command;
 using Dalamud.IoC;
 using Dalamud.Plugin;
-using System.IO;
 using Dalamud.Game.Gui.FlyText;
 using Dalamud.Game.Text.SeStringHandling;
 using Dalamud.Interface.Windowing;
 using Tf2CriticalHitsPlugin.Windows;
+using static Dalamud.Logging.PluginLog;
 
 namespace Tf2CriticalHitsPlugin
 {
@@ -21,7 +21,8 @@ namespace Tf2CriticalHitsPlugin
         public readonly WindowSystem WindowSystem = new("TF2CriticalHitsPlugin");
         
         private readonly FlyTextGui flyTextGui;
-        
+
+        private static readonly ISet<FlyTextKind> DirectCriticalHitKinds = new HashSet<FlyTextKind>();
         private static readonly ISet<FlyTextKind> CriticalHitKinds = new HashSet<FlyTextKind>();
         private static readonly ISet<FlyTextKind> DirectHitKinds = new HashSet<FlyTextKind>();
 
@@ -48,11 +49,32 @@ namespace Tf2CriticalHitsPlugin
             
             this.flyTextGui = flyText;
 
+            AddDirectCriticalHitKinds();
             AddCriticalHitKinds();
             AddDirectHitKinds();
 
             this.flyTextGui.FlyTextCreated += this.FlyTextCreate;
 
+        }
+
+
+        private static void AddDirectCriticalHitKinds()
+        {
+            DirectCriticalHitKinds.Add(FlyTextKind.CriticalDirectHit);
+            DirectCriticalHitKinds.Add(FlyTextKind.CriticalDirectHit2);
+
+            DirectCriticalHitKinds.Add(FlyTextKind.NamedCriticalDirectHit);
+        }
+        
+        private static void AddCriticalHitKinds()
+        {
+            CriticalHitKinds.Add(FlyTextKind.CriticalHit);
+            CriticalHitKinds.Add(FlyTextKind.CriticalHit2);
+            CriticalHitKinds.Add(FlyTextKind.CriticalHit3);
+            CriticalHitKinds.Add(FlyTextKind.CriticalHit4);
+
+            CriticalHitKinds.Add(FlyTextKind.NamedCriticalHit);
+            CriticalHitKinds.Add(FlyTextKind.NamedCriticalHit2);
         }
 
         private static void AddDirectHitKinds()
@@ -62,23 +84,7 @@ namespace Tf2CriticalHitsPlugin
 
             DirectHitKinds.Add(FlyTextKind.NamedDirectHit);
         }
-
-        private static void AddCriticalHitKinds()
-        {
-            CriticalHitKinds.Add(FlyTextKind.CriticalDirectHit);
-            CriticalHitKinds.Add(FlyTextKind.CriticalDirectHit2);
-
-            CriticalHitKinds.Add(FlyTextKind.CriticalHit);
-            CriticalHitKinds.Add(FlyTextKind.CriticalHit2);
-            CriticalHitKinds.Add(FlyTextKind.CriticalHit3);
-            CriticalHitKinds.Add(FlyTextKind.CriticalHit4);
-
-            CriticalHitKinds.Add(FlyTextKind.NamedCriticalHit);
-            CriticalHitKinds.Add(FlyTextKind.NamedCriticalHit2);
-
-            CriticalHitKinds.Add(FlyTextKind.NamedCriticalDirectHit);
-        }
-
+        
         public void FlyTextCreate(
             ref FlyTextKind kind,
             ref int val1,
@@ -87,13 +93,27 @@ namespace Tf2CriticalHitsPlugin
             ref SeString text2,
             ref uint color,
             ref uint icon,
-            ref uint third,
+            ref uint damageTypeIcon,
             ref float yOffset,
             ref bool handled)
         {
+            if (DirectCriticalHitKinds.Contains(kind))
+            {
+                LogDebug("Direct critical!");
+                if (Configuration.DirectCritical.ShowText)
+                {
+                    text2 = GenerateDirectCriticalHitText();
+                }
+
+                if (Configuration.DirectCritical.PlaySound)
+                {
+                    SoundEngine.PlaySound(Configuration.DirectCritical.FilePath, volume: Configuration.DirectCritical.Volume * 0.01f);
+                }
+                
+            }
             if (CriticalHitKinds.Contains(kind))
             {
-                Dalamud.Logging.PluginLog.LogDebug("Critical!");
+                LogDebug("Critical!");
                 if (Configuration.Critical.ShowText)
                 {
                     text2 = GenerateCriticalHitText();
@@ -106,7 +126,7 @@ namespace Tf2CriticalHitsPlugin
             }
             if (DirectHitKinds.Contains(kind))
             {
-                Dalamud.Logging.PluginLog.LogDebug("Direct hit!");
+                LogDebug("Direct hit!");
                 if (Configuration.Direct.ShowText)
                 {
                     text2 = GenerateDirectHitText();
@@ -118,6 +138,17 @@ namespace Tf2CriticalHitsPlugin
                 }
             }
         }
+        
+        private SeString GenerateDirectCriticalHitText()
+        {
+            return new SeStringBuilder().AddUiForeground(60)
+                                        .AddUiGlow(100)
+                                        .AddItalics(Configuration.DirectCritical.Text)
+                                        .AddUiForegroundOff()
+                                        .AddUiGlowOff()
+                                        .Build();
+        }
+
         
         private SeString GenerateCriticalHitText()
         {
@@ -138,6 +169,7 @@ namespace Tf2CriticalHitsPlugin
 
         public void Dispose()
         {
+            flyTextGui.FlyTextCreated -= FlyTextCreate;
             this.WindowSystem.RemoveAllWindows();
             this.CommandManager.RemoveHandler(CommandName);
         }

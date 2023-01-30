@@ -9,8 +9,9 @@ namespace Tf2CriticalHitsPlugin
     {
         public int Version { get; set; } = 0;
 
-        public SubConfiguration Critical = new("Critical and direct critical hits", "CRITICAL HIT!");
-        public SubConfiguration Direct = new("Non-critical direct hits (minicrits)", "Mini crit!");
+        public SubConfiguration DirectCritical = new("Direct critical hits", "DIRECT CRITICAL HIT!");
+        public SubConfiguration Critical = new("Plain critical hits", "CRITICAL HIT!");
+        public SubConfiguration Direct = new("Plain direct hits", "Mini crit!");
         
         public class SubConfiguration
         {

@@ -23,7 +23,7 @@ public class ConfigWindow : Window, IDisposable
         ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoScrollbar |
         ImGuiWindowFlags.NoScrollWithMouse)
     {
-        this.Size = new Vector2(500, 500);
+        this.Size = new Vector2(500, 550);
         this.SizeCondition = ImGuiCond.Appearing;
 
         this.configuration = tf2CriticalHitsPlugin.Configuration;
@@ -33,6 +33,7 @@ public class ConfigWindow : Window, IDisposable
     
     public override void Draw()
     {
+        DrawSection(configuration.DirectCritical);
         DrawSection(configuration.Critical);
         DrawSection(configuration.Direct);
         dialogManager.Draw();
@@ -54,7 +55,7 @@ public class ConfigWindow : Window, IDisposable
 
         if (config.PlaySound)
         {
-            var path = config.FilePath;
+            var path = config.FilePath ?? "";
             ImGui.InputText("", ref path, 512, ImGuiInputTextFlags.ReadOnly);
             ImGui.SameLine();
 
