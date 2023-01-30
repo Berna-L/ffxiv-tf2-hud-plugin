@@ -23,7 +23,7 @@ public class ConfigWindow : Window, IDisposable
         ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoScrollbar |
         ImGuiWindowFlags.NoScrollWithMouse)
     {
-        this.Size = new Vector2(500, 550);
+        this.Size = new Vector2(500, 610);
         this.SizeCondition = ImGuiCond.Appearing;
 
         this.configuration = tf2CriticalHitsPlugin.Configuration;
