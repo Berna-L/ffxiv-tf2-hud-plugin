@@ -1,13 +1,14 @@
 {
-  "Author": "Berna",
-  "Name": "TF2-ish Critical Hits Plugin",
-  "Punchline": "Deal critical hits just like in the #1 hat simulator, Team Fortress 2.",
-  "Description": "Deal critical hits just like in the #1 hat simulator, Team Fortress 2.\nIncludes options to add sounds (non-included) and flavor text to floating damage values.",
-  "InternalName": "Tf2CriticalHitsPlugin",
-  "IconUrl": "https://raw.githubusercontent.com/goatcorp/DalamudPluginsD17/main/testing/live/Tf2CriticalHitsPlugin/images/icon.png",
-  "ApplicableVersion": "any",
-  "Tags": [
-    "plugin",
-    "audio"
-  ]
+    "Author": "Berna",
+    "Name": "TF2-ish Critical Hits Plugin",
+    "RepoUrl": "https://github.com/Berna-L/ffxiv-tf2-crit-plugin",
+    "Punchline": "Deal critical hits just like in the #1 hat simulator, Team Fortress 2.",
+    "Description": "Deal critical hits just like in the #1 hat simulator, Team Fortress 2.\nIncludes options to add sounds (non-included) and flavor text to floating damage values.",
+    "InternalName": "Tf2CriticalHitsPlugin",
+    "IconUrl": "https://raw.githubusercontent.com/goatcorp/DalamudPluginsD17/main/testing/live/Tf2CriticalHitsPlugin/images/icon.png",
+    "ApplicableVersion": "any",
+    "Tags": [
+        "plugin",
+        "audio"
+    ]
 }
