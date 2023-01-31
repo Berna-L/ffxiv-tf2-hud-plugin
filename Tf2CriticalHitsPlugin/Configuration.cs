@@ -8,6 +8,7 @@ namespace Tf2CriticalHitsPlugin
     public class Configuration : IPluginConfiguration
     {
         public int Version { get; set; } = 0;
+        public const int MaxTextLength = 40;
 
         public SubConfiguration DirectCritical = new("Direct critical hits", "DIRECT CRITICAL HIT!");
         public SubConfiguration Critical = new("Plain critical hits", "CRITICAL HIT!");

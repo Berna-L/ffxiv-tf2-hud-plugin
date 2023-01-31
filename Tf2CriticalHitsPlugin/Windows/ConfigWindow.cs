@@ -13,24 +13,24 @@ namespace Tf2CriticalHitsPlugin.Windows;
 public class ConfigWindow : Window, IDisposable
 {
     public static readonly String Title = "TF2-ish Critical Hits Configuration";
-    
+
     private readonly Configuration configuration;
 
     private readonly FileDialogManager dialogManager;
 
-    public ConfigWindow(Tf2CriticalHitsPlugin tf2CriticalHitsPlugin) : base(
-        Title,
-        ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoScrollbar |
-        ImGuiWindowFlags.NoScrollWithMouse)
+    public ConfigWindow(Tf2CriticalHitsPlugin tf2CriticalHitsPlugin) : base(Title, ImGuiWindowFlags.NoCollapse)
     {
         this.Size = new Vector2(500, 610);
         this.SizeCondition = ImGuiCond.Appearing;
 
         this.configuration = tf2CriticalHitsPlugin.Configuration;
-        dialogManager = new FileDialogManager { AddedWindowFlags = ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoDocking};
-        dialogManager.CustomSideBarItems.Add((Environment.ExpandEnvironmentVariables("%USERNAME%"), Environment.ExpandEnvironmentVariables("%USERPROFILE%"), FontAwesomeIcon.User, 0));
+        dialogManager = new FileDialogManager
+            { AddedWindowFlags = ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoDocking };
+        dialogManager.CustomSideBarItems.Add((Environment.ExpandEnvironmentVariables("%USERNAME%"),
+                                                 Environment.ExpandEnvironmentVariables("%USERPROFILE%"),
+                                                 FontAwesomeIcon.User, 0));
     }
-    
+
     public override void Draw()
     {
         DrawSection(configuration.DirectCritical);
@@ -60,6 +60,7 @@ public class ConfigWindow : Window, IDisposable
             {
                 config.SoundForActionsOnly = soundForActionsOnly;
             }
+
             var path = config.FilePath ?? "";
             ImGui.InputText("", ref path, 512, ImGuiInputTextFlags.ReadOnly);
             ImGui.SameLine();
@@ -84,7 +85,7 @@ public class ConfigWindow : Window, IDisposable
 
             if (ImGui.IsItemHovered())
             {
-               ImGui.SetTooltip("Open file browser..."); 
+                ImGui.SetTooltip("Open file browser...");
             }
 
             ImGui.SameLine();
@@ -115,11 +116,17 @@ public class ConfigWindow : Window, IDisposable
         if (config.ShowText)
         {
             var initialText = config.Text;
-            if (ImGui.InputText("Text", ref initialText, 20))
+            if (ImGui.InputText("Text", ref initialText, Configuration.MaxTextLength))
             {
                 config.Text = initialText;
             }
+
+            if (ImGui.IsItemHovered())
+            {
+                ImGui.SetTooltip($"Max. {Configuration.MaxTextLength} chars");
+            }
         }
+
         ImGui.TreePop();
     }
 
@@ -127,8 +134,7 @@ public class ConfigWindow : Window, IDisposable
     {
         dialogManager.Reset();
     }
-    
-    
+
 
     public void Dispose()
     {
