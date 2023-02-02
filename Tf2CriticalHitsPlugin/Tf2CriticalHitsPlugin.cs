@@ -1,10 +1,13 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using Dalamud.Data;
 using Dalamud.Game.Command;
 using Dalamud.IoC;
 using Dalamud.Plugin;
 using Dalamud.Game.Gui.FlyText;
 using Dalamud.Game.Text.SeStringHandling;
 using Dalamud.Interface.Windowing;
+using Lumina.Excel.GeneratedSheets;
 using Tf2CriticalHitsPlugin.Windows;
 using static Dalamud.Logging.PluginLog;
 
@@ -15,13 +18,14 @@ namespace Tf2CriticalHitsPlugin
         public string Name => "TF2-ish Critical Hits";
         private const string CommandName = "/critconfig";
 
-        private DalamudPluginInterface PluginInterface { get; init; }
-        private CommandManager CommandManager { get; init; }
+        
+        [PluginService]
+        [RequiredVersion("1.0")]
+        public static DataManager? DataManager => null;
+
         public Configuration Configuration { get; init; }
         public readonly WindowSystem WindowSystem = new("TF2CriticalHitsPlugin");
         
-        private readonly FlyTextGui flyTextGui;
-
         private static readonly ISet<FlyTextKind> AutoDirectCriticalHit = new HashSet<FlyTextKind>();
         private static readonly ISet<FlyTextKind> ActionDirectCriticalHit = new HashSet<FlyTextKind>();
 
@@ -31,35 +35,54 @@ namespace Tf2CriticalHitsPlugin
         private static readonly ISet<FlyTextKind> AutoDirectHit = new HashSet<FlyTextKind>();
         private static readonly ISet<FlyTextKind> ActionDirectHit = new HashSet<FlyTextKind>();
 
-        public Tf2CriticalHitsPlugin(
-            [RequiredVersion("1.0")] DalamudPluginInterface pluginInterface,
-            [RequiredVersion("1.0")] CommandManager commandManager,
-            [RequiredVersion("1.0")] FlyTextGui flyText)
+        public Tf2CriticalHitsPlugin(DalamudPluginInterface pluginInterface)
         {
-            this.PluginInterface = pluginInterface;
-            this.CommandManager = commandManager;
+            pluginInterface.Create<Service>();
+            ConfigWindow.ForegroundColors.Clear();
+            ConfigWindow.GlowColors.Clear();
 
-            this.Configuration = this.PluginInterface.GetPluginConfig() as Configuration ?? new Configuration();
-            this.Configuration.Initialize(this.PluginInterface);
+            InitColors();
+
+            
+            this.Configuration = Service.PluginInterface.GetPluginConfig() as Configuration ?? new Configuration();
+            this.Configuration.Initialize(Service.PluginInterface);
             
             WindowSystem.AddWindow(new ConfigWindow(this));
 
-            this.CommandManager.AddHandler(CommandName, new CommandInfo(OnConfigCommand)
+            Service.CommandManager.AddHandler(CommandName, new CommandInfo(OnConfigCommand)
             {
                 HelpMessage = "Opens the TF2-ish Critical Hits configuration window"
             });
 
-            this.PluginInterface.UiBuilder.Draw += DrawUserInterface;
-            this.PluginInterface.UiBuilder.OpenConfigUi += DrawConfigWindow;
+            Service.PluginInterface.UiBuilder.Draw += DrawUserInterface;
+            Service.PluginInterface.UiBuilder.OpenConfigUi += DrawConfigWindow;
             
-            this.flyTextGui = flyText;
-
             AddDirectCriticalHitKinds();
             AddCriticalHitKinds();
             AddDirectHitKinds();
 
-            this.flyTextGui.FlyTextCreated += this.FlyTextCreate;
+            Service.FlyTextGui.FlyTextCreated += this.FlyTextCreate;
 
+        }
+
+        private static void InitColors()
+        {
+            if (DataManager != null)
+            {
+                var colorSheet = DataManager.GetExcelSheet<UIColor>();
+                if (colorSheet != null)
+                {
+                    for (var i = 0u; i < colorSheet.RowCount; i++)
+                    {
+                        var row = colorSheet.GetRow(i);
+                        if (row != null)
+                        {
+                            ConfigWindow.ForegroundColors.Add((ushort)i, ColorInfo.FromUiColor((ushort)i, row.UIForeground));
+                            ConfigWindow.GlowColors.Add((ushort)i, ColorInfo.FromUiColor((ushort)i, row.UIGlow));
+                        }
+                    }
+                }
+            }
         }
 
 
@@ -102,12 +125,13 @@ namespace Tf2CriticalHitsPlugin
             ref float yOffset,
             ref bool handled)
         {
+            LogDebug($"Color: {color}");
             if (ActionDirectCriticalHit.Contains(kind) || AutoDirectCriticalHit.Contains(kind))
             {
                 LogDebug("Direct critical!");
                 if (Configuration.DirectCritical.ShowText)
                 {
-                    text2 = GenerateDirectCriticalHitText();
+                    text2 = GenerateText(Configuration.DirectCritical);
                 }
 
                 if (Configuration.DirectCritical.PlaySound && (!Configuration.DirectCritical.SoundForActionsOnly || ActionDirectCriticalHit.Contains(kind)))
@@ -121,7 +145,7 @@ namespace Tf2CriticalHitsPlugin
                 LogDebug("Critical!");
                 if (Configuration.Critical.ShowText)
                 {
-                    text2 = GenerateCriticalHitText();
+                    text2 = GenerateText(Configuration.Critical);
                 }
 
                 if (Configuration.Critical.PlaySound  && (!Configuration.Critical.SoundForActionsOnly || ActionCriticalHit.Contains(kind)))
@@ -134,7 +158,7 @@ namespace Tf2CriticalHitsPlugin
                 LogDebug("Direct hit!");
                 if (Configuration.Direct.ShowText)
                 {
-                    text2 = GenerateDirectHitText();
+                    text2 = GenerateText(Configuration.Direct);
                 }
 
                 if (Configuration.Direct.PlaySound  && (!Configuration.Direct.SoundForActionsOnly || ActionDirectHit.Contains(kind)))
@@ -143,40 +167,46 @@ namespace Tf2CriticalHitsPlugin
                 }
             }
         }
-        
-        private SeString GenerateDirectCriticalHitText()
+
+        public static void GenerateTestFlyText(Configuration.SubConfiguration config)
         {
-            return new SeStringBuilder().AddUiForeground(60)
-                                        .AddUiGlow(100)
-                                        .AddItalics(Configuration.DirectCritical.Text)
-                                        .AddUiForegroundOff()
-                                        .AddUiGlowOff()
-                                        .Build();
+            var kind = config.Id switch
+            {
+                "directCritical" => FlyTextKind.NamedCriticalDirectHit,
+                "critical" => FlyTextKind.NamedCriticalHit,
+                "direct" => FlyTextKind.NamedDirectHit,
+                _ => throw new ArgumentOutOfRangeException("Type of configuration not found")
+            };
+            LogDebug($"Kind: {kind}, Config ID: {config.Id}");
+            Service.FlyTextGui.AddFlyText(kind, 1, 3333, 0, new SeStringBuilder().AddText("Stickybomb").Build(), GenerateText(config), 4278215139, 0, 60012);
         }
 
-        
-        private SeString GenerateCriticalHitText()
+        private static SeString GenerateText(Configuration.SubConfiguration config)
         {
-            return new SeStringBuilder().AddUiForeground(60)
-                                        .AddUiGlow(100)
-                                        .AddItalics(Configuration.Critical.Text)
-                                        .AddUiForegroundOff()
-                                        .AddUiGlowOff()
-                                        .Build();
-        }
-        
-        private SeString GenerateDirectHitText()
-        {
-            return new SeStringBuilder().AddText(Configuration.Direct.Text).Build();
-        }
+            LogDebug($"Generating text with colorKey {config.TextColor.ColorKey} and glowColorKey {config.TextColor.GlowColorKey}");
+            var stringBuilder = new SeStringBuilder()
+                                .AddUiForeground(config.TextColor.ColorKey)
+                                .AddUiGlow(config.TextColor.GlowColorKey);
+            if (config.Italics)
+            {
+                stringBuilder.AddItalics(config.Text);
+            }
+            else
+            {
+                stringBuilder.AddText(config.Text);
+            }
 
+            return stringBuilder.AddUiForegroundOff()
+                                .AddUiGlowOff()
+                                .Build();
+        }
 
 
         public void Dispose()
         {
-            flyTextGui.FlyTextCreated -= FlyTextCreate;
+            Service.FlyTextGui.FlyTextCreated -= FlyTextCreate;
             this.WindowSystem.RemoveAllWindows();
-            this.CommandManager.RemoveHandler(CommandName);
+            Service.CommandManager.RemoveHandler(CommandName);
         }
 
         private void OnConfigCommand(string command, string args)

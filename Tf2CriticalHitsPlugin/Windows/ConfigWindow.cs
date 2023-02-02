@@ -12,12 +12,18 @@ namespace Tf2CriticalHitsPlugin.Windows;
 
 public class ConfigWindow : Window, IDisposable
 {
-    public static readonly String Title = "TF2-ish Critical Hits Configuration";
+    public const String Title = "TF2-ish Critical Hits Configuration";
 
     private readonly Configuration configuration;
 
     private readonly FileDialogManager dialogManager;
+    
+    private static readonly ImGuiColorEditFlags PaletteButtonFlags = ImGuiColorEditFlags.AlphaPreview | ImGuiColorEditFlags.NoPicker | ImGuiColorEditFlags.NoTooltip;
 
+
+    public static SortedDictionary<ushort, ColorInfo> ForegroundColors = new();
+    public static SortedDictionary<ushort, ColorInfo> GlowColors = new();
+    
     public ConfigWindow(Tf2CriticalHitsPlugin tf2CriticalHitsPlugin) : base(Title, ImGuiWindowFlags.NoCollapse)
     {
         this.Size = new Vector2(500, 610);
@@ -55,6 +61,7 @@ public class ConfigWindow : Window, IDisposable
 
         if (config.PlaySound)
         {
+            ImGui.Indent();
             var soundForActionsOnly = config.SoundForActionsOnly;
             if (ImGui.Checkbox("Play sound only for actions (ignore auto-attacks)", ref soundForActionsOnly))
             {
@@ -87,7 +94,6 @@ public class ConfigWindow : Window, IDisposable
             {
                 ImGui.SetTooltip("Open file browser...");
             }
-
             ImGui.SameLine();
 
             if (ImGuiComponents.IconButton(FontAwesomeIcon.Play))
@@ -105,6 +111,7 @@ public class ConfigWindow : Window, IDisposable
             {
                 config.Volume = volume;
             }
+            ImGui.Unindent();
         }
 
         var initialShowTextValue = config.ShowText;
@@ -115,6 +122,7 @@ public class ConfigWindow : Window, IDisposable
 
         if (config.ShowText)
         {
+            ImGui.Indent();
             var initialText = config.Text;
             if (ImGui.InputText("Text", ref initialText, Configuration.MaxTextLength))
             {
@@ -125,6 +133,45 @@ public class ConfigWindow : Window, IDisposable
             {
                 ImGui.SetTooltip($"Max. {Configuration.MaxTextLength} chars");
             }
+
+            ImGui.Text("Color: ");
+            ImGui.SameLine();
+            var colorKey = config.TextColor.ColorKey;
+            if (ColorComponent.SelectorButton(ForegroundColors, $"{config.Id}Foreground", ref colorKey, config.DefaultTextColor.ColorKey))
+            {
+                config.TextColor.ColorKey = colorKey;
+            }
+            
+            ImGui.SameLine();
+            
+            ImGui.Text("Glow: ");
+            ImGui.SameLine();
+            var glowColorKey = config.TextColor.GlowColorKey;
+            if (ColorComponent.SelectorButton(GlowColors, $"{config.Id}Glow", ref glowColorKey, config.DefaultTextColor.GlowColorKey))
+            {
+                config.TextColor.GlowColorKey = glowColorKey;
+            }
+
+            ImGui.SameLine();
+            
+            var italics = config.Italics;
+            if (ImGui.Checkbox("Italics", ref italics))
+            {
+                config.Italics = italics;
+            }
+
+            ImGui.SameLine();
+            
+            if (ImGuiComponents.IconButton(FontAwesomeIcon.Eye))
+            {
+                Tf2CriticalHitsPlugin.GenerateTestFlyText(config);
+            }
+
+            if (ImGui.IsItemHovered())
+            {
+                ImGui.SetTooltip("Test floating text");
+            }
+            ImGui.Unindent();
         }
 
         ImGui.TreePop();
