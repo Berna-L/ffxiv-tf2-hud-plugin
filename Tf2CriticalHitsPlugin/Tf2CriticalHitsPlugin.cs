@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using Dalamud.Data;
 using Dalamud.Game.Command;
-using Dalamud.IoC;
 using Dalamud.Plugin;
 using Dalamud.Game.Gui.FlyText;
 using Dalamud.Game.Text.SeStringHandling;
@@ -17,11 +15,6 @@ namespace Tf2CriticalHitsPlugin
     {
         public string Name => "TF2-ish Critical Hits";
         private const string CommandName = "/critconfig";
-
-        
-        [PluginService]
-        [RequiredVersion("1.0")]
-        public static DataManager? DataManager => null;
 
         public Configuration Configuration { get; init; }
         public readonly WindowSystem WindowSystem = new("TF2CriticalHitsPlugin");
@@ -67,9 +60,9 @@ namespace Tf2CriticalHitsPlugin
 
         private static void InitColors()
         {
-            if (DataManager != null)
+            if (Service.DataManager != null)
             {
-                var colorSheet = DataManager.GetExcelSheet<UIColor>();
+                var colorSheet = Service.DataManager.GetExcelSheet<UIColor>();
                 if (colorSheet != null)
                 {
                     for (var i = 0u; i < colorSheet.RowCount; i++)
