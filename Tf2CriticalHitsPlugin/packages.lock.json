@@ -21,6 +21,9 @@
         "type": "Transitive",
         "resolved": "2.1.0",
         "contentHash": "0iowfmolibU4KxjaC/s7lox/BeDg76UVvXtCuCzRiNpylVndqsxXxp+bVWFrpv0KzQDIKLxZrnDmYENlAI0u9g=="
+      },
+      "kamilib": {
+        "type": "Project"
       }
     }
   }
