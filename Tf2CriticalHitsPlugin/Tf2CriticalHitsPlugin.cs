@@ -1,9 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
-using System.Net;
 using System.Text.Json;
-using Dalamud.Configuration;
 using Dalamud.Game.Command;
 using Dalamud.Plugin;
 using Dalamud.Game.Gui.FlyText;
@@ -21,6 +21,7 @@ namespace Tf2CriticalHitsPlugin
     {
         public string Name => "TF2-ish Critical Hits";
         private const string CommandName = "/critconfig";
+        public ImmutableSortedDictionary<string, ClassJob> CombatJobs;
 
         public ConfigOne Configuration { get; init; }
         public readonly WindowSystem WindowSystem = new("TF2CriticalHitsPlugin");
@@ -31,7 +32,7 @@ namespace Tf2CriticalHitsPlugin
             pluginInterface.Create<Service>();
             KamiCommon.Initialize(pluginInterface, Name, () => Configuration?.Save());
             
-
+            CombatJobs = InitCombatJobs();
             InitColors();
 
             this.Configuration = InitConfig();
@@ -75,8 +76,28 @@ namespace Tf2CriticalHitsPlugin
             return config;
         }
 
+        private static ImmutableSortedDictionary<string, ClassJob> InitCombatJobs()
+        {
+            // A combat job is one that has a JobIndex.
+            if (Service.DataManager == null) throw new ApplicationException("DataManager not initialized!");
+        
+            var classJobSheet = Service.DataManager.GetExcelSheet<ClassJob>();
+            if (classJobSheet == null) throw new ApplicationException("ClassJob sheet unavailable!");
+            var jobList = new List<ClassJob>();
+            for (var i = 0u; i < classJobSheet.RowCount; i++)
+            {
+                var classJob = classJobSheet.GetRow(i);
+                if (classJob is null || classJob.JobIndex is 0) continue;
+                jobList.Add(classJob);
+            }
+
+            return jobList.ToImmutableSortedDictionary(j => j.Abbreviation.ToString(), j => j);
+        }
+
         private static void InitColors()
         {
+
+            
             ConfigWindow.ForegroundColors.Clear();
             ConfigWindow.GlowColors.Clear();
 
