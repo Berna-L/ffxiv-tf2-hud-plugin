@@ -1,6 +1,7 @@
 ﻿using System;
 using Dalamud.Plugin;
 using KamiLib.ChatCommands;
+using KamiLib.Configuration;
 
 namespace Tf2CriticalHitsPlugin.Configuration
 {
@@ -39,26 +40,33 @@ namespace Tf2CriticalHitsPlugin.Configuration
         public ConfigOne MigrateToOne()
         {
             var configOne = new ConfigOne();
-            MigrateSubConfig(this.DirectCritical, configOne.SubConfigurations["DirectCriticalDamage"]);
-            MigrateSubConfig(this.Critical, configOne.SubConfigurations["CriticalDamage"]);
-            MigrateSubConfig(this.Critical, configOne.SubConfigurations["CriticalHeal"]);
-            MigrateSubConfig(this.Direct, configOne.SubConfigurations["DirectDamage"]);
-            Chat.Print("Update", "Your configuration has been updated. Adjustments may be needed at /critconfig. Enjoy!");
+            var criticalHealText = Critical.Text.Equals(ModuleConstants.GetModuleDefaultText(ModuleType.CriticalDamage))
+                                       ? new Setting<string>(ModuleConstants.GetModuleDefaultText(ModuleType.CriticalHeal))
+                                       : new Setting<string>(Critical.Text);
+            foreach (var jobConfig in configOne.JobConfigurations.Values)
+            {
+                MigrateSubConfig(DirectCritical, jobConfig.DirectCriticalDamage);
+                MigrateSubConfig(Critical, jobConfig.CriticalDamage);
+                MigrateSubConfig(Critical, jobConfig.CriticalHeal);
+                jobConfig.CriticalHeal.Text = criticalHealText;
+                MigrateSubConfig(Direct, jobConfig.DirectDamage);
+            }
+            Chat.Print("Update", "Your configuration has been migrated to the new version. Check the new options at /critconfig. Enjoy!");
             return configOne;
         }
 
-        private static void MigrateSubConfig(SubConfiguration zeroSub, ConfigOne.SubConfiguration oneSub)
+        private static void MigrateSubConfig(SubConfiguration zeroSub, ConfigOne.ConfigModule oneSub)
         {
-            oneSub.PlaySound = zeroSub.PlaySound;
-            oneSub.SoundForActionsOnly = zeroSub.SoundForActionsOnly;
-            oneSub.FilePath = zeroSub.FilePath;
-            oneSub.Volume = zeroSub.Volume;
+            oneSub.PlaySound = new Setting<bool>(zeroSub.PlaySound);
+            oneSub.SoundForActionsOnly = new Setting<bool>(zeroSub.SoundForActionsOnly);
+            oneSub.FilePath = new Setting<string>(zeroSub.FilePath ?? string.Empty);
+            oneSub.Volume = new Setting<int>(zeroSub.Volume);
 
-            oneSub.ShowText = zeroSub.ShowText;
-            oneSub.Text = zeroSub.Text;
-            oneSub.TextParameters.ColorKey = zeroSub.TextColor.ColorKey;
-            oneSub.TextParameters.GlowColorKey = zeroSub.TextColor.GlowColorKey;
-            oneSub.Italics = zeroSub.Italics;
+            oneSub.ShowText = new Setting<bool>(zeroSub.ShowText);
+            oneSub.Text = new Setting<string>(zeroSub.Text);
+            oneSub.TextColor = new Setting<ushort>(zeroSub.TextColor.ColorKey);
+            oneSub.TextGlowColor = new Setting<ushort>(zeroSub.TextColor.GlowColorKey);
+            oneSub.TextItalics = new Setting<bool>(zeroSub.Italics);
         }
     }
 }

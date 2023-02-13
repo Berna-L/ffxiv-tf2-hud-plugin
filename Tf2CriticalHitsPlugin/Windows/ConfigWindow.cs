@@ -4,14 +4,14 @@ using System.Linq;
 using System.Numerics;
 using System.Reflection;
 using Dalamud.Interface;
-using Dalamud.Interface.Components;
 using Dalamud.Interface.ImGuiFileDialog;
-using Dalamud.Logging;
+using Dalamud.Utility;
 using ImGuiNET;
-using KamiLib;
+using KamiLib.Configuration;
 using KamiLib.Drawing;
 using KamiLib.Interfaces;
 using KamiLib.Windows;
+using Lumina.Excel.GeneratedSheets;
 using Tf2CriticalHitsPlugin.Configuration;
 
 namespace Tf2CriticalHitsPlugin.Windows;
@@ -19,41 +19,6 @@ namespace Tf2CriticalHitsPlugin.Windows;
 public class ConfigWindow : SelectionWindow, IDisposable
 {
     private static readonly string PluginVersion = GetVersionText();
-
-    private class Option : ISelectable, IDrawable
-    {
-        internal readonly ConfigOne.SubConfiguration subConfiguration;
-        internal readonly FileDialogManager dialogManager;
-
-        internal Option(ConfigOne.SubConfiguration subConfiguration, FileDialogManager dialogManager)
-        {
-            this.subConfiguration = subConfiguration;
-            this.dialogManager = dialogManager;
-        }
-
-
-        public IDrawable Contents => this;
-
-        public void DrawLabel()
-        {
-            ImGui.Text(subConfiguration.SectionLabel);
-
-            var region = ImGui.GetContentRegionAvail();
-            ImGui.SameLine(region.X - 60.0f);
-            ImGuiComponents.DisabledButton(FontAwesomeIcon.Music,
-                                           defaultColor: subConfiguration.PlaySound ? Colors.Green : Colors.Red);
-            ImGui.SameLine();
-            ImGuiComponents.DisabledButton(FontAwesomeIcon.Font,
-                                           defaultColor: subConfiguration.ShowText ? Colors.Green : Colors.Red);
-        }
-
-        public string ID => subConfiguration.Id;
-
-        public void Draw()
-        {
-            DrawSection(subConfiguration, dialogManager);
-        }
-    }
 
     public const String Title = "TF2-ish Critical Hits Configuration";
 
@@ -65,17 +30,49 @@ public class ConfigWindow : SelectionWindow, IDisposable
     public static readonly SortedDictionary<ushort, ColorInfo> ForegroundColors = new();
     public static readonly SortedDictionary<ushort, ColorInfo> GlowColors = new();
 
-    public ConfigWindow(Tf2CriticalHitsPlugin tf2CriticalHitsPlugin) : base(Title, 0.2f, 55.0f)
+    
+    private class Option : ISelectable, IDrawable
+    {
+        internal readonly ConfigOne.JobConfig JobConfig;
+        internal readonly FileDialogManager DialogManager;
+
+        internal Option(ConfigOne.JobConfig jobConfig, FileDialogManager dialogManager)
+        {
+            this.JobConfig = jobConfig;
+            this.DialogManager = dialogManager;
+        }
+
+
+        public IDrawable Contents => this;
+
+        public void DrawLabel()
+        {
+            ImGui.PushStyleColor(ImGuiCol.Text, GetJobColor(JobConfig.GetClassJob()));
+            ImGui.Text(JobConfig.GetClassJob().NameEnglish);
+            ImGui.PopStyleColor();
+        }
+
+        public string ID => JobConfig.GetClassJob().Abbreviation;
+
+        public void Draw()
+        {
+            DrawDetailPane(JobConfig, DialogManager);
+        }
+    }
+
+    public ConfigWindow(Tf2CriticalHitsPlugin tf2CriticalHitsPlugin) : base(Title, 0.2f, 23.0f)
     {
         this.configuration = tf2CriticalHitsPlugin.Configuration;
     }
 
     protected override IEnumerable<ISelectable> GetSelectables()
     {
-        return configuration.SubConfigurations
+        return configuration.JobConfigurations
                             .Values
                             .ToList()
-                            .ConvertAll(c => new Option(c, DialogManager));
+                            .ConvertAll(jobConfig => new Option(jobConfig, DialogManager))
+                            .OrderBy(o => o.JobConfig.GetClassJob().NameEnglish.RawString)
+                            .OrderBy(o => o.JobConfig.GetClassJob().Role);
     }
 
     public override void Draw()
@@ -87,143 +84,94 @@ public class ConfigWindow : SelectionWindow, IDisposable
 
     protected override void DrawExtras()
     {
-        ImGui.PushStyleVar(ImGuiStyleVar.ItemSpacing, new Vector2(0.0f, 3.0f));
-
-        // Shamelessly copied from https://github.com/MidoriKami/NoTankYou/blob/48cc7f7d750dc393c937c3df49157573198e1f48/NoTankYou/UserInterface/Windows/ConfigurationWindow.cs#L85
-        if (ImGui.Button("Save", new Vector2(ImGui.GetContentRegionAvail().X, 23.0f * ImGuiHelpers.GlobalScale)))
-        {
-            configuration.Save();
-        }
-
         DrawVersionText();
-
-        ImGui.PopStyleVar();
     }
 
-    private static void DrawSection(ConfigOne.SubConfiguration config, FileDialogManager dialogManager)
+    private static void DrawDetailPane(ConfigOne.JobConfig jobConfig, FileDialogManager dialogManager)
     {
-        var playSound = config.PlaySound;
-        if (ImGui.Checkbox("Play sound", ref playSound))
+        ImGui.Text($"Configuration for {jobConfig.GetClassJob().NameEnglish}");
+        foreach (var module in jobConfig)
         {
-            config.PlaySound = playSound;
-        }
-
-        if (config.PlaySound)
-        {
-            SoundSection(config, dialogManager);
-        }
-
-        var initialShowTextValue = config.ShowText;
-        if (ImGui.Checkbox("Show flavor text with floating damage", ref initialShowTextValue))
-        {
-            config.ShowText = initialShowTextValue;
-        }
-
-        if (config.ShowText)
-        {
-            TextSection(config);
-        }
-
-        if (ImGui.Button("Test configuration"))
-        {
-            Tf2CriticalHitsPlugin.GenerateTestFlyText(config);
-        }
-
-        if (ImGui.IsItemHovered())
-        {
-            ImGui.SetTooltip("Test floating text");
+            DrawConfigModule(module, dialogManager);
         }
     }
 
-    private static void SoundSection(ConfigOne.SubConfiguration config, FileDialogManager dialogManager)
+
+    private static void DrawConfigModule(ConfigOne.ConfigModule config, FileDialogManager dialogManager)
     {
-        ImGui.Indent();
-        var soundForActionsOnly = config.SoundForActionsOnly;
-        if (ImGui.Checkbox("Play sound only for actions (ignore auto-attacks)", ref soundForActionsOnly))
-        {
-            config.SoundForActionsOnly = soundForActionsOnly;
-        }
-
-        var path = config.FilePath ?? "";
-        ImGui.InputText("", ref path, 512, ImGuiInputTextFlags.ReadOnly);
-        ImGui.SameLine();
-
-
         void UpdatePath(bool success, List<string> paths)
         {
             if (success && paths.Count > 0)
             {
-                PluginLog.Debug(config.SectionLabel);
-                config.FilePath = paths[0];
+                config.FilePath = new Setting<string>(paths[0]);
             }
         }
 
-        if (ImGuiComponents.IconButton(FontAwesomeIcon.Folder))
-        {
-            PluginLog.Debug(config.SectionLabel);
-            dialogManager.OpenFileDialog("Select the file", "Audio files{.wav,.mp3}", UpdatePath, 1,
-                                         config.FilePath ??
-                                         Environment.ExpandEnvironmentVariables("%USERPROFILE%"));
-        }
-
-        if (ImGui.IsItemHovered())
-        {
-            ImGui.SetTooltip("Open file browser...");
-        }
-
-        var volume = config.Volume;
-        if (ImGui.SliderInt("Volume", ref volume, 0, 100))
-        {
-            config.Volume = volume;
-        }
-
-        ImGui.Unindent();
+        InfoBox.Instance.AddTitle(config.ModuleDefaults.SectionLabel)
+               .AddConfigCheckbox("Play sound", config.PlaySound, additionalID: $"{config.GetId()}PlaySound")
+               .StartConditional(config.PlaySound)
+               .AddIndent(2)
+               .AddConfigCheckbox("Play sound only for actions (ignore auto-attacks)", config.SoundForActionsOnly)
+               .AddInputString(string.Empty, config.FilePath, 512, ImGuiInputTextFlags.ReadOnly)
+               .SameLine()
+               .AddIconButton(FontAwesomeIcon.Folder, () => dialogManager.OpenFileDialog(
+                                  "Select the file", "Audio files{.wav,.mp3}", UpdatePath, 1,
+                                  config.FilePath.Value.IsNullOrEmpty()
+                                      ? Environment.ExpandEnvironmentVariables("%USERPROFILE%")
+                                      : config.FilePath.Value), "Open file browser...")
+               .AddSliderInt("Volume", config.Volume, 0, 100)
+               .AddIndent(-2)
+               .EndConditional()
+               .AddConfigCheckbox("Show flavor text with floating value", config.ShowText)
+               .StartConditional(config.ShowText)
+               .AddIndent(2)
+               .AddInputString("Text", config.Text, Constants.MaxTextLength)
+               .AddAction(() => ColorSection(config))
+               .AddIndent(-2)
+               .EndConditional()
+               .AddButton("Test configuration", () => Tf2CriticalHitsPlugin.GenerateTestFlyText(config))
+               .Draw();
     }
-
-    private static void TextSection(ConfigOne.SubConfiguration config)
+    
+    private static void ColorSection(ConfigOne.ConfigModule config)
     {
-        ImGui.Indent();
-        var initialText = config.Text;
-        if (ImGui.InputText("Text", ref initialText, Constants.MaxTextLength))
-        {
-            config.Text = initialText;
-        }
-
-        if (ImGui.IsItemHovered())
-        {
-            ImGui.SetTooltip($"Max. {Constants.MaxTextLength} chars");
-        }
 
         ImGui.Text("Color: ");
         ImGui.SameLine();
-        var colorKey = config.TextParameters.ColorKey;
-        if (ColorComponent.SelectorButton(ForegroundColors, $"{config.Id}Foreground", ref colorKey,
-                                          config.DefaultTextParameters.ColorKey))
+        var colorKey = config.TextColor.Value;
+        var id = $"{config.GetId()}Foreground";
+        if (ColorComponent.SelectorButton(ForegroundColors, id, ref colorKey,
+                                          config.ModuleDefaults.FlyTextParameters.ColorKey.Value))
         {
-            config.TextParameters.ColorKey = colorKey;
+            config.TextColor = new Setting<ushort>(colorKey);
         }
 
         ImGui.SameLine();
 
         ImGui.Text("Glow: ");
         ImGui.SameLine();
-        var glowColorKey = config.TextParameters.GlowColorKey;
-        if (ColorComponent.SelectorButton(GlowColors, $"{config.Id}Glow", ref glowColorKey,
-                                          config.DefaultTextParameters.GlowColorKey))
+        var glowColorKey = config.TextGlowColor.Value;
+        if (ColorComponent.SelectorButton(GlowColors, $"{config.GetId()}Glow", ref glowColorKey,
+                                          config.ModuleDefaults.FlyTextParameters.GlowColorKey.Value))
         {
-            config.TextParameters.GlowColorKey = glowColorKey;
+            config.TextGlowColor = new Setting<ushort>(glowColorKey);
         }
 
         ImGui.SameLine();
 
-        var italics = config.Italics;
+        var italics = config.TextItalics.Value;
         if (ImGui.Checkbox("Italics", ref italics))
         {
-            config.Italics = italics;
+            config.TextItalics = new Setting<bool>(italics);
         }
-
-        ImGui.Unindent();
     }
+
+    private static Vector4 GetJobColor(ClassJob classJob) => classJob.Role switch
+    {
+        1 => Colors.Blue,
+        4 => Colors.HealerGreen,
+        _ => Colors.DPSRed
+    };
 
     private static string GetVersionText()
     {

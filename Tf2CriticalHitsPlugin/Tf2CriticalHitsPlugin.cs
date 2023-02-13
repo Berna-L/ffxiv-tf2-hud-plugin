@@ -9,6 +9,7 @@ using Dalamud.Plugin;
 using Dalamud.Game.Gui.FlyText;
 using Dalamud.Game.Text.SeStringHandling;
 using Dalamud.Interface.Windowing;
+using FFXIVClientStructs.FFXIV.Client.Game.UI;
 using KamiLib;
 using Lumina.Excel.GeneratedSheets;
 using Tf2CriticalHitsPlugin.Configuration;
@@ -21,7 +22,6 @@ namespace Tf2CriticalHitsPlugin
     {
         public string Name => "TF2-ish Critical Hits";
         private const string CommandName = "/critconfig";
-        public ImmutableSortedDictionary<string, ClassJob> CombatJobs;
 
         public ConfigOne Configuration { get; init; }
         public readonly WindowSystem WindowSystem = new("TF2CriticalHitsPlugin");
@@ -32,7 +32,6 @@ namespace Tf2CriticalHitsPlugin
             pluginInterface.Create<Service>();
             KamiCommon.Initialize(pluginInterface, Name, () => Configuration?.Save());
             
-            CombatJobs = InitCombatJobs();
             InitColors();
 
             this.Configuration = InitConfig();
@@ -76,23 +75,6 @@ namespace Tf2CriticalHitsPlugin
             return config;
         }
 
-        private static ImmutableSortedDictionary<string, ClassJob> InitCombatJobs()
-        {
-            // A combat job is one that has a JobIndex.
-            if (Service.DataManager == null) throw new ApplicationException("DataManager not initialized!");
-        
-            var classJobSheet = Service.DataManager.GetExcelSheet<ClassJob>();
-            if (classJobSheet == null) throw new ApplicationException("ClassJob sheet unavailable!");
-            var jobList = new List<ClassJob>();
-            for (var i = 0u; i < classJobSheet.RowCount; i++)
-            {
-                var classJob = classJobSheet.GetRow(i);
-                if (classJob is null || classJob.JobIndex is 0) continue;
-                jobList.Add(classJob);
-            }
-
-            return jobList.ToImmutableSortedDictionary(j => j.Abbreviation.ToString(), j => j);
-        }
 
         private static void InitColors()
         {
@@ -134,49 +116,58 @@ namespace Tf2CriticalHitsPlugin
             ref bool handled)
         {
             LogDebug($"Color: {color}");
-            foreach (var config in Configuration.SubConfigurations.Values)
+            var currentClassJobId = GetCurrentClassJobId();
+            if (currentClassJobId is null) return;
+            
+            foreach (var config in Configuration.JobConfigurations[currentClassJobId.Value])
             {
-                if (config.FlyTextColor == color &&
-                    (config.ActionFlyTextKinds.Contains(kind) || config.AutoFlyTextKinds.Contains(kind)))
+                if (config.ModuleDefaults.FlyTextColor == color &&
+                    (config.ModuleDefaults.FlyTextType.AutoAttack.Contains(kind) || config.ModuleDefaults.FlyTextType.Action.Contains(kind)))
                 {
-                    LogDebug($"{config.Id} registered!");
+                    LogDebug($"{config.GetId()} registered!");
                     if (config.ShowText)
                     {
                         text2 = GenerateText(config);
                     }
 
-                    if (config.PlaySound && (!config.SoundForActionsOnly || config.ActionFlyTextKinds.Contains(kind)))
+                    if (config.PlaySound && (!config.SoundForActionsOnly || config.ModuleDefaults.FlyTextType.Action.Contains(kind)))
                     {
-                        SoundEngine.PlaySound(config.FilePath, config.Volume * 0.01f);
+                        SoundEngine.PlaySound(config.FilePath.Value, config.Volume.Value * 0.01f);
                     }
                 }
             }
         }
 
-        public static void GenerateTestFlyText(ConfigOne.SubConfiguration config)
+        private static unsafe byte? GetCurrentClassJobId()
         {
-            var kind = config.ActionFlyTextKinds.FirstOrDefault();
-            LogDebug($"Kind: {kind}, Config ID: {config.Id}");
+            var classJobId = PlayerState.Instance()->CurrentClassJobId;
+            return Constants.CombatJobs.ContainsKey(classJobId) ? classJobId : null;
+        } 
+
+        public static void GenerateTestFlyText(ConfigOne.ConfigModule config)
+        {
+            var kind = config.ModuleDefaults.FlyTextType.Action.FirstOrDefault();
+            LogDebug($"Kind: {kind}, Config ID: {config.GetId()}");
             var text = Constants.TestFlavorText[
                 (int)Math.Floor(Random.Shared.NextSingle() * Constants.TestFlavorText.Length)];
             Service.FlyTextGui.AddFlyText(kind, 1, 3333, 0, new SeStringBuilder().AddText(text).Build(),
-                                          GenerateText(config), config.FlyTextColor, 0, 60012);
+                                          GenerateText(config), config.ModuleDefaults.FlyTextColor, 0, 60012);
         }
 
-        private static SeString GenerateText(ConfigOne.SubConfiguration config)
+        private static SeString GenerateText(ConfigOne.ConfigModule config)
         {
             LogDebug(
-                $"Generating text with colorKey {config.TextParameters.ColorKey} and glowColorKey {config.TextParameters.GlowColorKey}");
+                $"Generating text with color {config.TextColor} and glow {config.TextGlowColor}");
             var stringBuilder = new SeStringBuilder()
-                                .AddUiForeground(config.TextParameters.ColorKey)
-                                .AddUiGlow(config.TextParameters.GlowColorKey);
-            if (config.Italics)
+                                .AddUiForeground(config.TextColor.Value)
+                                .AddUiGlow(config.TextGlowColor.Value);
+            if (config.TextItalics)
             {
                 stringBuilder.AddItalicsOn();
             }
 
             return stringBuilder
-                   .AddText(config.Text)
+                   .AddText(config.Text.Value)
                    .AddItalicsOff()
                    .AddUiForegroundOff()
                    .AddUiGlowOff()
