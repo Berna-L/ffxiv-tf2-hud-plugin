@@ -3,6 +3,8 @@ using Dalamud.Game.Command;
 using Dalamud.Game.Gui.FlyText;
 using Dalamud.IoC;
 using Dalamud.Plugin;
+using FFXIVClientStructs.FFXIV.Client.Game.UI;
+using Lumina.Excel.GeneratedSheets;
 
 namespace Tf2CriticalHitsPlugin;
 
