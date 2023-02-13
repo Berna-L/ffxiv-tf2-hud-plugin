@@ -7,6 +7,7 @@ using Dalamud.Interface;
 using Dalamud.Interface.ImGuiFileDialog;
 using Dalamud.Utility;
 using ImGuiNET;
+using KamiLib;
 using KamiLib.Configuration;
 using KamiLib.Drawing;
 using KamiLib.Interfaces;
@@ -107,7 +108,7 @@ public class ConfigWindow : SelectionWindow, IDisposable
             }
         }
 
-        InfoBox.Instance.AddTitle(config.ModuleDefaults.SectionLabel)
+        InfoBox.Instance.AddTitle(config.GetModuleDefaults().SectionLabel)
                .AddConfigCheckbox("Play sound", config.PlaySound, additionalID: $"{config.GetId()}PlaySound")
                .StartConditional(config.PlaySound)
                .AddIndent(2)
@@ -126,46 +127,35 @@ public class ConfigWindow : SelectionWindow, IDisposable
                .StartConditional(config.ShowText)
                .AddIndent(2)
                .AddInputString("Text", config.Text, Constants.MaxTextLength)
-               .AddAction(() => ColorSection(config))
+               .AddAction(() => ImGui.Text("Color: "))
+               .SameLine()
+               .AddAction(() =>
+               {
+                   if (ColorComponent.SelectorButton(ForegroundColors, $"{config.GetId()}Foreground", ref config.TextColor.Value,
+                                                     config.GetModuleDefaults().FlyTextParameters.ColorKey.Value))
+                   {
+                       KamiCommon.SaveConfiguration();
+                   }
+               })
+               .SameLine()
+               .AddAction(() => ImGui.Text("Glow: "))
+               .SameLine()
+               .AddAction(() =>
+               {
+                   if (ColorComponent.SelectorButton(GlowColors, $"{config.GetId()}Glow", ref config.TextGlowColor.Value,
+                                                     config.GetModuleDefaults().FlyTextParameters.GlowColorKey.Value))
+                   {
+                       KamiCommon.SaveConfiguration();
+                   }
+               })
+               .SameLine()
+               .AddConfigCheckbox("Italics", config.TextItalics)
                .AddIndent(-2)
                .EndConditional()
                .AddButton("Test configuration", () => Tf2CriticalHitsPlugin.GenerateTestFlyText(config))
                .Draw();
     }
     
-    private static void ColorSection(ConfigOne.ConfigModule config)
-    {
-
-        ImGui.Text("Color: ");
-        ImGui.SameLine();
-        var colorKey = config.TextColor.Value;
-        var id = $"{config.GetId()}Foreground";
-        if (ColorComponent.SelectorButton(ForegroundColors, id, ref colorKey,
-                                          config.ModuleDefaults.FlyTextParameters.ColorKey.Value))
-        {
-            config.TextColor = new Setting<ushort>(colorKey);
-        }
-
-        ImGui.SameLine();
-
-        ImGui.Text("Glow: ");
-        ImGui.SameLine();
-        var glowColorKey = config.TextGlowColor.Value;
-        if (ColorComponent.SelectorButton(GlowColors, $"{config.GetId()}Glow", ref glowColorKey,
-                                          config.ModuleDefaults.FlyTextParameters.GlowColorKey.Value))
-        {
-            config.TextGlowColor = new Setting<ushort>(glowColorKey);
-        }
-
-        ImGui.SameLine();
-
-        var italics = config.TextItalics.Value;
-        if (ImGui.Checkbox("Italics", ref italics))
-        {
-            config.TextItalics = new Setting<bool>(italics);
-        }
-    }
-
     private static Vector4 GetJobColor(ClassJob classJob) => classJob.Role switch
     {
         1 => Colors.Blue,

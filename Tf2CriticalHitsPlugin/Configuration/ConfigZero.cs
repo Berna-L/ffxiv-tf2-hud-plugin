@@ -40,8 +40,8 @@ namespace Tf2CriticalHitsPlugin.Configuration
         public ConfigOne MigrateToOne()
         {
             var configOne = new ConfigOne();
-            var criticalHealText = Critical.Text.Equals(ModuleConstants.GetModuleDefaultText(ModuleType.CriticalDamage))
-                                       ? new Setting<string>(ModuleConstants.GetModuleDefaultText(ModuleType.CriticalHeal))
+            var criticalHealText = Critical.Text.Equals(ModuleDefaults.GetModuleDefaultText(ModuleType.CriticalDamage))
+                                       ? new Setting<string>(ModuleDefaults.GetModuleDefaultText(ModuleType.CriticalHeal))
                                        : new Setting<string>(Critical.Text);
             foreach (var jobConfig in configOne.JobConfigurations.Values)
             {

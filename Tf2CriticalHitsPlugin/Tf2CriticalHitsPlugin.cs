@@ -121,8 +121,8 @@ namespace Tf2CriticalHitsPlugin
             
             foreach (var config in Configuration.JobConfigurations[currentClassJobId.Value])
             {
-                if (config.ModuleDefaults.FlyTextColor == color &&
-                    (config.ModuleDefaults.FlyTextType.AutoAttack.Contains(kind) || config.ModuleDefaults.FlyTextType.Action.Contains(kind)))
+                if (config.GetModuleDefaults().FlyTextColor == color &&
+                    (config.GetModuleDefaults().FlyTextType.AutoAttack.Contains(kind) || config.GetModuleDefaults().FlyTextType.Action.Contains(kind)))
                 {
                     LogDebug($"{config.GetId()} registered!");
                     if (config.ShowText)
@@ -130,7 +130,7 @@ namespace Tf2CriticalHitsPlugin
                         text2 = GenerateText(config);
                     }
 
-                    if (config.PlaySound && (!config.SoundForActionsOnly || config.ModuleDefaults.FlyTextType.Action.Contains(kind)))
+                    if (config.PlaySound && (!config.SoundForActionsOnly || config.GetModuleDefaults().FlyTextType.Action.Contains(kind)))
                     {
                         SoundEngine.PlaySound(config.FilePath.Value, config.Volume.Value * 0.01f);
                     }
@@ -146,12 +146,12 @@ namespace Tf2CriticalHitsPlugin
 
         public static void GenerateTestFlyText(ConfigOne.ConfigModule config)
         {
-            var kind = config.ModuleDefaults.FlyTextType.Action.FirstOrDefault();
+            var kind = config.GetModuleDefaults().FlyTextType.Action.FirstOrDefault();
             LogDebug($"Kind: {kind}, Config ID: {config.GetId()}");
             var text = Constants.TestFlavorText[
                 (int)Math.Floor(Random.Shared.NextSingle() * Constants.TestFlavorText.Length)];
             Service.FlyTextGui.AddFlyText(kind, 1, 3333, 0, new SeStringBuilder().AddText(text).Build(),
-                                          GenerateText(config), config.ModuleDefaults.FlyTextColor, 0, 60012);
+                                          GenerateText(config), config.GetModuleDefaults().FlyTextColor, 0, 60012);
         }
 
         private static SeString GenerateText(ConfigOne.ConfigModule config)

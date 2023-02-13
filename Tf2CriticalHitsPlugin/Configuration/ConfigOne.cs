@@ -21,29 +21,33 @@ public class ConfigOne : IPluginConfiguration
     {
         foreach (var (key, _) in CombatJobs)
         {
-            JobConfigurations[key] = new JobConfig(key);
+            JobConfigurations[key] = JobConfig.Create(key);
         }
     }
 
     public class JobConfig
     {
-        public uint ClassJobId;
-        public ConfigModule DirectCriticalDamage { get; set; }
-        public ConfigModule CriticalDamage { get; set; }
-        public ConfigModule CriticalHeal { get; set; }
-        public ConfigModule DirectDamage { get; set; }
+        public Setting<uint> ClassJobId { get; init; } = new(255);
+        public ConfigModule DirectCriticalDamage { get; init; } = new();
+        public ConfigModule CriticalDamage { get; init; } = new();
+        public ConfigModule CriticalHeal { get; init; } = new();
+        public ConfigModule DirectDamage { get; init; } = new();
 
-        
-        public JobConfig(uint classJobId)
+
+        public static JobConfig Create(uint classJobId)
         {
-            ClassJobId = classJobId;
-            DirectCriticalDamage = new ConfigModule(classJobId, (ushort)ModuleType.DirectCriticalDamage);
-            CriticalDamage = new ConfigModule(classJobId, (ushort)ModuleType.CriticalDamage);
-            CriticalHeal = new ConfigModule(classJobId, (ushort)ModuleType.CriticalHeal);
-            DirectDamage = new ConfigModule(classJobId, (ushort)ModuleType.DirectDamage);
+            return new JobConfig
+            {
+                ClassJobId = new Setting<uint>(classJobId),
+                DirectCriticalDamage = ConfigModule.Create(classJobId, ModuleType.DirectCriticalDamage),
+                CriticalDamage = ConfigModule.Create(classJobId, ModuleType.CriticalDamage),
+                CriticalHeal = ConfigModule.Create(classJobId, ModuleType.CriticalHeal),
+                DirectDamage = ConfigModule.Create(classJobId, ModuleType.DirectDamage)
+            };
         }
+        
 
-        public ClassJob GetClassJob() => CombatJobs[ClassJobId];
+        public ClassJob GetClassJob() => CombatJobs[ClassJobId.Value];
 
         public IEnumerator<ConfigModule> GetEnumerator()
         {
@@ -54,38 +58,45 @@ public class ConfigOne : IPluginConfiguration
     public class ConfigModule
     {
 
-        public ConfigModule(uint classJobId, ushort moduleTypeId)
+        public static ConfigModule Create(uint classJobId, ModuleType moduleType)
         {
-            this.ClassJobId = new Setting<uint>(classJobId);
-            this.ModuleTypeId = new Setting<ushort>(moduleTypeId);
-            this.ModuleDefaults = ModuleConstants.GetConstantsFromType((ModuleType) moduleTypeId);
-            this.Text = new Setting<string>(ModuleDefaults.DefaultText);
-            TextColor = ModuleDefaults.FlyTextParameters.ColorKey;
-            TextGlowColor = ModuleDefaults.FlyTextParameters.GlowColorKey;
-            TextItalics = ModuleDefaults.FlyTextParameters.Italics;
+            var configModule = new ConfigModule
+            {
+                ClassJobId = new Setting<uint>(classJobId),
+                ModuleType = new Setting<ModuleType>(moduleType),
+            };
+            var moduleDefaults = ModuleDefaults.GetDefaultsFromType(moduleType);
+            configModule.Text = new Setting<string>(moduleDefaults.DefaultText);
+            configModule.TextColor = new Setting<ushort>(moduleDefaults.FlyTextParameters.ColorKey.Value);
+            configModule.TextGlowColor =
+                new Setting<ushort>(moduleDefaults.FlyTextParameters.GlowColorKey.Value);
+            configModule.TextItalics = new Setting<bool>(moduleDefaults.FlyTextParameters.Italics);
+            return configModule;
         }
 
         public string GetId()
         {
-            PluginLog.LogDebug($"{ClassJobId}{ModuleTypeId}");
-            return $"{ClassJobId}{ModuleTypeId}";
+            PluginLog.LogDebug($"{ClassJobId}{ModuleType}");
+            return $"{ClassJobId}{ModuleType}";
         }
 
-        [NonSerialized]
-        public ModuleConstants ModuleDefaults;
+        public ModuleDefaults GetModuleDefaults()
+        {
+            return ModuleDefaults.GetDefaultsFromType(ModuleType.Value);
+        }
 
-        public Setting<uint> ClassJobId { get; set; }
-        public Setting<ushort> ModuleTypeId { get; set; }
+        public Setting<uint> ClassJobId { get; init; } = new(255);
+        public Setting<ModuleType> ModuleType { get; init; } = new(Configuration.ModuleType.DirectCriticalDamage);
         public Setting<bool> PlaySound { get; set; } = new(true);
         public Setting<bool> SoundForActionsOnly { get; set; } = new(false);
         public Setting<string> FilePath { get; set; } = new(string.Empty);
         public Setting<int> Volume { get; set; } = new(12);
         public Setting<bool> ShowText { get; set; } = new(true);
-        public Setting<string> Text { get; set; }
-        public Setting<ushort> TextColor { get; set; }
-        public Setting<ushort> TextGlowColor { get; set; }
-        public Setting<bool> TextItalics { get; set; }
-        
+        public Setting<string> Text { get; set; } = new(string.Empty);
+        public Setting<ushort> TextColor { get; set; } = new(0);
+        public Setting<ushort> TextGlowColor { get; set; } = new(0);
+        public Setting<bool> TextItalics { get; set; } = new(false);
+
     }
 
     // the below exist just to make saving less cumbersome

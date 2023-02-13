@@ -20,7 +20,7 @@ public static class ColorComponent
         ImGui.ColorButton($"{id}SelectedColor", palette[index].Vec4);
         foreach (var i in palette.Keys)
         {
-            ImGui.PushID(i);
+            ImGui.PushID($"{id}ColorNumber{i}");
             if ((i % 15) != 0)
                 ImGui.SameLine(0f, ImGui.GetStyle().ItemSpacing.Y);
 

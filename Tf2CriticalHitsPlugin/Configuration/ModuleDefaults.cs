@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Tf2CriticalHitsPlugin.Configuration;
 
-public class ModuleConstants
+public class ModuleDefaults
 {
     public string SectionLabel { get; }
     public FlyTextType FlyTextType { get; }
@@ -11,7 +11,7 @@ public class ModuleConstants
     public string DefaultText { get; }
     public FlyTextParameters FlyTextParameters { get; }
 
-    private ModuleConstants(ModuleType moduleType)
+    private ModuleDefaults(ModuleType moduleType)
     {
         SectionLabel = GetModuleLabel(moduleType);
         FlyTextType = GetModuleFlyTextType(moduleType);
@@ -20,7 +20,7 @@ public class ModuleConstants
         FlyTextParameters = GetModuleDefaultTextParameters(moduleType);
     }
 
-    private static readonly IDictionary<ModuleType, ModuleConstants> ConstantsMap = new Dictionary<ModuleType, ModuleConstants>
+    private static readonly IDictionary<ModuleType, ModuleDefaults> ConstantsMap = new Dictionary<ModuleType, ModuleDefaults>
     {
         [ModuleType.DirectCriticalDamage] = new(ModuleType.DirectCriticalDamage),
         [ModuleType.CriticalDamage] = new(ModuleType.CriticalDamage),
@@ -28,7 +28,7 @@ public class ModuleConstants
         [ModuleType.DirectDamage] = new(ModuleType.DirectDamage)
     };
 
-    public static ModuleConstants GetConstantsFromType(ModuleType moduleType) => ConstantsMap[moduleType];
+    public static ModuleDefaults GetDefaultsFromType(ModuleType moduleType) => ConstantsMap[moduleType];
 
     public static string GetModuleLabel(ModuleType moduleType) => moduleType switch
     {
