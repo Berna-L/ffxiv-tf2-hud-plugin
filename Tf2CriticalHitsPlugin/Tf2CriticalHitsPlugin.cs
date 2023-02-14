@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
@@ -28,16 +26,15 @@ namespace Tf2CriticalHitsPlugin
 
         public Tf2CriticalHitsPlugin(DalamudPluginInterface pluginInterface)
         {
-            
             pluginInterface.Create<Service>();
             KamiCommon.Initialize(pluginInterface, Name, () => Configuration?.Save());
-            
+
             InitColors();
 
             this.Configuration = InitConfig();
             this.Configuration.Initialize(Service.PluginInterface);
             Configuration.Save();
-            
+
             WindowSystem.AddWindow(new ConfigWindow(this));
 
             Service.CommandManager.AddHandler(CommandName, new CommandInfo(OnConfigCommand)
@@ -58,12 +55,14 @@ namespace Tf2CriticalHitsPlugin
             {
                 return new ConfigOne();
             }
+
             var configText = File.ReadAllText(configFile);
             var versionCheck = JsonSerializer.Deserialize<VersionCheck>(configText);
             if (versionCheck is null)
             {
                 return new ConfigOne();
             }
+
             var version = versionCheck.Version;
             var config = version switch
             {
@@ -78,8 +77,6 @@ namespace Tf2CriticalHitsPlugin
 
         private static void InitColors()
         {
-
-            
             ConfigWindow.ForegroundColors.Clear();
             ConfigWindow.GlowColors.Clear();
 
@@ -116,13 +113,19 @@ namespace Tf2CriticalHitsPlugin
             ref bool handled)
         {
             LogDebug($"Color: {color}");
-            var currentClassJobId = GetCurrentClassJobId();
+            var currentText2 = text2.ToString();
+            var currentClassJobId = currentText2.StartsWith("TF2TEST##")
+                                        ? byte.Parse(
+                                            currentText2[
+                                                (currentText2.LastIndexOf("#", StringComparison.Ordinal) + 1)..])
+                                        : GetCurrentClassJobId();
             if (currentClassJobId is null) return;
-            
+
             foreach (var config in Configuration.JobConfigurations[currentClassJobId.Value])
             {
                 if (config.GetModuleDefaults().FlyTextColor == color &&
-                    (config.GetModuleDefaults().FlyTextType.AutoAttack.Contains(kind) || config.GetModuleDefaults().FlyTextType.Action.Contains(kind)))
+                    (config.GetModuleDefaults().FlyTextType.AutoAttack.Contains(kind) ||
+                     config.GetModuleDefaults().FlyTextType.Action.Contains(kind)))
                 {
                     LogDebug($"{config.GetId()} registered!");
                     if (config.ShowText)
@@ -130,7 +133,8 @@ namespace Tf2CriticalHitsPlugin
                         text2 = GenerateText(config);
                     }
 
-                    if (config.PlaySound && (!config.SoundForActionsOnly || config.GetModuleDefaults().FlyTextType.Action.Contains(kind)))
+                    if (config.PlaySound && (!config.SoundForActionsOnly ||
+                                             config.GetModuleDefaults().FlyTextType.Action.Contains(kind)))
                     {
                         SoundEngine.PlaySound(config.FilePath.Value, config.Volume.Value * 0.01f);
                     }
@@ -142,7 +146,7 @@ namespace Tf2CriticalHitsPlugin
         {
             var classJobId = PlayerState.Instance()->CurrentClassJobId;
             return Constants.CombatJobs.ContainsKey(classJobId) ? classJobId : null;
-        } 
+        }
 
         public static void GenerateTestFlyText(ConfigOne.ConfigModule config)
         {
@@ -151,7 +155,8 @@ namespace Tf2CriticalHitsPlugin
             var text = Constants.TestFlavorText[
                 (int)Math.Floor(Random.Shared.NextSingle() * Constants.TestFlavorText.Length)];
             Service.FlyTextGui.AddFlyText(kind, 1, 3333, 0, new SeStringBuilder().AddText(text).Build(),
-                                          GenerateText(config), config.GetModuleDefaults().FlyTextColor, 0, 60012);
+                                          new SeStringBuilder().AddText($"TF2TEST##{config.ClassJobId}").Build(),
+                                          config.GetModuleDefaults().FlyTextColor, 0, 60012);
         }
 
         private static SeString GenerateText(ConfigOne.ConfigModule config)
