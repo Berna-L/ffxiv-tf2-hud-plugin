@@ -31,7 +31,7 @@ public class ConfigWindow : SelectionWindow, IDisposable
     public static readonly SortedDictionary<ushort, ColorInfo> ForegroundColors = new();
     public static readonly SortedDictionary<ushort, ColorInfo> GlowColors = new();
 
-    
+
     private class Option : ISelectable, IDrawable
     {
         internal readonly ConfigOne.JobConfig JobConfig;
@@ -115,7 +115,7 @@ public class ConfigWindow : SelectionWindow, IDisposable
                .AddConfigCheckbox("Play sound only for actions (ignore auto-attacks)", config.SoundForActionsOnly)
                .AddInputString(string.Empty, config.FilePath, 512, ImGuiInputTextFlags.ReadOnly)
                .SameLine()
-               .AddIconButton(FontAwesomeIcon.Folder, () => dialogManager.OpenFileDialog(
+               .AddIconButton($"{config.GetId()}browse", FontAwesomeIcon.Folder, () => dialogManager.OpenFileDialog(
                                   "Select the file", "Audio files{.wav,.mp3}", UpdatePath, 1,
                                   config.FilePath.Value.IsNullOrEmpty()
                                       ? Environment.ExpandEnvironmentVariables("%USERPROFILE%")
@@ -131,7 +131,8 @@ public class ConfigWindow : SelectionWindow, IDisposable
                .SameLine()
                .AddAction(() =>
                {
-                   if (ColorComponent.SelectorButton(ForegroundColors, $"{config.GetId()}Foreground", ref config.TextColor.Value,
+                   if (ColorComponent.SelectorButton(ForegroundColors, $"{config.GetId()}Foreground",
+                                                     ref config.TextColor.Value,
                                                      config.GetModuleDefaults().FlyTextParameters.ColorKey.Value))
                    {
                        KamiCommon.SaveConfiguration();
@@ -142,7 +143,8 @@ public class ConfigWindow : SelectionWindow, IDisposable
                .SameLine()
                .AddAction(() =>
                {
-                   if (ColorComponent.SelectorButton(GlowColors, $"{config.GetId()}Glow", ref config.TextGlowColor.Value,
+                   if (ColorComponent.SelectorButton(GlowColors, $"{config.GetId()}Glow",
+                                                     ref config.TextGlowColor.Value,
                                                      config.GetModuleDefaults().FlyTextParameters.GlowColorKey.Value))
                    {
                        KamiCommon.SaveConfiguration();
@@ -155,7 +157,7 @@ public class ConfigWindow : SelectionWindow, IDisposable
                .AddButton("Test configuration", () => Tf2CriticalHitsPlugin.GenerateTestFlyText(config))
                .Draw();
     }
-    
+
     private static Vector4 GetJobColor(ClassJob classJob) => classJob.Role switch
     {
         1 => Colors.Blue,
