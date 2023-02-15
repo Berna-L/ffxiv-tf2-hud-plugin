@@ -9,8 +9,10 @@ using Dalamud.Game.Text.SeStringHandling;
 using Dalamud.Interface.Windowing;
 using FFXIVClientStructs.FFXIV.Client.Game.UI;
 using KamiLib;
+using KamiLib.ChatCommands;
 using Lumina.Excel.GeneratedSheets;
 using Tf2CriticalHitsPlugin.Configuration;
+using Tf2CriticalHitsPlugin.SeFunctions;
 using Tf2CriticalHitsPlugin.Windows;
 using static Dalamud.Logging.PluginLog;
 
@@ -23,6 +25,7 @@ namespace Tf2CriticalHitsPlugin
 
         public ConfigOne Configuration { get; init; }
         public readonly WindowSystem WindowSystem = new("TF2CriticalHitsPlugin");
+        public static PlaySound? GameSoundPlayer;
 
         public Tf2CriticalHitsPlugin(DalamudPluginInterface pluginInterface)
         {
@@ -38,6 +41,8 @@ namespace Tf2CriticalHitsPlugin
             KamiCommon.WindowManager.AddWindow(new ConfigWindow(this));
             KamiCommon.WindowManager.AddWindow(new SettingsCopyWindow(Configuration));
 
+            GameSoundPlayer = new PlaySound(Service.SigScanner);
+            
             Service.CommandManager.AddHandler(CommandName, new CommandInfo(OnConfigCommand)
             {
                 HelpMessage = "Opens the TF2-ish Critical Hits configuration window"
@@ -58,21 +63,30 @@ namespace Tf2CriticalHitsPlugin
             }
 
             var configText = File.ReadAllText(configFile);
-            var versionCheck = JsonSerializer.Deserialize<VersionCheck>(configText);
-            if (versionCheck is null)
+            try
             {
+                var versionCheck = JsonSerializer.Deserialize<VersionCheck>(configText);
+                if (versionCheck is null)
+                {
+                    return new ConfigOne();
+                }
+
+                var version = versionCheck.Version;
+                var config = version switch
+                {
+                    0 => JsonSerializer.Deserialize<ConfigZero>(configText)?.MigrateToOne() ?? new ConfigOne(),
+                    1 => Service.PluginInterface.GetPluginConfig() as ConfigOne ?? new ConfigOne(),
+                    _ => new ConfigOne()
+                };
+
+                return config;
+            }
+            catch (Exception)
+            {
+                Service.PluginInterface.ConfigFile.MoveTo(Service.PluginInterface.ConfigFile.FullName + ".old");
+                Chat.PrintError("There was an error while reading your configuration file and it was reset. The old file is available in your pluginConfigs folder, as Tf2CriticalHitsPlugin.json.old.");
                 return new ConfigOne();
             }
-
-            var version = versionCheck.Version;
-            var config = version switch
-            {
-                0 => JsonSerializer.Deserialize<ConfigZero>(configText)?.MigrateToOne() ?? new ConfigOne(),
-                1 => Service.PluginInterface.GetPluginConfig() as ConfigOne ?? new ConfigOne(),
-                _ => new ConfigOne()
-            };
-
-            return config;
         }
 
 
@@ -134,10 +148,17 @@ namespace Tf2CriticalHitsPlugin
                         text2 = GenerateText(config);
                     }
 
-                    if (config.PlaySound && (!config.SoundForActionsOnly ||
-                                             config.GetModuleDefaults().FlyTextType.Action.Contains(kind)))
+                    if (!config.SoundForActionsOnly ||
+                        config.GetModuleDefaults().FlyTextType.Action.Contains(kind))
                     {
-                        SoundEngine.PlaySound(config.FilePath.Value, config.Volume.Value * 0.01f);
+                        if (config.UseCustomFile)
+                        {
+                            SoundEngine.PlaySound(config.FilePath.Value, config.Volume.Value * 0.01f);
+                        }
+                        else
+                        {
+                            GameSoundPlayer?.Play(config.GameSound.Value);
+                        }
                     }
                 }
             }

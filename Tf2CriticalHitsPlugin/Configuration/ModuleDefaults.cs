@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using Tf2CriticalHitsPlugin.SeFunctions;
 
 namespace Tf2CriticalHitsPlugin.Configuration;
 
 public class ModuleDefaults
 {
     public string SectionLabel { get; }
+    public Sounds GameSound { get; set; }
     public FlyTextType FlyTextType { get; }
     public uint FlyTextColor { get; }
     public string DefaultText { get; }
@@ -14,6 +16,7 @@ public class ModuleDefaults
     private ModuleDefaults(ModuleType moduleType)
     {
         SectionLabel = GetModuleLabel(moduleType);
+        GameSound = GetModuleGameSound(moduleType);
         FlyTextType = GetModuleFlyTextType(moduleType);
         FlyTextColor = GetModuleFlyTextColor(moduleType);
         DefaultText = GetModuleDefaultText(moduleType);
@@ -36,6 +39,15 @@ public class ModuleDefaults
         ModuleType.CriticalDamage => "Critical Damage",
         ModuleType.CriticalHeal => "Critical Heal",
         ModuleType.DirectDamage => "Direct Damage",
+        _ => throw new ArgumentOutOfRangeException(nameof(moduleType), moduleType, null)
+    };
+
+    private static Sounds GetModuleGameSound(ModuleType moduleType) => moduleType switch
+    {
+        ModuleType.DirectCriticalDamage => Sounds.Sound06,
+        ModuleType.CriticalDamage => Sounds.Sound04,
+        ModuleType.CriticalHeal => Sounds.Sound10,
+        ModuleType.DirectDamage => Sounds.Sound16,
         _ => throw new ArgumentOutOfRangeException(nameof(moduleType), moduleType, null)
     };
 

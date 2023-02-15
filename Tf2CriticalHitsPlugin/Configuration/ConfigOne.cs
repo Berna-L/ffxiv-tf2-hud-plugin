@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using Dalamud.Configuration;
-using Dalamud.Logging;
 using Dalamud.Plugin;
 using KamiLib.Configuration;
 using Lumina.Excel.GeneratedSheets;
+using Tf2CriticalHitsPlugin.SeFunctions;
 using static Tf2CriticalHitsPlugin.Constants;
 
 namespace Tf2CriticalHitsPlugin.Configuration;
@@ -74,6 +74,7 @@ public class ConfigOne : IPluginConfiguration
                 ModuleType = new Setting<ModuleType>(moduleType),
             };
             var moduleDefaults = ModuleDefaults.GetDefaultsFromType(moduleType);
+            configModule.GameSound = new Setting<Sounds>(moduleDefaults.GameSound);
             configModule.Text = new Setting<string>(moduleDefaults.DefaultText);
             configModule.TextColor = new Setting<ushort>(moduleDefaults.FlyTextParameters.ColorKey.Value);
             configModule.TextGlowColor =
@@ -94,8 +95,9 @@ public class ConfigOne : IPluginConfiguration
 
         public Setting<uint> ClassJobId { get; init; } = new(255);
         public Setting<ModuleType> ModuleType { get; init; } = new(Configuration.ModuleType.DirectCriticalDamage);
-        public Setting<bool> PlaySound { get; set; } = new(true);
+        public Setting<bool> UseCustomFile { get; set; } = new(false);
         public Setting<bool> SoundForActionsOnly { get; set; } = new(false);
+        public Setting<Sounds> GameSound { get; set; } = new(Sounds.None);
         public Setting<string> FilePath { get; set; } = new(string.Empty);
         public Setting<int> Volume { get; set; } = new(12);
         public Setting<bool> ShowText { get; set; } = new(true);
@@ -106,15 +108,16 @@ public class ConfigOne : IPluginConfiguration
 
         public void CopySettingsFrom(ConfigModule other)
         {
-            PlaySound = other.PlaySound;
-            SoundForActionsOnly = other.SoundForActionsOnly;
-            FilePath = other.FilePath;
-            Volume = other.Volume;
-            ShowText = other.ShowText;
-            Text = other.Text;
-            TextColor = other.TextColor;
-            TextGlowColor = other.TextGlowColor;
-            TextItalics = other.TextItalics;
+            UseCustomFile = other.UseCustomFile with{};
+            SoundForActionsOnly = other.SoundForActionsOnly with{};
+            GameSound = other.GameSound with{};
+            FilePath = other.FilePath with{};
+            Volume = other.Volume with{};
+            ShowText = other.ShowText with{};
+            Text = other.Text with{};
+            TextColor = other.TextColor with{};
+            TextGlowColor = other.TextGlowColor with{};
+            TextItalics = other.TextItalics with{};
         }
     }
 

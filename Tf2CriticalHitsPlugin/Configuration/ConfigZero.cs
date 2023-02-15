@@ -1,7 +1,7 @@
 ﻿using System;
-using Dalamud.Plugin;
 using KamiLib.ChatCommands;
 using KamiLib.Configuration;
+using Tf2CriticalHitsPlugin.SeFunctions;
 
 namespace Tf2CriticalHitsPlugin.Configuration
 {
@@ -57,11 +57,17 @@ namespace Tf2CriticalHitsPlugin.Configuration
 
         private static void MigrateSubConfig(SubConfiguration zeroSub, ConfigOne.ConfigModule oneSub)
         {
-            oneSub.PlaySound = new Setting<bool>(zeroSub.PlaySound);
+            if (zeroSub.PlaySound)
+            {
+                oneSub.UseCustomFile = new Setting<bool>(true);
+            }
+            else
+            {
+                oneSub.GameSound = new Setting<Sounds>(Sounds.None);
+            }
             oneSub.SoundForActionsOnly = new Setting<bool>(zeroSub.SoundForActionsOnly);
             oneSub.FilePath = new Setting<string>(zeroSub.FilePath ?? string.Empty);
             oneSub.Volume = new Setting<int>(zeroSub.Volume);
-
             oneSub.ShowText = new Setting<bool>(zeroSub.ShowText);
             oneSub.Text = new Setting<string>(zeroSub.Text);
             oneSub.TextColor = new Setting<ushort>(zeroSub.TextColor.ColorKey);

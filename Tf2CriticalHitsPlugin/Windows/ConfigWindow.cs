@@ -14,6 +14,7 @@ using KamiLib.Interfaces;
 using KamiLib.Windows;
 using Lumina.Excel.GeneratedSheets;
 using Tf2CriticalHitsPlugin.Configuration;
+using Tf2CriticalHitsPlugin.SeFunctions;
 
 namespace Tf2CriticalHitsPlugin.Windows;
 
@@ -121,8 +122,17 @@ public class ConfigWindow : SelectionWindow, IDisposable
         }
 
         InfoBox.Instance.AddTitle(config.GetModuleDefaults().SectionLabel)
-               .AddConfigCheckbox("Play sound", config.PlaySound, additionalID: $"{config.GetId()}PlaySound")
-               .StartConditional(config.PlaySound)
+               .AddConfigCheckbox("Use custom file", config.UseCustomFile, additionalID: $"{config.GetId()}PlaySound")
+               .StartConditional(!config.UseCustomFile)
+               .AddIndent(2)
+               .AddConfigCombo(SoundsExtensions.Values(), config.GameSound, s => s.ToName(), width: 150.0f)
+               .SameLine()
+               .AddIconButton($"{config.GetId()}testSfx", FontAwesomeIcon.Play, () => Tf2CriticalHitsPlugin.GameSoundPlayer?.Play(config.GameSound.Value))
+               .SameLine()
+               .AddString("(Volume is controlled by the game's settings)")
+               .AddIndent(-2)
+               .EndConditional()
+               .StartConditional(config.UseCustomFile)
                .AddIndent(2)
                .AddConfigCheckbox("Play sound only for actions (ignore auto-attacks)", config.SoundForActionsOnly)
                .AddInputString(string.Empty, config.FilePath, 512, ImGuiInputTextFlags.ReadOnly)
@@ -132,6 +142,8 @@ public class ConfigWindow : SelectionWindow, IDisposable
                                   config.FilePath.Value.IsNullOrEmpty()
                                       ? Environment.ExpandEnvironmentVariables("%USERPROFILE%")
                                       : config.FilePath.Value), "Open file browser...")
+               .SameLine()
+               .AddIconButton($"{config.GetId()}testFile", FontAwesomeIcon.Play, () => SoundEngine.PlaySound(config.FilePath.Value, config.Volume.Value * 0.01f))
                .AddSliderInt("Volume", config.Volume, 0, 100)
                .AddIndent(-2)
                .EndConditional()
