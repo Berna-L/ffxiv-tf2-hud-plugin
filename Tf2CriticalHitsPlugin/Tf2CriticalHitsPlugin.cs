@@ -23,7 +23,6 @@ namespace Tf2CriticalHitsPlugin
 
         public ConfigOne Configuration { get; init; }
         public readonly WindowSystem WindowSystem = new("TF2CriticalHitsPlugin");
-        private readonly ConfigWindow configWindow;
 
         public Tf2CriticalHitsPlugin(DalamudPluginInterface pluginInterface)
         {
@@ -36,8 +35,8 @@ namespace Tf2CriticalHitsPlugin
             this.Configuration.Initialize(Service.PluginInterface);
             Configuration.Save();
 
-            configWindow = new ConfigWindow(this);
-            WindowSystem.AddWindow(configWindow);
+            KamiCommon.WindowManager.AddWindow(new ConfigWindow(this));
+            KamiCommon.WindowManager.AddWindow(new SettingsCopyWindow(Configuration));
 
             Service.CommandManager.AddHandler(CommandName, new CommandInfo(OnConfigCommand)
             {
@@ -190,10 +189,13 @@ namespace Tf2CriticalHitsPlugin
             Service.CommandManager.RemoveHandler(CommandName);
         }
 
-        private void OnConfigCommand(string command, string args)
+        private static void OnConfigCommand(string command, string args)
         {
             // in response to the slash command, just display our main ui
-            configWindow.IsOpen = true;
+            if (KamiCommon.WindowManager.GetWindowOfType<ConfigWindow>() is { } window)
+            {
+                window.IsOpen = true;
+            }
         }
 
         private void DrawUserInterface()
@@ -201,9 +203,12 @@ namespace Tf2CriticalHitsPlugin
             this.WindowSystem.Draw();
         }
 
-        public void DrawConfigWindow()
+        public static void DrawConfigWindow()
         {
-            configWindow.IsOpen = true;
+            if (KamiCommon.WindowManager.GetWindowOfType<ConfigWindow>() is { } window)
+            {
+                window.IsOpen = true;
+            }
         }
     }
 }

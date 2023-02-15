@@ -53,6 +53,14 @@ public class ConfigOne : IPluginConfiguration
         {
             return new[] { DirectCriticalDamage, CriticalDamage, CriticalHeal, DirectDamage }.ToList().GetEnumerator();
         }
+
+        public void CopySettingsFrom(JobConfig jobConfig)
+        {
+            DirectCriticalDamage.CopySettingsFrom(jobConfig.DirectCriticalDamage);
+            CriticalDamage.CopySettingsFrom(jobConfig.CriticalDamage);
+            CriticalHeal.CopySettingsFrom(jobConfig.CriticalHeal);
+            DirectDamage.CopySettingsFrom(jobConfig.DirectDamage);
+        }
     }
 
     public class ConfigModule
@@ -96,6 +104,18 @@ public class ConfigOne : IPluginConfiguration
         public Setting<ushort> TextGlowColor { get; set; } = new(0);
         public Setting<bool> TextItalics { get; set; } = new(false);
 
+        public void CopySettingsFrom(ConfigModule other)
+        {
+            PlaySound = other.PlaySound;
+            SoundForActionsOnly = other.SoundForActionsOnly;
+            FilePath = other.FilePath;
+            Volume = other.Volume;
+            ShowText = other.ShowText;
+            Text = other.Text;
+            TextColor = other.TextColor;
+            TextGlowColor = other.TextGlowColor;
+            TextItalics = other.TextItalics;
+        }
     }
 
     // the below exist just to make saving less cumbersome

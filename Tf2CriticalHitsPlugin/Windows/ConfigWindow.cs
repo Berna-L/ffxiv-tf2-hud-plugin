@@ -21,7 +21,7 @@ public class ConfigWindow : SelectionWindow, IDisposable
 {
     private static readonly string PluginVersion = GetVersionText();
 
-    public const String Title = "TF2-ish Critical Hits Configuration";
+    public const String Title = "TF2-ish Critical Hits — Configuration";
 
     private readonly ConfigOne configuration;
 
@@ -61,7 +61,7 @@ public class ConfigWindow : SelectionWindow, IDisposable
         }
     }
 
-    public ConfigWindow(Tf2CriticalHitsPlugin tf2CriticalHitsPlugin) : base(Title, 0.2f, 23.0f)
+    public ConfigWindow(Tf2CriticalHitsPlugin tf2CriticalHitsPlugin) : base(Title, 0.2f, 55.0f)
     {
         this.configuration = tf2CriticalHitsPlugin.Configuration;
     }
@@ -72,8 +72,8 @@ public class ConfigWindow : SelectionWindow, IDisposable
                             .Values
                             .ToList()
                             .ConvertAll(jobConfig => new Option(jobConfig, DialogManager))
-                            .OrderBy(o => o.JobConfig.GetClassJob().NameEnglish.RawString)
-                            .OrderBy(o => o.JobConfig.GetClassJob().Role);
+                            .OrderBy(o => o.JobConfig.GetClassJob().Role)
+                            .ThenBy(o => o.JobConfig.GetClassJob().NameEnglish.ToString());
     }
 
     public override void Draw()
@@ -85,9 +85,21 @@ public class ConfigWindow : SelectionWindow, IDisposable
 
     protected override void DrawExtras()
     {
+        DrawCopyButton();
         DrawVersionText();
     }
 
+    private static void DrawCopyButton()
+    {
+        if (ImGui.Button("Copy settings between jobs", new Vector2(ImGui.GetContentRegionAvail().X, 20.0f)))
+        {
+            if (KamiCommon.WindowManager.GetWindowOfType<SettingsCopyWindow>() is { } window)
+            {
+                window.Open();
+            }
+        }
+    }
+    
     private static void DrawDetailPane(ConfigOne.JobConfig jobConfig, FileDialogManager dialogManager)
     {
         ImGui.Text($"Configuration for {jobConfig.GetClassJob().NameEnglish}");
