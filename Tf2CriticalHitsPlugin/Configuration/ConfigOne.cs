@@ -76,7 +76,6 @@ public class ConfigOne : IPluginConfiguration
 
         public string GetId()
         {
-            PluginLog.LogDebug($"{ClassJobId}{ModuleType}");
             return $"{ClassJobId}{ModuleType}";
         }
 

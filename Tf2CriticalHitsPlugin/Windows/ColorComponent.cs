@@ -18,6 +18,7 @@ public static class ColorComponent
         ImGui.Text("Current color:");
         ImGui.SameLine();
         ImGui.ColorButton($"{id}SelectedColor", palette[index].Vec4);
+        var shouldClose = false;
         foreach (var i in palette.Keys)
         {
             ImGui.PushID($"{id}ColorNumber{i}");
@@ -29,7 +30,7 @@ public static class ColorComponent
             if (ImGui.ColorButton($"##{id}palette", palette[i].Vec4, paletteButtonFlags, new Vector2(20, 20)))
             {
                 index = palette[i].Index;
-                return true;
+                shouldClose = true;
             }
             ImGui.PopID();
         }
@@ -37,15 +38,19 @@ public static class ColorComponent
         ImGui.EndGroup();
 
 
-        var close = ImGui.Button("Close");
+        shouldClose |= ImGui.Button("Close");
         ImGui.SameLine();
         if (ImGui.Button("Default"))
         {
+            shouldClose = true;
             index = defaultIndex;
-            return true;
         }
 
-        return close;
+        if (shouldClose)
+        {
+            ImGui.CloseCurrentPopup();
+        }
+        return shouldClose;
     }
 
     public static bool SelectorButton(
@@ -54,25 +59,22 @@ public static class ColorComponent
     {
         
         var popupId = $"popup{id}";
-        if (ImGui.BeginPopup(popupId))
-        {
-            if (ColorSelector($"##selector{id}", palette, ref index, defaultIndex))
-            {
-                return true;
-            }
-
-            ImGui.EndPopup();
-        }
-        
+        var colorSelected = false;
         if (ImGui.ColorButton($"##pickerButton{id}", palette[index].Vec4))
         {
             ImGui.OpenPopup(popupId);
+        }
+
+        if (ImGui.BeginPopup(popupId))
+        {
+            colorSelected = ColorSelector($"##selector{id}", palette, ref index, defaultIndex);
+            ImGui.EndPopup();
         }
 
         if (tooltip.Length > 0 && ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled))
         {
             ImGui.SetTooltip(tooltip);
         }
-        return false;
+        return colorSelected;
     }
 }
