@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Numerics;
+using Dalamud.Logging;
 using ImGuiNET;
 
 namespace Tf2CriticalHitsPlugin.Windows;
@@ -11,9 +12,8 @@ public static class ColorComponent
     private static bool ColorSelector(
         string id, SortedDictionary<ushort, ColorInfo> palette, ref ushort index, ushort defaultIndex)
     {
-        var paletteButtonFlags = ImGuiColorEditFlags.AlphaPreview | ImGuiColorEditFlags.NoPicker |
-                                 ImGuiColorEditFlags.NoTooltip;
-        ImGui.Separator();
+        const ImGuiColorEditFlags paletteButtonFlags = ImGuiColorEditFlags.AlphaPreview | ImGuiColorEditFlags.NoPicker |
+                                                       ImGuiColorEditFlags.NoTooltip;
         ImGui.BeginGroup(); // Lock X position
         ImGui.Text("Current color:");
         ImGui.SameLine();
@@ -21,15 +21,16 @@ public static class ColorComponent
         foreach (var i in palette.Keys)
         {
             ImGui.PushID($"{id}ColorNumber{i}");
-            if ((i % 15) != 0)
+            if (i % 15 != 0)
+            {
                 ImGui.SameLine(0f, ImGui.GetStyle().ItemSpacing.Y);
+            }
 
             if (ImGui.ColorButton($"##{id}palette", palette[i].Vec4, paletteButtonFlags, new Vector2(20, 20)))
             {
                 index = palette[i].Index;
                 return true;
             }
-
             ImGui.PopID();
         }
 
@@ -51,7 +52,18 @@ public static class ColorComponent
         SortedDictionary<ushort, ColorInfo> palette, string id, ref ushort index, ushort defaultIndex,
         string tooltip = "")
     {
+        
         var popupId = $"popup{id}";
+        if (ImGui.BeginPopup(popupId))
+        {
+            if (ColorSelector($"##selector{id}", palette, ref index, defaultIndex))
+            {
+                return true;
+            }
+
+            ImGui.EndPopup();
+        }
+        
         if (ImGui.ColorButton($"##pickerButton{id}", palette[index].Vec4))
         {
             ImGui.OpenPopup(popupId);
@@ -61,18 +73,6 @@ public static class ColorComponent
         {
             ImGui.SetTooltip(tooltip);
         }
-
-        if (ImGui.BeginPopup(popupId))
-        {
-            if (ColorSelector($"selector{id}", palette, ref index, defaultIndex))
-            {
-                ImGui.CloseCurrentPopup();
-                return true;
-            }
-
-            ImGui.EndPopup();
-        }
-
         return false;
     }
 }
