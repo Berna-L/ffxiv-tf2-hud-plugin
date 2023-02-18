@@ -118,6 +118,7 @@ public class ConfigWindow : SelectionWindow, IDisposable
             if (success && paths.Count > 0)
             {
                 config.FilePath = new Setting<string>(paths[0]);
+                KamiCommon.SaveConfiguration();
             }
         }
 

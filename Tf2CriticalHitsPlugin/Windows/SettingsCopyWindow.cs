@@ -4,6 +4,7 @@ using System.Numerics;
 using Dalamud.Interface.Windowing;
 using Dalamud.Logging;
 using ImGuiNET;
+using KamiLib;
 using Lumina.Excel.GeneratedSheets;
 using Tf2CriticalHitsPlugin.Configuration;
 
@@ -118,6 +119,7 @@ public class SettingsCopyWindow : Window
                 var destJob = Jobs[destJobIdx];
                 configOne.JobConfigurations[destJob.RowId].CopySettingsFrom(sourceJobSettings);
             }
+            KamiCommon.SaveConfiguration();
             this.IsOpen = false;
         }
     }
