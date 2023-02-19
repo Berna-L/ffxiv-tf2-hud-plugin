@@ -186,7 +186,7 @@ namespace Tf2CriticalHitsPlugin
             {
                 return Constants.ActionsPerJob[currentClassJobId.Value].Contains(text.TextValue);
             }
-            // If we're checking the Own Critical Heals section, check if it's NOT an action of the current job
+            // If we're checking the Other Critical Heals section, check if it's NOT an action of the current job
             if (config.ModuleType == ModuleType.OtherCriticalHeal)
             {
                 return !Constants.ActionsPerJob[currentClassJobId.Value].Contains(text.TextValue);
