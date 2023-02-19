@@ -36,7 +36,6 @@ namespace Tf2CriticalHitsPlugin
             InitColors();
 
             this.Configuration = InitConfig();
-            this.Configuration.Initialize(Service.PluginInterface);
             Configuration.Save();
 
             KamiCommon.WindowManager.AddWindow(new ConfigWindow(this));
@@ -76,7 +75,7 @@ namespace Tf2CriticalHitsPlugin
                 var config = version switch
                 {
                     0 => JsonSerializer.Deserialize<ConfigZero>(configText)?.MigrateToOne() ?? new ConfigOne(),
-                    1 => Service.PluginInterface.GetPluginConfig() as ConfigOne ?? new ConfigOne(),
+                    1 => JsonSerializer.Deserialize<ConfigOne>(configText) ?? new ConfigOne(),
                     _ => new ConfigOne()
                 };
 

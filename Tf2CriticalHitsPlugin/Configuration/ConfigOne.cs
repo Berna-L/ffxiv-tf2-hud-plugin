@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using Dalamud.Configuration;
-using Dalamud.Plugin;
 using KamiLib.Configuration;
-using KamiLib.Hooking;
 using Lumina.Excel.GeneratedSheets;
+using Newtonsoft.Json;
 using Tf2CriticalHitsPlugin.SeFunctions;
 using static Tf2CriticalHitsPlugin.Constants;
 
@@ -72,13 +72,14 @@ public class ConfigOne : IPluginConfiguration
                 DirectDamage = ConfigModule.Create(classJobId, ModuleType.DirectDamage)
             };
         }
-        
+
 
         public ClassJob GetClassJob() => CombatJobs[ClassJobId.Value];
 
         public IEnumerator<ConfigModule> GetEnumerator()
         {
-            return new[] { DirectCriticalDamage, CriticalDamage, OwnCriticalHeal, OtherCriticalHeal, DirectDamage }.ToList().GetEnumerator();
+            return new[] { DirectCriticalDamage, CriticalDamage, OwnCriticalHeal, OtherCriticalHeal, DirectDamage }
+                   .ToList().GetEnumerator();
         }
 
         public void CopySettingsFrom(JobConfig jobConfig)
@@ -93,7 +94,6 @@ public class ConfigOne : IPluginConfiguration
 
     public class ConfigModule
     {
-
         public static ConfigModule Create(uint classJobId, ModuleType moduleType)
         {
             var configModule = new ConfigModule
@@ -136,31 +136,23 @@ public class ConfigOne : IPluginConfiguration
 
         public void CopySettingsFrom(ConfigModule other)
         {
-            UseCustomFile = other.UseCustomFile with{};
-            SoundForActionsOnly = other.SoundForActionsOnly with{};
-            GameSound = other.GameSound with{};
-            FilePath = other.FilePath with{};
-            Volume = other.Volume with{};
-            ShowText = other.ShowText with{};
-            Text = other.Text with{};
-            TextColor = other.TextColor with{};
-            TextGlowColor = other.TextGlowColor with{};
-            TextItalics = other.TextItalics with{};
+            UseCustomFile = other.UseCustomFile with { };
+            SoundForActionsOnly = other.SoundForActionsOnly with { };
+            GameSound = other.GameSound with { };
+            FilePath = other.FilePath with { };
+            Volume = other.Volume with { };
+            ShowText = other.ShowText with { };
+            Text = other.Text with { };
+            TextColor = other.TextColor with { };
+            TextGlowColor = other.TextGlowColor with { };
+            TextItalics = other.TextItalics with { };
         }
     }
 
-    // the below exist just to make saving less cumbersome
-    [NonSerialized]
-    private DalamudPluginInterface? pluginInterface;
-
-
-    public void Initialize(DalamudPluginInterface pluginInterface)
-    {
-        this.pluginInterface = pluginInterface;
-    }
 
     public void Save()
     {
-        this.pluginInterface!.SavePluginConfig(this);
+        File.WriteAllText(Service.PluginInterface.ConfigFile.FullName,
+                          JsonConvert.SerializeObject(this, Formatting.Indented));
     }
 }
