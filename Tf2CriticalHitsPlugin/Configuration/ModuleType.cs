@@ -4,6 +4,7 @@ public enum ModuleType: ushort
 {
     DirectCriticalDamage = 0,
     CriticalDamage,
-    CriticalHeal,
-    DirectDamage
+    OwnCriticalHeal,
+    DirectDamage,
+    OtherCriticalHeal
 }

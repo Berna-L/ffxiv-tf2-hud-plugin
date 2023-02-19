@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
@@ -25,7 +26,7 @@ namespace Tf2CriticalHitsPlugin
 
         public ConfigOne Configuration { get; init; }
         public readonly WindowSystem WindowSystem = new("TF2CriticalHitsPlugin");
-        public static PlaySound? GameSoundPlayer;
+        internal static PlaySound? GameSoundPlayer;
 
         public Tf2CriticalHitsPlugin(DalamudPluginInterface pluginInterface)
         {
@@ -42,7 +43,7 @@ namespace Tf2CriticalHitsPlugin
             KamiCommon.WindowManager.AddWindow(new SettingsCopyWindow(Configuration));
 
             GameSoundPlayer = new PlaySound(Service.SigScanner);
-            
+
             Service.CommandManager.AddHandler(CommandName, new CommandInfo(OnConfigCommand)
             {
                 HelpMessage = "Opens the TF2-ish Critical Hits configuration window"
@@ -84,7 +85,8 @@ namespace Tf2CriticalHitsPlugin
             catch (Exception)
             {
                 Service.PluginInterface.ConfigFile.MoveTo(Service.PluginInterface.ConfigFile.FullName + ".old");
-                Chat.PrintError("There was an error while reading your configuration file and it was reset. The old file is available in your pluginConfigs folder, as Tf2CriticalHitsPlugin.json.old.");
+                Chat.PrintError(
+                    "There was an error while reading your configuration file and it was reset. The old file is available in your pluginConfigs folder, as Tf2CriticalHitsPlugin.json.old.");
                 return new ConfigOne();
             }
         }
@@ -138,9 +140,9 @@ namespace Tf2CriticalHitsPlugin
 
             foreach (var config in Configuration.JobConfigurations[currentClassJobId.Value])
             {
-                if (config.GetModuleDefaults().FlyTextColor == color &&
-                    (config.GetModuleDefaults().FlyTextType.AutoAttack.Contains(kind) ||
-                     config.GetModuleDefaults().FlyTextType.Action.Contains(kind)))
+                if (IsSameType(config, color) &&
+                    (IsAutoAttack(config, kind) ||
+                     IsEnabledAction(config, kind, text1, currentClassJobId)))
                 {
                     LogDebug($"{config.GetId()} registered!");
                     if (config.ShowText)
@@ -164,6 +166,27 @@ namespace Tf2CriticalHitsPlugin
             }
         }
 
+        private static bool IsSameType(ConfigOne.ConfigModule config, uint color)
+        {
+            return config.GetModuleDefaults().FlyTextColor == color;
+        }
+
+        private static bool IsAutoAttack(ConfigOne.ConfigModule config, FlyTextKind kind)
+        {
+            return config.GetModuleDefaults().FlyTextType.AutoAttack.Contains(kind);
+        }
+
+        private static bool IsEnabledAction(
+            ConfigOne.ConfigModule config, FlyTextKind kind, SeString text, [DisallowNull] byte? currentClassJobId)
+        {
+            // If it's not an action, return false
+            if (!config.GetModuleDefaults().FlyTextType.Action.Contains(kind)) return false;
+            if (config.ModuleType == ModuleType.OwnCriticalHeal &&
+                Constants.ActionsPerJob[currentClassJobId.Value].Contains(text.TextValue)) return true;
+            return config.ModuleType == ModuleType.OtherCriticalHeal &&
+                   !Constants.ActionsPerJob[currentClassJobId.Value].Contains(text.TextValue);
+        }
+
         private static unsafe byte? GetCurrentClassJobId()
         {
             var classJobId = PlayerState.Instance()->CurrentClassJobId;
@@ -174,11 +197,18 @@ namespace Tf2CriticalHitsPlugin
         {
             var kind = config.GetModuleDefaults().FlyTextType.Action.FirstOrDefault();
             LogDebug($"Kind: {kind}, Config ID: {config.GetId()}");
-            var text = Constants.TestFlavorText[
-                (int)Math.Floor(Random.Shared.NextSingle() * Constants.TestFlavorText.Length)];
+            var text = GetTestText(config);
             Service.FlyTextGui.AddFlyText(kind, 1, 3333, 0, new SeStringBuilder().AddText(text).Build(),
                                           new SeStringBuilder().AddText($"TF2TEST##{config.ClassJobId}").Build(),
                                           config.GetModuleDefaults().FlyTextColor, 0, 60012);
+        }
+
+        private static string GetTestText(ConfigOne.ConfigModule configModule)
+        {
+            var array = configModule.ModuleType.Value == ModuleType.OwnCriticalHeal
+                            ? Constants.ActionsPerJob[configModule.ClassJobId.Value].ToArray()
+                            : Constants.TestFlavorText;
+            return array[(int)Math.Floor(Random.Shared.NextSingle() * array.Length)];
         }
 
         private static SeString GenerateText(ConfigOne.ConfigModule config)

@@ -40,15 +40,21 @@ namespace Tf2CriticalHitsPlugin.Configuration
         public ConfigOne MigrateToOne()
         {
             var configOne = new ConfigOne();
-            var criticalHealText = Critical.Text.Equals(ModuleDefaults.GetModuleDefaultText(ModuleType.CriticalDamage))
-                                       ? new Setting<string>(ModuleDefaults.GetModuleDefaultText(ModuleType.CriticalHeal))
+            var ownCriticalHealText = Critical.Text.Equals(ModuleDefaults.GetModuleDefaultText(ModuleType.CriticalDamage))
+                                       ? new Setting<string>(ModuleDefaults.GetModuleDefaultText(ModuleType.OwnCriticalHeal))
                                        : new Setting<string>(Critical.Text);
+            var otherCriticalHealText = Critical.Text.Equals(ModuleDefaults.GetModuleDefaultText(ModuleType.CriticalDamage))
+                                          ? new Setting<string>(ModuleDefaults.GetModuleDefaultText(ModuleType.OtherCriticalHeal))
+                                          : new Setting<string>(Critical.Text);
+
             foreach (var jobConfig in configOne.JobConfigurations.Values)
             {
                 MigrateSubConfig(DirectCritical, jobConfig.DirectCriticalDamage);
                 MigrateSubConfig(Critical, jobConfig.CriticalDamage);
-                MigrateSubConfig(Critical, jobConfig.CriticalHeal);
-                jobConfig.CriticalHeal.Text = criticalHealText;
+                MigrateSubConfig(Critical, jobConfig.OwnCriticalHeal);
+                jobConfig.OwnCriticalHeal.Text = ownCriticalHealText;
+                MigrateSubConfig(Critical, jobConfig.OtherCriticalHeal);
+                jobConfig.OtherCriticalHeal.Text = otherCriticalHealText;
                 MigrateSubConfig(Direct, jobConfig.DirectDamage);
             }
             Chat.Print("Update", "Your configuration has been migrated to the new version. Check the new options at /critconfig. Enjoy!");
@@ -59,7 +65,7 @@ namespace Tf2CriticalHitsPlugin.Configuration
         {
             if (zeroSub.PlaySound)
             {
-                oneSub.UseCustomFile = new Setting<bool>(true);
+                oneSub.UseCustomFile = new Setting<bool>(oneSub.FilePath.Value != string.Empty);
             }
             else
             {

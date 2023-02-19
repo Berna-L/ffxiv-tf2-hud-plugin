@@ -25,13 +25,15 @@ public class ModuleDefaults
         FlyTextParameters = GetModuleDefaultTextParameters(moduleType);
     }
 
-    private static readonly IDictionary<ModuleType, ModuleDefaults> ConstantsMap = new Dictionary<ModuleType, ModuleDefaults>
-    {
-        [ModuleType.DirectCriticalDamage] = new(ModuleType.DirectCriticalDamage),
-        [ModuleType.CriticalDamage] = new(ModuleType.CriticalDamage),
-        [ModuleType.CriticalHeal] = new(ModuleType.CriticalHeal),
-        [ModuleType.DirectDamage] = new(ModuleType.DirectDamage)
-    };
+    private static readonly IDictionary<ModuleType, ModuleDefaults> ConstantsMap =
+        new Dictionary<ModuleType, ModuleDefaults>
+        {
+            [ModuleType.DirectCriticalDamage] = new(ModuleType.DirectCriticalDamage),
+            [ModuleType.CriticalDamage] = new(ModuleType.CriticalDamage),
+            [ModuleType.OwnCriticalHeal] = new(ModuleType.OwnCriticalHeal),
+            [ModuleType.OtherCriticalHeal] = new(ModuleType.OtherCriticalHeal),
+            [ModuleType.DirectDamage] = new(ModuleType.DirectDamage)
+        };
 
     public static ModuleDefaults GetDefaultsFromType(ModuleType moduleType) => ConstantsMap[moduleType];
 
@@ -39,14 +41,15 @@ public class ModuleDefaults
     {
         ModuleType.DirectCriticalDamage => "Direct Critical Damage",
         ModuleType.CriticalDamage => "Critical Damage",
-        ModuleType.CriticalHeal => "Critical Heal",
+        ModuleType.OwnCriticalHeal => "Critical Heal from your Job",
+        ModuleType.OtherCriticalHeal => "Critical Heal from other Jobs",
         ModuleType.DirectDamage => "Direct Damage",
         _ => throw new ArgumentOutOfRangeException(nameof(moduleType), moduleType, null)
     };
 
     public static string? GetModuleNote(ModuleType moduleType) => moduleType switch
     {
-        ModuleType.CriticalHeal => "Note: This also triggers for other players' healing.",
+        ModuleType.OwnCriticalHeal => "Note: If another player shares your job, it'll also trigger.",
         _ => null
     };
 
@@ -54,7 +57,8 @@ public class ModuleDefaults
     {
         ModuleType.DirectCriticalDamage => Sounds.Sound06,
         ModuleType.CriticalDamage => Sounds.Sound04,
-        ModuleType.CriticalHeal => Sounds.Sound10,
+        ModuleType.OwnCriticalHeal => Sounds.Sound10,
+        ModuleType.OtherCriticalHeal => Sounds.Sound09,
         ModuleType.DirectDamage => Sounds.Sound16,
         _ => throw new ArgumentOutOfRangeException(nameof(moduleType), moduleType, null)
     };
@@ -66,7 +70,8 @@ public class ModuleDefaults
             case ModuleType.DirectCriticalDamage:
                 return new FlyTextType(FlyTextType.AutoDirectCritical, FlyTextType.ActionDirectCritical);
             case ModuleType.CriticalDamage:
-            case ModuleType.CriticalHeal:
+            case ModuleType.OwnCriticalHeal:
+            case ModuleType.OtherCriticalHeal:
                 return new FlyTextType(FlyTextType.AutoCritical, FlyTextType.ActionCritical);
             case ModuleType.DirectDamage:
                 return new FlyTextType(FlyTextType.AutoDirect, FlyTextType.ActionDirect);
@@ -79,7 +84,8 @@ public class ModuleDefaults
     {
         ModuleType.DirectCriticalDamage => "DIRECT CRITICAL HIT!",
         ModuleType.CriticalDamage => "CRITICAL HIT!",
-        ModuleType.CriticalHeal => "CRITICAL HEAL!",
+        ModuleType.OwnCriticalHeal => "CRITICAL HEAL!",
+        ModuleType.OtherCriticalHeal => "THANK YOUR HEALER!",
         ModuleType.DirectDamage => "Mini crit!",
         _ => throw new ArgumentOutOfRangeException(nameof(moduleType), moduleType, null)
     };
@@ -92,7 +98,8 @@ public class ModuleDefaults
             case ModuleType.CriticalDamage:
             case ModuleType.DirectDamage:
                 return Constants.DamageColor;
-            case ModuleType.CriticalHeal:
+            case ModuleType.OwnCriticalHeal:
+            case ModuleType.OtherCriticalHeal:
                 return Constants.HealColor;
             default:
                 throw new ArgumentOutOfRangeException(nameof(moduleType), moduleType, null);
@@ -105,7 +112,8 @@ public class ModuleDefaults
         {
             case ModuleType.DirectCriticalDamage:
             case ModuleType.CriticalDamage:
-            case ModuleType.CriticalHeal:
+            case ModuleType.OwnCriticalHeal:
+            case ModuleType.OtherCriticalHeal:
                 return new FlyTextParameters(60, 7, true);
             case ModuleType.DirectDamage:
                 return new FlyTextParameters(0, 0, false);

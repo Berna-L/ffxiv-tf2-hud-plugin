@@ -4,6 +4,7 @@ using System.Linq;
 using Dalamud.Configuration;
 using Dalamud.Plugin;
 using KamiLib.Configuration;
+using KamiLib.Hooking;
 using Lumina.Excel.GeneratedSheets;
 using Tf2CriticalHitsPlugin.SeFunctions;
 using static Tf2CriticalHitsPlugin.Constants;
@@ -30,7 +31,32 @@ public class ConfigOne : IPluginConfiguration
         public Setting<uint> ClassJobId { get; init; } = new(255);
         public ConfigModule DirectCriticalDamage { get; init; } = new();
         public ConfigModule CriticalDamage { get; init; } = new();
-        public ConfigModule CriticalHeal { get; init; } = new();
+        public ConfigModule OwnCriticalHeal { get; init; } = new();
+
+        [Obsolete("Used only to import old JSONs")]
+        public ConfigModule CriticalHeal
+        {
+            init
+            {
+                // Migration code from Version 2.0.0.0 configuration.
+                OwnCriticalHeal = ConfigModule.Create(value.ClassJobId.Value, ModuleType.OwnCriticalHeal);
+                OwnCriticalHeal.CopySettingsFrom(value);
+                OtherCriticalHeal = ConfigModule.Create(value.ClassJobId.Value, ModuleType.OtherCriticalHeal);
+                OtherCriticalHeal.CopySettingsFrom(value);
+                if (OtherCriticalHeal.Text.Value == OwnCriticalHeal.GetModuleDefaults().DefaultText)
+                {
+                    OtherCriticalHeal.Text = new Setting<string>(OtherCriticalHeal.GetModuleDefaults().DefaultText);
+                }
+
+                if (OtherCriticalHeal.GameSound.Value == OwnCriticalHeal.GetModuleDefaults().GameSound)
+                {
+                    OtherCriticalHeal.GameSound = new Setting<Sounds>(OtherCriticalHeal.GetModuleDefaults().GameSound);
+                }
+            }
+        }
+
+        public ConfigModule OtherCriticalHeal { get; init; } = new();
+
         public ConfigModule DirectDamage { get; init; } = new();
 
 
@@ -41,7 +67,8 @@ public class ConfigOne : IPluginConfiguration
                 ClassJobId = new Setting<uint>(classJobId),
                 DirectCriticalDamage = ConfigModule.Create(classJobId, ModuleType.DirectCriticalDamage),
                 CriticalDamage = ConfigModule.Create(classJobId, ModuleType.CriticalDamage),
-                CriticalHeal = ConfigModule.Create(classJobId, ModuleType.CriticalHeal),
+                OwnCriticalHeal = ConfigModule.Create(classJobId, ModuleType.OwnCriticalHeal),
+                OtherCriticalHeal = ConfigModule.Create(classJobId, ModuleType.OtherCriticalHeal),
                 DirectDamage = ConfigModule.Create(classJobId, ModuleType.DirectDamage)
             };
         }
@@ -51,14 +78,15 @@ public class ConfigOne : IPluginConfiguration
 
         public IEnumerator<ConfigModule> GetEnumerator()
         {
-            return new[] { DirectCriticalDamage, CriticalDamage, CriticalHeal, DirectDamage }.ToList().GetEnumerator();
+            return new[] { DirectCriticalDamage, CriticalDamage, OwnCriticalHeal, OtherCriticalHeal, DirectDamage }.ToList().GetEnumerator();
         }
 
         public void CopySettingsFrom(JobConfig jobConfig)
         {
             DirectCriticalDamage.CopySettingsFrom(jobConfig.DirectCriticalDamage);
             CriticalDamage.CopySettingsFrom(jobConfig.CriticalDamage);
-            CriticalHeal.CopySettingsFrom(jobConfig.CriticalHeal);
+            OwnCriticalHeal.CopySettingsFrom(jobConfig.OwnCriticalHeal);
+            OtherCriticalHeal.CopySettingsFrom(jobConfig.OtherCriticalHeal);
             DirectDamage.CopySettingsFrom(jobConfig.DirectDamage);
         }
     }
