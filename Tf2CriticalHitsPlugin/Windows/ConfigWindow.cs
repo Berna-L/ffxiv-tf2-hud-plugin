@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Numerics;
 using System.Reflection;
@@ -27,7 +28,16 @@ public class ConfigWindow : SelectionWindow, IDisposable
     private readonly ConfigOne configuration;
 
     internal static readonly FileDialogManager DialogManager = new()
-        { AddedWindowFlags = ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoDocking };
+    {
+        AddedWindowFlags = ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoDocking
+    };
+
+    static ConfigWindow()
+    {
+        DialogManager.CustomSideBarItems.Add((Environment.ExpandEnvironmentVariables("User Folder"),
+                                                 Environment.ExpandEnvironmentVariables("%USERPROFILE%"),
+                                                 FontAwesomeIcon.User, 0));
+    }
 
     public static readonly SortedDictionary<ushort, ColorInfo> ForegroundColors = new();
     public static readonly SortedDictionary<ushort, ColorInfo> GlowColors = new();
@@ -100,7 +110,7 @@ public class ConfigWindow : SelectionWindow, IDisposable
             }
         }
     }
-    
+
     private static void DrawDetailPane(ConfigOne.JobConfig jobConfig, FileDialogManager dialogManager)
     {
         ImGui.Text($"Configuration for {jobConfig.GetClassJob().NameEnglish}");
@@ -131,7 +141,8 @@ public class ConfigWindow : SelectionWindow, IDisposable
                .AddIndent(2)
                .AddConfigCombo(SoundsExtensions.Values(), config.GameSound, s => s.ToName(), width: 150.0f)
                .SameLine()
-               .AddIconButton($"{config.GetId()}testSfx", FontAwesomeIcon.Play, () => Tf2CriticalHitsPlugin.GameSoundPlayer?.Play(config.GameSound.Value))
+               .AddIconButton($"{config.GetId()}testSfx", FontAwesomeIcon.Play,
+                              () => Tf2CriticalHitsPlugin.GameSoundPlayer?.Play(config.GameSound.Value))
                .SameLine()
                .AddString("(Volume is controlled by the game's settings)")
                .AddIndent(-2)
@@ -145,9 +156,10 @@ public class ConfigWindow : SelectionWindow, IDisposable
                                   "Select the file", "Audio files{.wav,.mp3}", UpdatePath, 1,
                                   config.FilePath.Value.IsNullOrEmpty()
                                       ? Environment.ExpandEnvironmentVariables("%USERPROFILE%")
-                                      : config.FilePath.Value), "Open file browser...")
+                                      : Path.GetDirectoryName(config.FilePath.Value)), "Open file browser...")
                .SameLine()
-               .AddIconButton($"{config.GetId()}testFile", FontAwesomeIcon.Play, () => SoundEngine.PlaySound(config.FilePath.Value, config.Volume.Value * 0.01f))
+               .AddIconButton($"{config.GetId()}testFile", FontAwesomeIcon.Play,
+                              () => SoundEngine.PlaySound(config.FilePath.Value, config.Volume.Value * 0.01f))
                .AddSliderInt("Volume", config.Volume, 0, 100)
                .AddIndent(-2)
                .EndConditional()
