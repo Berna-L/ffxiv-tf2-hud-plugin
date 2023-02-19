@@ -179,12 +179,20 @@ namespace Tf2CriticalHitsPlugin
         private static bool IsEnabledAction(
             ConfigOne.ConfigModule config, FlyTextKind kind, SeString text, [DisallowNull] byte? currentClassJobId)
         {
-            // If it's not an action, return false
+            // If it's not a FlyText for an action, return false
             if (!config.GetModuleDefaults().FlyTextType.Action.Contains(kind)) return false;
-            if (config.ModuleType == ModuleType.OwnCriticalHeal &&
-                Constants.ActionsPerJob[currentClassJobId.Value].Contains(text.TextValue)) return true;
-            return config.ModuleType == ModuleType.OtherCriticalHeal &&
-                   !Constants.ActionsPerJob[currentClassJobId.Value].Contains(text.TextValue);
+            // If we're checking the Own Critical Heals section, check if it's an action of the current job
+            if (config.ModuleType == ModuleType.OwnCriticalHeal)
+            {
+                return Constants.ActionsPerJob[currentClassJobId.Value].Contains(text.TextValue);
+            }
+            // If we're checking the Own Critical Heals section, check if it's NOT an action of the current job
+            if (config.ModuleType == ModuleType.OtherCriticalHeal)
+            {
+                return !Constants.ActionsPerJob[currentClassJobId.Value].Contains(text.TextValue);
+            }
+            // If it's any other configuration section, it's enabled.
+            return true;
         }
 
         private static unsafe byte? GetCurrentClassJobId()
