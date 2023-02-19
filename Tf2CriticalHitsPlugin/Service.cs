@@ -22,5 +22,5 @@ public class Service
     public static DataManager? DataManager { get; private set; } = null;
 
     [PluginService]
-    public static SigScanner SigScanner { get; private set; } = null;
+    public static SigScanner SigScanner { get; private set; } = null!;
 }

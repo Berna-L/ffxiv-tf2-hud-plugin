@@ -123,6 +123,9 @@ public class ConfigWindow : SelectionWindow, IDisposable
         }
 
         InfoBox.Instance.AddTitle(config.GetModuleDefaults().SectionLabel)
+               .StartConditional(config.GetModuleDefaults().SectionNote is not null)
+               .AddString(config.GetModuleDefaults().SectionNote ?? "", Colors.Orange)
+               .EndConditional()
                .AddConfigCheckbox("Use custom file", config.UseCustomFile, additionalID: $"{config.GetId()}PlaySound")
                .StartConditional(!config.UseCustomFile)
                .AddIndent(2)

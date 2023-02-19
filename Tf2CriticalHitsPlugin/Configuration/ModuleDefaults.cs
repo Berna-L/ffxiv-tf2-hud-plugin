@@ -7,6 +7,7 @@ namespace Tf2CriticalHitsPlugin.Configuration;
 public class ModuleDefaults
 {
     public string SectionLabel { get; }
+    public string? SectionNote { get; }
     public Sounds GameSound { get; set; }
     public FlyTextType FlyTextType { get; }
     public uint FlyTextColor { get; }
@@ -16,6 +17,7 @@ public class ModuleDefaults
     private ModuleDefaults(ModuleType moduleType)
     {
         SectionLabel = GetModuleLabel(moduleType);
+        SectionNote = GetModuleNote(moduleType);
         GameSound = GetModuleGameSound(moduleType);
         FlyTextType = GetModuleFlyTextType(moduleType);
         FlyTextColor = GetModuleFlyTextColor(moduleType);
@@ -40,6 +42,12 @@ public class ModuleDefaults
         ModuleType.CriticalHeal => "Critical Heal",
         ModuleType.DirectDamage => "Direct Damage",
         _ => throw new ArgumentOutOfRangeException(nameof(moduleType), moduleType, null)
+    };
+
+    public static string? GetModuleNote(ModuleType moduleType) => moduleType switch
+    {
+        ModuleType.CriticalHeal => "Note: This also triggers for other players' healing.",
+        _ => null
     };
 
     private static Sounds GetModuleGameSound(ModuleType moduleType) => moduleType switch
