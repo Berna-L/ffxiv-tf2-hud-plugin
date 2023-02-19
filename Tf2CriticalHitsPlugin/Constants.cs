@@ -1,16 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using Dalamud.Logging;
 using Lumina.Excel.GeneratedSheets;
-using Tf2CriticalHitsPlugin.Configuration;
-using static Tf2CriticalHitsPlugin.Configuration.FlyTextType;
+using Action = Lumina.Excel.GeneratedSheets.Action;
 
 namespace Tf2CriticalHitsPlugin;
 
-public abstract partial class Constants
+public abstract class Constants
 {
-    public const uint CurrentConfigVersion = 1;
-
     public const uint DamageColor = 4278215139;
     public const uint HealColor = 4278213930;
 
@@ -20,10 +18,12 @@ public abstract partial class Constants
         { "Stickybomb", "Meatshot 8)", "Crocket", "Lucksman", "360 Noscope", "Reflected Rocket", "Random crit lol" };
 
     public static readonly IDictionary<uint, ClassJob> CombatJobs;
-    
+    public static readonly ImmutableDictionary<uint, ISet<string>> ActionsPerJob;
+
     static Constants()
     {
         CombatJobs = InitCombatJobs();
+        ActionsPerJob = InitActionPerJob();
     }
 
     private static IDictionary<uint, ClassJob> InitCombatJobs()
@@ -38,9 +38,49 @@ public abstract partial class Constants
         {
             var classJob = classJobSheet.GetRow(i);
             if (classJob is null || classJob.JobIndex is 0) continue;
+            PluginLog.LogDebug($"{classJob.NameEnglish} | ${classJob.ClassJobParent.Value?.NameEnglish}");
             jobList.Add(classJob);
         }
 
         return jobList.ToImmutableSortedDictionary(j => j.RowId, j => j);
+    }
+
+    private static ImmutableDictionary<uint, ISet<string>> InitActionPerJob()
+    {
+        if (Service.DataManager == null) throw new ApplicationException("DataManager not initialized!");
+        var result = new Dictionary<uint, ISet<string>>();
+        var actionSheet = Service.DataManager.GetExcelSheet<Action>();
+        if (actionSheet is null) throw new ApplicationException("Action sheet unavailable!");
+        foreach (var action in actionSheet)
+        {
+            if (!result.ContainsKey(action.ClassJob.Row))
+            {
+                result[action.ClassJob.Row] = new HashSet<string>();
+            }
+
+            result[action.ClassJob.Row].Add(action.Name.RawString);
+        }
+
+        var classJobSheet = Service.DataManager.GetExcelSheet<ClassJob>();
+        // Add the parent Class's action to a Job action
+        // (for when your White Mage *insists* on using Cure I)
+        foreach (var classJob in classJobSheet)
+        {
+            if (classJob?.ClassJobParent.Value is null) continue;
+            if (classJob.ClassJobParent.Value.RowId != classJob.RowId)
+            {
+                foreach (var parentAction in result[classJob.ClassJobParent.Value.RowId])
+                {
+                    result[classJob.RowId].Add(parentAction);
+                }
+            }
+        }
+
+        foreach (var (key, value) in result)
+        {
+            result[key] = value.ToImmutableHashSet();
+        }
+
+        return result.ToImmutableDictionary();
     }
 }
