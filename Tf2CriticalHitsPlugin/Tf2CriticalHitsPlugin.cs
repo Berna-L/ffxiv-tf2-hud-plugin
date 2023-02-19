@@ -8,6 +8,7 @@ using Dalamud.Plugin;
 using Dalamud.Game.Gui.FlyText;
 using Dalamud.Game.Text.SeStringHandling;
 using Dalamud.Interface.Windowing;
+using Dalamud.Logging;
 using FFXIVClientStructs.FFXIV.Client.Game.UI;
 using KamiLib;
 using KamiLib.ChatCommands;
@@ -75,15 +76,16 @@ namespace Tf2CriticalHitsPlugin
                 var config = version switch
                 {
                     0 => JsonSerializer.Deserialize<ConfigZero>(configText)?.MigrateToOne() ?? new ConfigOne(),
-                    1 => JsonSerializer.Deserialize<ConfigOne>(configText) ?? new ConfigOne(),
+                    1 => Service.PluginInterface.GetPluginConfig() as ConfigOne ?? new ConfigOne(),
                     _ => new ConfigOne()
                 };
 
                 return config;
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                Service.PluginInterface.ConfigFile.MoveTo(Service.PluginInterface.ConfigFile.FullName + ".old");
+                if (e.StackTrace is not null) LogError(e.StackTrace);
+                Service.PluginInterface.ConfigFile.MoveTo(Service.PluginInterface.ConfigFile.FullName + ".old", true);
                 Chat.PrintError(
                     "There was an error while reading your configuration file and it was reset. The old file is available in your pluginConfigs folder, as Tf2CriticalHitsPlugin.json.old.");
                 return new ConfigOne();
