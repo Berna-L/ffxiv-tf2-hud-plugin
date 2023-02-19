@@ -65,7 +65,7 @@ namespace Tf2CriticalHitsPlugin.Configuration
         {
             if (zeroSub.PlaySound)
             {
-                oneSub.UseCustomFile = new Setting<bool>(oneSub.FilePath.Value != string.Empty);
+                oneSub.UseCustomFile = new Setting<bool>(zeroSub.FilePath != string.Empty);
             }
             else
             {
