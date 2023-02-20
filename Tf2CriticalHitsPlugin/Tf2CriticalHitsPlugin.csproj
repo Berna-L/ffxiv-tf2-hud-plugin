@@ -83,4 +83,8 @@
         <ProjectReference Include="..\KamiLib\KamiLib.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="GameSFX" />
+    </ItemGroup>
+
 </Project>

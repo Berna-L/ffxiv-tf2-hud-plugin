@@ -8,15 +8,18 @@ using Dalamud.Plugin;
 using Dalamud.Game.Gui.FlyText;
 using Dalamud.Game.Text.SeStringHandling;
 using Dalamud.Interface.Windowing;
-using Dalamud.Logging;
 using FFXIVClientStructs.FFXIV.Client.Game.UI;
+using FFXIVClientStructs.FFXIV.Client.System.Framework;
+using FFXIVClientStructs.FFXIV.Client.UI.Misc;
 using KamiLib;
 using KamiLib.ChatCommands;
 using Lumina.Excel.GeneratedSheets;
 using Tf2CriticalHitsPlugin.Configuration;
+using Tf2CriticalHitsPlugin.GameSettings;
 using Tf2CriticalHitsPlugin.SeFunctions;
 using Tf2CriticalHitsPlugin.Windows;
 using static Dalamud.Logging.PluginLog;
+using ValueType = FFXIVClientStructs.FFXIV.Component.GUI.ValueType;
 
 namespace Tf2CriticalHitsPlugin
 {
@@ -130,7 +133,7 @@ namespace Tf2CriticalHitsPlugin
             ref float yOffset,
             ref bool handled)
         {
-            LogDebug($"Color: {color}");
+            LogDebug($"SFX volume: {GetEffectiveSfxVolume()}");
             var currentText2 = text2.ToString();
             var currentClassJobId = currentText2.StartsWith("TF2TEST##")
                                         ? byte.Parse(
@@ -202,8 +205,19 @@ namespace Tf2CriticalHitsPlugin
             return Constants.CombatJobs.ContainsKey(classJobId) ? classJobId : null;
         }
 
+        private static float GetEffectiveSfxVolume()
+        {
+            if (GameConfig.System.GetBool(ConfigOption.IsSndSe) ||
+                GameConfig.System.GetBool(ConfigOption.IsSndMaster))
+            {
+                return 0;
+            }
+            return GameConfig.System.GetUInt(ConfigOption.SoundSe)/100f * (GameConfig.System.GetUInt(ConfigOption.SoundMaster)/100f);
+        }
+
         public static void GenerateTestFlyText(ConfigOne.ConfigModule config)
         {
+            LogDebug($"SFX volume: {GetEffectiveSfxVolume()}");
             var kind = config.GetModuleDefaults().FlyTextType.Action.FirstOrDefault();
             LogDebug($"Kind: {kind}, Config ID: {config.GetId()}");
             var text = GetTestText(config);
