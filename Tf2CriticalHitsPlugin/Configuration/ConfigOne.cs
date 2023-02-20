@@ -15,6 +15,7 @@ namespace Tf2CriticalHitsPlugin.Configuration;
 public class ConfigOne : IPluginConfiguration
 {
     public int Version { get; set; } = 1;
+    public PluginVersion PluginVersion { get; set; } = PluginVersion.From(0, 0, 0);
 
     public SortedDictionary<uint, JobConfig> JobConfigurations { get; set; } = new();
 
@@ -154,6 +155,7 @@ public class ConfigOne : IPluginConfiguration
 
     public void Save()
     {
+        PluginVersion = PluginVersion.Current;
         File.WriteAllText(Service.PluginInterface.ConfigFile.FullName,
                           JsonConvert.SerializeObject(this, Formatting.Indented));
     }

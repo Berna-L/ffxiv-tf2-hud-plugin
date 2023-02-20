@@ -81,6 +81,8 @@ namespace Tf2CriticalHitsPlugin
                     _ => new ConfigOne()
                 };
 
+                TriggerChatAlertsForEarlierVersions(config);
+                
                 return config;
             }
             catch (Exception e)
@@ -90,6 +92,14 @@ namespace Tf2CriticalHitsPlugin
                 Chat.PrintError(
                     "There was an error while reading your configuration file and it was reset. The old file is available in your pluginConfigs folder, as Tf2CriticalHitsPlugin.json.old.");
                 return new ConfigOne();
+            }
+        }
+
+        private static void TriggerChatAlertsForEarlierVersions(ConfigOne config)
+        {
+            if (config.PluginVersion.Before(2, 2, 0))
+            {
+                Chat.Print("Update 2.2.0.0", "New volume settings have been added for v2.2.0.0, which are enabled by default. If you're using a custom sound and it's too low, open /critconfig and adjust.");
             }
         }
 
