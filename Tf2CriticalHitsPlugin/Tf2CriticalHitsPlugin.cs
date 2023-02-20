@@ -133,7 +133,6 @@ namespace Tf2CriticalHitsPlugin
             ref float yOffset,
             ref bool handled)
         {
-            LogDebug($"SFX volume: {GetEffectiveSfxVolume()}");
             var currentText2 = text2.ToString();
             var currentClassJobId = currentText2.StartsWith("TF2TEST##")
                                         ? byte.Parse(
@@ -159,7 +158,8 @@ namespace Tf2CriticalHitsPlugin
                     {
                         if (config.UseCustomFile)
                         {
-                            SoundEngine.PlaySound(config.FilePath.Value, config.Volume.Value * 0.01f);
+                            var modifier = config.ApplySfxVolume ? GetEffectiveSfxVolume() : 1f;
+                            SoundEngine.PlaySound(config.FilePath.Value, config.Volume.Value * modifier * 0.01f);
                         }
                         else
                         {
@@ -217,7 +217,6 @@ namespace Tf2CriticalHitsPlugin
 
         public static void GenerateTestFlyText(ConfigOne.ConfigModule config)
         {
-            LogDebug($"SFX volume: {GetEffectiveSfxVolume()}");
             var kind = config.GetModuleDefaults().FlyTextType.Action.FirstOrDefault();
             LogDebug($"Kind: {kind}, Config ID: {config.GetId()}");
             var text = GetTestText(config);

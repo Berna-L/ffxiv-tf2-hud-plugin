@@ -128,6 +128,7 @@ public class ConfigOne : IPluginConfiguration
         public Setting<Sounds> GameSound { get; set; } = new(Sounds.None);
         public Setting<string> FilePath { get; set; } = new(string.Empty);
         public Setting<int> Volume { get; set; } = new(12);
+        public Setting<bool> ApplySfxVolume { get; set; } = new(true);
         public Setting<bool> ShowText { get; set; } = new(true);
         public Setting<string> Text { get; set; } = new(string.Empty);
         public Setting<ushort> TextColor { get; set; } = new(0);

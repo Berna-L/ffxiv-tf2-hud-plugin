@@ -161,6 +161,11 @@ public class ConfigWindow : SelectionWindow, IDisposable
                .AddIconButton($"{config.GetId()}testFile", FontAwesomeIcon.Play,
                               () => SoundEngine.PlaySound(config.FilePath.Value, config.Volume.Value * 0.01f))
                .AddSliderInt("Volume", config.Volume, 0, 100)
+               .SameLine()
+               .AddConfigCheckbox("Affected by the game's sound effects volume", config.ApplySfxVolume,
+                                  "If enabled, consider the volume set here to be in relation to the game's other SFX," +
+                                  "\nsince the effective volume will also vary with your Master and Sound Effects volume." +
+                                  "\nIf disabled, It'll always play at the set volume, even if the game is muted internally.")
                .AddIndent(-2)
                .EndConditional()
                .AddConfigCheckbox("Show flavor text with floating value", config.ShowText)
