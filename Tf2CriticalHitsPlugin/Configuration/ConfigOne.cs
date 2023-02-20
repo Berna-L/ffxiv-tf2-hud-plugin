@@ -123,6 +123,7 @@ public class ConfigOne : IPluginConfiguration
 
         public Setting<uint> ClassJobId { get; init; } = new(255);
         public Setting<ModuleType> ModuleType { get; init; } = new(Configuration.ModuleType.DirectCriticalDamage);
+        public Setting<bool> ApplyInPvP { get; set; } = new(false);
         public Setting<bool> UseCustomFile { get; set; } = new(false);
         public Setting<bool> SoundForActionsOnly { get; set; } = new(false);
         public Setting<Sounds> GameSound { get; set; } = new(Sounds.None);

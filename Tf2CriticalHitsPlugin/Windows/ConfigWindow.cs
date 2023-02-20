@@ -136,6 +136,11 @@ public class ConfigWindow : SelectionWindow, IDisposable
                .StartConditional(config.GetModuleDefaults().SectionNote is not null)
                .AddString(config.GetModuleDefaults().SectionNote ?? "", Colors.Orange)
                .EndConditional()
+               .StartConditional(config.ModuleType == ModuleType.DirectDamage)
+               .AddConfigCheckbox("Apply for PvP attacks", config.ApplyInPvP,
+                                  "Some Jobs show all their damage output as Direct Damage in PvP." +
+                                  "\nCheck this to have the Direct Damage configuration trigger on every attack in PvP.")
+               .EndConditional()
                .AddConfigCheckbox("Use custom file", config.UseCustomFile, additionalID: $"{config.GetId()}PlaySound")
                .StartConditional(!config.UseCustomFile)
                .AddIndent(2)

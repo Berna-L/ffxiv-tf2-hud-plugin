@@ -1,5 +1,6 @@
 ﻿using Dalamud.Data;
 using Dalamud.Game;
+using Dalamud.Game.ClientState;
 using Dalamud.Game.Command;
 using Dalamud.Game.Gui.FlyText;
 using Dalamud.IoC;
@@ -23,4 +24,7 @@ public class Service
 
     [PluginService]
     public static SigScanner SigScanner { get; private set; } = null!;
+
+    [PluginService]
+    public static ClientState ClientState { get; private set; } = null!;
 }

@@ -9,7 +9,6 @@ using Dalamud.Game.Gui.FlyText;
 using Dalamud.Game.Text.SeStringHandling;
 using Dalamud.Interface.Windowing;
 using FFXIVClientStructs.FFXIV.Client.Game.UI;
-using FFXIVClientStructs.FFXIV.Client.System.Framework;
 using FFXIVClientStructs.FFXIV.Client.UI.Misc;
 using KamiLib;
 using KamiLib.ChatCommands;
@@ -19,7 +18,6 @@ using Tf2CriticalHitsPlugin.GameSettings;
 using Tf2CriticalHitsPlugin.SeFunctions;
 using Tf2CriticalHitsPlugin.Windows;
 using static Dalamud.Logging.PluginLog;
-using ValueType = FFXIVClientStructs.FFXIV.Component.GUI.ValueType;
 
 namespace Tf2CriticalHitsPlugin
 {
@@ -143,7 +141,8 @@ namespace Tf2CriticalHitsPlugin
 
             foreach (var config in Configuration.JobConfigurations[currentClassJobId.Value])
             {
-                if (IsSameType(config, color) &&
+                if (ShouldTriggerInCurrentMode(config) &&
+                    IsSameType(config, color) &&
                     (IsAutoAttack(config, kind) ||
                      IsEnabledAction(config, kind, text1, currentClassJobId)))
                 {
@@ -168,6 +167,11 @@ namespace Tf2CriticalHitsPlugin
                     }
                 }
             }
+        }
+
+        private static bool ShouldTriggerInCurrentMode(ConfigOne.ConfigModule config)
+        {
+            return !IsPvP() || config.ApplyInPvP;
         }
 
         private static bool IsSameType(ConfigOne.ConfigModule config, uint color)
@@ -203,6 +207,11 @@ namespace Tf2CriticalHitsPlugin
         {
             var classJobId = PlayerState.Instance()->CurrentClassJobId;
             return Constants.CombatJobs.ContainsKey(classJobId) ? classJobId : null;
+        }
+
+        private static bool IsPvP()
+        {
+            return Service.ClientState.IsPvP;
         }
 
         private static float GetEffectiveSfxVolume()
