@@ -57,7 +57,6 @@ namespace Tf2CriticalHitsPlugin.Configuration
                 jobConfig.OtherCriticalHeal.Text = otherCriticalHealText;
                 MigrateSubConfig(Direct, jobConfig.DirectDamage);
             }
-            Chat.Print("Update", "Your configuration has been migrated to the new version. Check the new options at /critconfig. Enjoy!");
             return configOne;
         }
 

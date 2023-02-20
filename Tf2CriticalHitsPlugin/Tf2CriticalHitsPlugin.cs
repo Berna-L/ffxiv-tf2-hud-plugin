@@ -97,6 +97,14 @@ namespace Tf2CriticalHitsPlugin
 
         private static void TriggerChatAlertsForEarlierVersions(ConfigOne config)
         {
+            if (config.PluginVersion.Before(2, 0, 0))
+            {
+                Chat.Print("Update 2.0.0.0", "Long time no see! Now you can configure Critical Heals, use the game's sound effects and separate configurations per job. Open /critconfig to check!");
+            }
+            if (config.PluginVersion.Before(2, 1, 0))
+            {
+                Chat.Print("Update 2.1.0.0", "Now you can configure Critical Heals from your job separately from Critical Heals done by other players' jobs!");
+            }
             if (config.PluginVersion.Before(2, 2, 0))
             {
                 Chat.Print("Update 2.2.0.0", "New volume settings have been added for v2.2.0.0, which are enabled by default. If you're using a custom sound and it's too low, open /critconfig and adjust.");
