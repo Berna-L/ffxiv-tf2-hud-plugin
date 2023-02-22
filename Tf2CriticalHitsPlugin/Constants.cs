@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Linq;
 using Dalamud.Logging;
 using Lumina.Excel.GeneratedSheets;
 using Action = Lumina.Excel.GeneratedSheets.Action;
@@ -38,7 +39,6 @@ public abstract class Constants
         {
             var classJob = classJobSheet.GetRow(i);
             if (classJob is null || classJob.JobIndex is 0) continue;
-            PluginLog.LogDebug($"{classJob.NameEnglish} | ${classJob.ClassJobParent.Value?.NameEnglish}");
             jobList.Add(classJob);
         }
 
@@ -62,17 +62,40 @@ public abstract class Constants
         }
 
         var classJobSheet = Service.DataManager.GetExcelSheet<ClassJob>();
+        
         // Add the parent Class's action to a Job action
         // (for when your White Mage *insists* on using Cure I)
         foreach (var classJob in classJobSheet)
         {
-            if (classJob?.ClassJobParent.Value is null) continue;
+            if (classJob.ClassJobParent.Value is null) continue;
             if (classJob.ClassJobParent.Value.RowId != classJob.RowId)
             {
                 foreach (var parentAction in result[classJob.ClassJobParent.Value.RowId])
                 {
                     result[classJob.RowId].Add(parentAction);
                 }
+            }
+        }
+        
+        // Second Wind special case 🌈
+        var secondWind = actionSheet.GetRow(57);
+        if (secondWind is not null)
+        {
+            foreach (var classJob in classJobSheet.Where(c => c.Role is 2 or 3))
+            {
+                result[classJob.RowId].Add(secondWind.Name.RawString);
+            }
+        }
+        
+        // Bloodbath super special case 🌈
+        var bloodbath = actionSheet.GetRow(34);
+        if (bloodbath is not null)
+        {
+            // Role 3 includes magical DPS, but eh
+            foreach (var classJob in classJobSheet.Where(c => c.Role is 3))
+            {
+                PluginLog.LogDebug($"{classJob.NameEnglish.RawString} | {classJob.Role}");
+                result[classJob.RowId].Add(bloodbath.Name.RawString);
             }
         }
 
