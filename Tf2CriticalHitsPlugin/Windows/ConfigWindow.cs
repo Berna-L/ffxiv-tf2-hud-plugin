@@ -72,7 +72,7 @@ public class ConfigWindow : SelectionWindow, IDisposable
         }
     }
 
-    public ConfigWindow(Tf2CriticalHitsPlugin tf2CriticalHitsPlugin) : base(Title, 0.2f, 55.0f)
+    public ConfigWindow(Tf2CriticalHitsPlugin tf2CriticalHitsPlugin) : base(Title, 55.0f)
     {
         this.configuration = tf2CriticalHitsPlugin.Configuration;
     }
