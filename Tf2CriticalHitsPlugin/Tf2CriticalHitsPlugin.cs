@@ -160,7 +160,6 @@ namespace Tf2CriticalHitsPlugin
             foreach (var config in Configuration.JobConfigurations[currentClassJobId.Value])
             {
                 if (ShouldTriggerInCurrentMode(config) &&
-                    IsSameType(config, color) &&
                     (IsAutoAttack(config, kind) ||
                      IsEnabledAction(config, kind, text1, currentClassJobId)))
                 {
@@ -191,12 +190,7 @@ namespace Tf2CriticalHitsPlugin
         {
             return !IsPvP() || config.ApplyInPvP;
         }
-
-        private static bool IsSameType(ConfigOne.ConfigModule config, uint color)
-        {
-            return config.GetModuleDefaults().FlyTextColor == color;
-        }
-
+        
         private static bool IsAutoAttack(ConfigOne.ConfigModule config, FlyTextKind kind)
         {
             return config.GetModuleDefaults().FlyTextType.AutoAttack.Contains(kind);

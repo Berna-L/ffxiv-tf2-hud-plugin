@@ -16,28 +16,26 @@ public class FlyTextType
         Action = action;
     }
 
-    public static readonly ISet<FlyTextKind> AutoDirectCritical =
+    public static readonly ISet<FlyTextKind> AutoDirectCriticalDamage =
         new[] { FlyTextKind.CriticalDirectHit, FlyTextKind.CriticalDirectHit2 }.ToImmutableHashSet();
 
-    public static readonly ISet<FlyTextKind> ActionDirectCritical =
+    public static readonly ISet<FlyTextKind> ActionDirectCriticalDamage =
         new[] { FlyTextKind.NamedCriticalDirectHit }.ToImmutableHashSet();
 
-    public static readonly ISet<FlyTextKind> AutoCritical =
-        new[]
-        {
-            FlyTextKind.CriticalHit, FlyTextKind.CriticalHit2, FlyTextKind.CriticalHit3, FlyTextKind.CriticalHit4
-        }.ToImmutableHashSet();
-
-    public static readonly ISet<FlyTextKind> ActionCritical = new[]
-        {
-            FlyTextKind.NamedCriticalHit, FlyTextKind.NamedCriticalHit2, FlyTextKind.NamedCriticalHitWithMp,
-            FlyTextKind.NamedCriticalHitWithTp
-        }
+    public static readonly ISet<FlyTextKind> AutoCriticalDamage = new[]
+            { FlyTextKind.CriticalHit, FlyTextKind.CriticalHit2, FlyTextKind.CriticalHit3, FlyTextKind.CriticalHit4 }
         .ToImmutableHashSet();
 
-    public static readonly ISet<FlyTextKind> AutoDirect =
+    public static readonly ISet<FlyTextKind> ActionCriticalDamage = new[]
+            { FlyTextKind.NamedCriticalHit, FlyTextKind.NamedCriticalHitWithMp, FlyTextKind.NamedCriticalHitWithTp }
+        .ToImmutableHashSet();
+
+    public static readonly ISet<FlyTextKind> ActionCriticalHeal =
+        new[] { FlyTextKind.NamedCriticalHit2 }.ToImmutableHashSet();
+
+    public static readonly ISet<FlyTextKind> AutoDirectDamage =
         new[] { FlyTextKind.DirectHit, FlyTextKind.DirectHit2 }.ToImmutableHashSet();
 
-    public static readonly ISet<FlyTextKind> ActionDirect =
+    public static readonly ISet<FlyTextKind> ActionDirectDamage =
         new[] { FlyTextKind.NamedDirectHit }.ToImmutableHashSet();
 }

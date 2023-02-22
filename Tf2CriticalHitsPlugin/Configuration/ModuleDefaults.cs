@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
+using Dalamud.Game.Gui.FlyText;
 using Tf2CriticalHitsPlugin.SeFunctions;
 
 namespace Tf2CriticalHitsPlugin.Configuration;
@@ -68,13 +70,14 @@ public class ModuleDefaults
         switch (moduleType)
         {
             case ModuleType.DirectCriticalDamage:
-                return new FlyTextType(FlyTextType.AutoDirectCritical, FlyTextType.ActionDirectCritical);
+                return new FlyTextType(FlyTextType.AutoDirectCriticalDamage, FlyTextType.ActionDirectCriticalDamage);
             case ModuleType.CriticalDamage:
+                return new FlyTextType(FlyTextType.AutoCriticalDamage, FlyTextType.ActionCriticalDamage);
             case ModuleType.OwnCriticalHeal:
             case ModuleType.OtherCriticalHeal:
-                return new FlyTextType(FlyTextType.AutoCritical, FlyTextType.ActionCritical);
+                return new FlyTextType(ImmutableHashSet<FlyTextKind>.Empty, FlyTextType.ActionCriticalHeal);
             case ModuleType.DirectDamage:
-                return new FlyTextType(FlyTextType.AutoDirect, FlyTextType.ActionDirect);
+                return new FlyTextType(FlyTextType.AutoDirectDamage, FlyTextType.ActionDirectDamage);
             default:
                 throw new ArgumentOutOfRangeException(nameof(moduleType), moduleType, null);
         }
