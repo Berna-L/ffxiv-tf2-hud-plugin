@@ -79,7 +79,7 @@ public class ConfigOne : IPluginConfiguration
 
         public IEnumerator<ConfigModule> GetEnumerator()
         {
-            return new[] { DirectCriticalDamage, CriticalDamage, OwnCriticalHeal, OtherCriticalHeal, DirectDamage }
+            return new[] { DirectCriticalDamage, CriticalDamage, DirectDamage, OwnCriticalHeal, OtherCriticalHeal }
                    .ToList().GetEnumerator();
         }
 
