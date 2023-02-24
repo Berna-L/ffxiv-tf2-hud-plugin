@@ -139,11 +139,13 @@ public class ConfigOne : IPluginConfiguration
 
         public void CopySettingsFrom(ConfigModule other)
         {
+            ApplyInPvP = other.ApplyInPvP with { };
             UseCustomFile = other.UseCustomFile with { };
             SoundForActionsOnly = other.SoundForActionsOnly with { };
             GameSound = other.GameSound with { };
             FilePath = other.FilePath with { };
             Volume = other.Volume with { };
+            ApplySfxVolume = other.ApplySfxVolume with { }; 
             ShowText = other.ShowText with { };
             Text = other.Text with { };
             TextColor = other.TextColor with { };
