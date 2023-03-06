@@ -5,7 +5,9 @@ using System.Linq;
 using System.Numerics;
 using System.Reflection;
 using Dalamud.Interface;
+using Dalamud.Interface.Components;
 using Dalamud.Interface.ImGuiFileDialog;
+using Dalamud.Logging;
 using Dalamud.Utility;
 using ImGuiNET;
 using KamiLib;
@@ -101,15 +103,42 @@ public class ConfigWindow : SelectionWindow, IDisposable
         DrawVersionText();
     }
 
-    private static void DrawCopyButton()
+    private void DrawCopyButton()
     {
-        if (ImGui.Button("Copy settings between jobs", new Vector2(ImGui.GetContentRegionAvail().X, 20.0f)))
+        if (ImGuiComponents.IconButton(FontAwesomeIcon.Copy))
         {
             if (KamiCommon.WindowManager.GetWindowOfType<SettingsCopyWindow>() is { } window)
             {
                 window.Open();
             }
+
+            if (ImGui.IsItemHovered())
+            {
+                ImGui.SetTooltip("Copy settings between jobs");
+            }
         }
+        ImGui.SameLine();
+        if (ImGuiComponents.IconButton(FontAwesomeIcon.Share))
+        {
+            DialogManager.SaveFileDialog("TF2-ish Critical Hits — Share configuration...", "ZIP file{.zip}", "critical hits.zip", "zip", (b, s) =>
+            {
+                PluginLog.LogDebug("aaaa");
+                if (b && !s.IsNullOrEmpty())
+                {
+                    CreateZip(configuration, s);
+                }
+            });
+        }
+
+        if (ImGui.IsItemHovered())
+        {
+            ImGui.SetTooltip("Share configuration (as a ZIP)");
+        }
+    }
+
+    private static void CreateZip(ConfigOne configOne, string path)
+    {
+        configOne.CreateZip(path);
     }
 
     private static void DrawDetailPane(ConfigOne.JobConfig jobConfig, FileDialogManager dialogManager)

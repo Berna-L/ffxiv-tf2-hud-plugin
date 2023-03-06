@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using Dalamud.Configuration;
+using KamiLib.ChatCommands;
 using KamiLib.Configuration;
 using Lumina.Excel.GeneratedSheets;
 using Newtonsoft.Json;
@@ -33,6 +35,8 @@ public class ConfigOne : IPluginConfiguration
         public ConfigModule DirectCriticalDamage { get; init; } = new();
         public ConfigModule CriticalDamage { get; init; } = new();
         public ConfigModule OwnCriticalHeal { get; init; } = new();
+
+        public IEnumerable<ConfigModule> GetModules => new[] { DirectCriticalDamage, CriticalDamage, DirectDamage, OwnCriticalHeal, OtherCriticalHeal };
 
         [Obsolete("Used only to import old JSONs")]
         public ConfigModule CriticalHeal
@@ -91,6 +95,7 @@ public class ConfigOne : IPluginConfiguration
             OtherCriticalHeal.CopySettingsFrom(jobConfig.OtherCriticalHeal);
             DirectDamage.CopySettingsFrom(jobConfig.DirectDamage);
         }
+
     }
 
     public class ConfigModule
@@ -145,7 +150,7 @@ public class ConfigOne : IPluginConfiguration
             GameSound = other.GameSound with { };
             FilePath = other.FilePath with { };
             Volume = other.Volume with { };
-            ApplySfxVolume = other.ApplySfxVolume with { }; 
+            ApplySfxVolume = other.ApplySfxVolume with { };
             ShowText = other.ShowText with { };
             Text = other.Text with { };
             TextColor = other.TextColor with { };
@@ -160,5 +165,58 @@ public class ConfigOne : IPluginConfiguration
         PluginVersion = PluginVersion.Current;
         File.WriteAllText(Service.PluginInterface.ConfigFile.FullName,
                           JsonConvert.SerializeObject(this, Formatting.Indented));
+    }
+
+    public void CreateZip(string path)
+    {
+        var actualPath = Path.HasExtension(path) ? path : $"{path}.zip";
+        var stagingPath = Path.Join(Path.GetTempPath(), "critplugin");
+        foreach (var file in Directory.GetFiles(stagingPath))
+        {
+            File.Delete(file);
+        }
+        var stagingDirectory = Directory.CreateDirectory(stagingPath);
+        var files = JobConfigurations.Select(c => c.Value)
+                                     .SelectMany(c => c.GetModules)
+                                     .Where(c => c.UseCustomFile)
+                                     .Select(c => c.FilePath.ToString())
+                                     .Distinct()
+                                     .Where(File.Exists)
+                                     .ToDictionary(s => s, s => CopyAndRenameFile(s, stagingDirectory));
+        var zippedConfig = this.Clone();
+        foreach (var configModule in zippedConfig.JobConfigurations.Select(c => c.Value)
+                                      .SelectMany(c => c.GetModules)
+                                      .Where(c => File.Exists(c.FilePath.Value)))
+        {
+            configModule.FilePath = new Setting<string>(files[configModule.FilePath.Value]);
+        }
+        File.WriteAllText(Path.Join(stagingPath, "config.json"), JsonConvert.SerializeObject(zippedConfig, Formatting.Indented));
+        try
+        {
+            ZipFile.CreateFromDirectory(stagingPath, actualPath);
+        }
+        catch (IOException exception)
+        {
+            if (exception.Message.EndsWith("already exists."))
+            {
+                Chat.PrintError($"The file \"{Path.GetFileName(actualPath)}\" already exists in the chosen folder.");
+            }
+            throw;
+        }
+    }
+
+    private ConfigOne Clone()
+    {
+        var newInstance = new ConfigOne();
+        newInstance.JobConfigurations.ToList()
+                   .ForEach(kv => kv.Value.CopySettingsFrom(JobConfigurations[kv.Key]));
+        return newInstance;
+    }
+
+    private static string CopyAndRenameFile(string originalFile, DirectoryInfo destDirectory)
+    {
+        var fileName = Guid.NewGuid() + Path.GetExtension(originalFile);
+        File.Copy(originalFile, Path.Join(destDirectory.ToString(), fileName));
+        return fileName;
     }
 }
