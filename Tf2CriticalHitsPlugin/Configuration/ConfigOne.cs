@@ -205,6 +205,34 @@ public class ConfigOne : IPluginConfiguration
         }
     }
 
+    public static ConfigOne? GenerateFrom(string zipPath)
+    {
+        var zipArchive = ZipFile.OpenRead(zipPath);
+        var configFile = zipArchive.GetEntry("config.json");
+        if (configFile is null) return null;
+        var newConfig = JsonConvert.DeserializeObject<ConfigOne>(new StreamReader(configFile.Open()).ReadToEnd());
+        return newConfig;
+    }
+
+    public void ImportFrom(string zipPath, string soundsPath, ConfigOne newConfig)
+    {
+        var zipArchive = ZipFile.OpenRead(zipPath);
+        foreach (var entry in zipArchive.Entries.Where(e => e.Name is not "config.json"))
+        {
+            entry.ExtractToFile(Path.Join(soundsPath, entry.Name), true);
+        }
+        foreach (var module in newConfig.JobConfigurations.Select(c => c.Value)
+                                        .SelectMany(c => c.GetModules))
+        {
+            module.FilePath = new Setting<string>(Path.Join(soundsPath, module.FilePath.Value));
+        }
+        foreach (var jobConfig in JobConfigurations.Select(c => c.Value))
+        {
+            jobConfig.CopySettingsFrom(newConfig.JobConfigurations[jobConfig.ClassJobId.Value]);
+        }
+        Save();
+    }
+
     private ConfigOne Clone()
     {
         var newInstance = new ConfigOne();

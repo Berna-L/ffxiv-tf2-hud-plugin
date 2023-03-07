@@ -41,6 +41,7 @@ namespace Tf2CriticalHitsPlugin
 
             KamiCommon.WindowManager.AddWindow(new ConfigWindow(this));
             KamiCommon.WindowManager.AddWindow(new SettingsCopyWindow(Configuration));
+            KamiCommon.WindowManager.AddWindow(new SettingsImportWindow(Configuration));
 
             GameSoundPlayer = new PlaySound(Service.SigScanner);
 

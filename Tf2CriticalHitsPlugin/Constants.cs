@@ -12,6 +12,7 @@ public abstract class Constants
 {
     public const uint DamageColor = 4278215139;
     public const uint HealColor = 4278213930;
+    public const uint IconButtonSize = 38;
 
     public const int MaxTextLength = 40;
 
@@ -65,7 +66,7 @@ public abstract class Constants
         
         // Add the parent Class's action to a Job action
         // (for when your White Mage *insists* on using Cure I)
-        foreach (var classJob in classJobSheet)
+        foreach (var classJob in classJobSheet!)
         {
             if (classJob.ClassJobParent.Value is null) continue;
             if (classJob.ClassJobParent.Value.RowId != classJob.RowId)

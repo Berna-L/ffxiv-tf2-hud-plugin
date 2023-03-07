@@ -19,6 +19,7 @@ using Lumina.Excel.GeneratedSheets;
 using Tf2CriticalHitsPlugin.Common;
 using Tf2CriticalHitsPlugin.Configuration;
 using Tf2CriticalHitsPlugin.SeFunctions;
+using static Tf2CriticalHitsPlugin.Windows.CommonFileDialogManager;
 
 namespace Tf2CriticalHitsPlugin.Windows;
 
@@ -30,10 +31,6 @@ public class ConfigWindow : SelectionWindow, IDisposable
 
     private readonly ConfigOne configuration;
 
-    internal static readonly FileDialogManager DialogManager = new()
-    {
-        AddedWindowFlags = ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoDocking
-    };
 
     static ConfigWindow()
     {
@@ -105,6 +102,8 @@ public class ConfigWindow : SelectionWindow, IDisposable
 
     private void DrawCopyButton()
     {
+        ImGui.SetCursorPosX((ImGui.GetContentRegionAvail().X / 2.0f) - (Constants.IconButtonSize * 3 / 2.0f));
+        ImGui.GetContentRegionAvail();
         if (ImGuiComponents.IconButton(FontAwesomeIcon.Copy))
         {
             if (KamiCommon.WindowManager.GetWindowOfType<SettingsCopyWindow>() is { } window)
@@ -112,27 +111,38 @@ public class ConfigWindow : SelectionWindow, IDisposable
                 window.Open();
             }
 
-            if (ImGui.IsItemHovered())
-            {
-                ImGui.SetTooltip("Copy settings between jobs");
-            }
+        }
+        if (ImGui.IsItemHovered())
+        {
+            ImGui.SetTooltip("Copy settings between jobs");
         }
         ImGui.SameLine();
-        if (ImGuiComponents.IconButton(FontAwesomeIcon.Share))
+        if (ImGuiComponents.IconButton(FontAwesomeIcon.FileUpload))
         {
             DialogManager.SaveFileDialog("TF2-ish Critical Hits — Share configuration...", "ZIP file{.zip}", "critical hits.zip", "zip", (b, s) =>
             {
-                PluginLog.LogDebug("aaaa");
                 if (b && !s.IsNullOrEmpty())
                 {
                     CreateZip(configuration, s);
                 }
             });
         }
-
         if (ImGui.IsItemHovered())
         {
             ImGui.SetTooltip("Share configuration (as a ZIP)");
+        }
+        ImGui.SameLine();
+        if (ImGuiComponents.IconButton(FontAwesomeIcon.FileDownload))
+        {
+            if (KamiCommon.WindowManager.GetWindowOfType<SettingsImportWindow>() is { } window)
+            {
+                window.IsOpen = true;
+            }
+        }
+
+        if (ImGui.IsItemHovered())
+        {
+            ImGui.SetTooltip("Import configuration (as a ZIP)");
         }
     }
 
@@ -192,9 +202,6 @@ public class ConfigWindow : SelectionWindow, IDisposable
                                   config.FilePath.Value.IsNullOrEmpty()
                                       ? Environment.ExpandEnvironmentVariables("%USERPROFILE%")
                                       : Path.GetDirectoryName(config.FilePath.Value)), "Open file browser...")
-               .SameLine()
-               .AddIconButton($"{config.GetId()}testFile", FontAwesomeIcon.Play,
-                              () => SoundEngine.PlaySound(config.FilePath.Value, config.Volume.Value * (config.ApplySfxVolume ? GameSettings.GetEffectiveSfxVolume() : 1) * 0.01f))
                .AddSliderInt("Volume", config.Volume, 0, 100)
                .SameLine()
                .AddConfigCheckbox("Affected by the game's sound effects volume", config.ApplySfxVolume,
