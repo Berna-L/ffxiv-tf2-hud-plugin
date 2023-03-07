@@ -151,10 +151,6 @@ public static unsafe class GameConfig {
                     return true;
                 }
             }
-            foreach (var keyValuePair in indexMap)
-            {
-                PluginLog.LogDebug($"{keyValuePair.Key}: {keyValuePair.Value}");
-            }
             index = 0;
             return false;
         }
