@@ -9,15 +9,14 @@ using Dalamud.Game.Gui.FlyText;
 using Dalamud.Game.Text.SeStringHandling;
 using Dalamud.Interface.Windowing;
 using FFXIVClientStructs.FFXIV.Client.Game.UI;
-using FFXIVClientStructs.FFXIV.Client.UI.Misc;
 using KamiLib;
 using KamiLib.ChatCommands;
 using Lumina.Excel.GeneratedSheets;
 using Tf2CriticalHitsPlugin.Configuration;
-using Tf2CriticalHitsPlugin.GameSettings;
 using Tf2CriticalHitsPlugin.SeFunctions;
 using Tf2CriticalHitsPlugin.Windows;
 using static Dalamud.Logging.PluginLog;
+using static Tf2CriticalHitsPlugin.Common.GameSettings;
 
 namespace Tf2CriticalHitsPlugin
 {
@@ -225,17 +224,7 @@ namespace Tf2CriticalHitsPlugin
         {
             return Service.ClientState.IsPvP;
         }
-
-        private static float GetEffectiveSfxVolume()
-        {
-            if (GameConfig.System.GetBool(ConfigOption.IsSndSe) ||
-                GameConfig.System.GetBool(ConfigOption.IsSndMaster))
-            {
-                return 0;
-            }
-            return GameConfig.System.GetUInt(ConfigOption.SoundSe)/100f * (GameConfig.System.GetUInt(ConfigOption.SoundMaster)/100f);
-        }
-
+        
         public static void GenerateTestFlyText(ConfigOne.ConfigModule config)
         {
             var kind = config.GetModuleDefaults().FlyTextType.Action.FirstOrDefault();

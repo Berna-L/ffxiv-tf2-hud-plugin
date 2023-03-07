@@ -14,6 +14,7 @@ using KamiLib.Drawing;
 using KamiLib.Interfaces;
 using KamiLib.Windows;
 using Lumina.Excel.GeneratedSheets;
+using Tf2CriticalHitsPlugin.Common;
 using Tf2CriticalHitsPlugin.Configuration;
 using Tf2CriticalHitsPlugin.SeFunctions;
 
@@ -164,7 +165,7 @@ public class ConfigWindow : SelectionWindow, IDisposable
                                       : Path.GetDirectoryName(config.FilePath.Value)), "Open file browser...")
                .SameLine()
                .AddIconButton($"{config.GetId()}testFile", FontAwesomeIcon.Play,
-                              () => SoundEngine.PlaySound(config.FilePath.Value, config.Volume.Value * 0.01f))
+                              () => SoundEngine.PlaySound(config.FilePath.Value, config.Volume.Value * (config.ApplySfxVolume ? GameSettings.GetEffectiveSfxVolume() : 1) * 0.01f))
                .AddSliderInt("Volume", config.Volume, 0, 100)
                .SameLine()
                .AddConfigCheckbox("Affected by the game's sound effects volume", config.ApplySfxVolume,
