@@ -184,6 +184,7 @@ public class ConfigWindow : SelectionWindow, IDisposable
                .AddConfigCheckbox("Use custom file", config.UseCustomFile, additionalID: $"{config.GetId()}PlaySound")
                .StartConditional(!config.UseCustomFile)
                .AddIndent(2)
+               .AddConfigCheckbox("Play sound only for actions (ignore auto-attacks)", config.SoundForActionsOnly)
                .AddConfigCombo(SoundsExtensions.Values(), config.GameSound, s => s.ToName(), width: 150.0f)
                .SameLine()
                .AddIconButton($"{config.GetId()}testSfx", FontAwesomeIcon.Play,
