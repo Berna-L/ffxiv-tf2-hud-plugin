@@ -49,6 +49,7 @@ public class State
     }
 
     public bool InInstance { get; set; }
+    public int StartingValue { get; private set; }
     public float CountDownValue { get; set; }
     public bool PrePulling { get; set; } = false;
     public event EventHandler? InCombatChanged;
@@ -58,6 +59,7 @@ public class State
 
     public void FireStartCountingDown()
     {
+        StartingValue = (int) Math.Round(CountDownValue);
         StartCountingDown?.Invoke(this, EventArgs.Empty);
     }
 
