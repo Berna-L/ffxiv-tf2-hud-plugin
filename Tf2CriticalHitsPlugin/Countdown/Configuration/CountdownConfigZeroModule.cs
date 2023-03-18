@@ -26,6 +26,19 @@ public class CountdownConfigZeroModule
     {
         
     }
+
+    public bool ValidForCountdown(double countdownValue)
+    {
+        return MinimumCountdownTimer.Value <= countdownValue && MaximumCountdownTimer.Value >= countdownValue;
+    }
+    
+    public bool ValidForTerritory(ushort territoryId)
+    {
+        return AllTerritories || (TerritoryFilterType.Value == ZoneFilterTypeId.Whitelist &&
+                                  Territories.Contains(territoryId))
+                              || (TerritoryFilterType.Value == ZoneFilterTypeId.Blacklist &&
+                                  !Territories.Contains(territoryId));
+    }
     
     public static CountdownConfigZeroModule Create(string name)
     {
