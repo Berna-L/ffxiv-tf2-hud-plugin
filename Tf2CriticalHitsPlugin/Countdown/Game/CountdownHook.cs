@@ -91,9 +91,10 @@ public sealed class CountdownHook : IDisposable
         if (countDownPointerValue > 0 && countDownRunning)
         {
             var newValue = Marshal.PtrToStructure<float>((IntPtr)countDown + 0x2c);
-            if (newValue > state.CountDownValue) state.FireStartCountingDown();
+            var oldCountdownValue = state.CountDownValue;
             state.CountDownValue = newValue;
             state.CountingDown = true;
+            if (newValue > oldCountdownValue) state.FireStartCountingDown();
         }
 
         lastCountDownValue = countDownPointerValue;
