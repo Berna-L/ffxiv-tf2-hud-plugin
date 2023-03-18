@@ -95,7 +95,6 @@ public abstract class Constants
             // Role 3 includes magical DPS, but eh
             foreach (var classJob in classJobSheet.Where(c => c.Role is 3))
             {
-                PluginLog.LogDebug($"{classJob.NameEnglish.RawString} | {classJob.Role}");
                 result[classJob.RowId].Add(bloodbath.Name.RawString);
             }
         }

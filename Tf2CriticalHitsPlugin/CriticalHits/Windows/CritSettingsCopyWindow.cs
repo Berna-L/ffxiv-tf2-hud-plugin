@@ -52,10 +52,7 @@ public class CritSettingsCopyWindow : Dalamud.Interface.Windowing.Window
     {
         ImGui.Text("Copy from:");
         ImGui.Indent();
-        if (ImGui.Combo("", ref sourceJobIdx, Jobs.Select(j => j.NameEnglish.ToString()).ToArray(), Jobs.Length))
-        {
-            PluginLog.LogDebug(sourceJobIdx.ToString());
-        }
+        ImGui.Combo("", ref sourceJobIdx, Jobs.Select(j => j.NameEnglish.ToString()).ToArray(), Jobs.Length);
         ImGui.Unindent();
     }
 
@@ -111,7 +108,6 @@ public class CritSettingsCopyWindow : Dalamud.Interface.Windowing.Window
     {
         if (ImGui.Button("Copy"))
         {
-            PluginLog.LogDebug(Jobs.ToString() ?? string.Empty);
             var sourceJob = Jobs[sourceJobIdx];
             var sourceJobSettings = configOne.JobConfigurations[sourceJob.RowId];
             foreach (var destJobIdx in destJobs)

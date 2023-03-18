@@ -46,7 +46,6 @@ public static class SoundEngine
                 PluginLog.LogError(e.Message);
                 return;
             }
-            PluginLog.LogDebug(reader.TotalTime.ToString());
             using var channel = new WaveChannel32(reader)
             {
                 Volume = GetVolume(volume, useGameSfxVolume),
