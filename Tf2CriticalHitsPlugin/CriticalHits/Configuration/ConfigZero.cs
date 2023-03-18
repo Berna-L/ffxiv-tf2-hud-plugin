@@ -1,9 +1,9 @@
 ﻿using System;
-using KamiLib.ChatCommands;
 using KamiLib.Configuration;
+using Tf2CriticalHitsPlugin.Configuration;
 using Tf2CriticalHitsPlugin.SeFunctions;
 
-namespace Tf2CriticalHitsPlugin.Configuration
+namespace Tf2CriticalHitsPlugin.CriticalHits.Configuration
 {
     [Obsolete("Exists only for migration purposes.")]
     [Serializable]

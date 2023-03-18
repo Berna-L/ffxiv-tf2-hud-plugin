@@ -1,16 +1,16 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
-using Dalamud.Interface.Windowing;
 using Dalamud.Logging;
 using ImGuiNET;
 using KamiLib;
 using Lumina.Excel.GeneratedSheets;
 using Tf2CriticalHitsPlugin.Configuration;
+using Tf2CriticalHitsPlugin.CriticalHits.Configuration;
 
-namespace Tf2CriticalHitsPlugin.Windows;
+namespace Tf2CriticalHitsPlugin.CriticalHits.Windows;
 
-public class SettingsCopyWindow : Window
+public class CritSettingsCopyWindow : Dalamud.Interface.Windowing.Window
 {
     private readonly ConfigOne configOne;
 
@@ -23,7 +23,7 @@ public class SettingsCopyWindow : Window
     private int sourceJobIdx;
     private readonly ISet<int> destJobs = new HashSet<int>();
 
-    public SettingsCopyWindow(
+    public CritSettingsCopyWindow(
         ConfigOne configOne, ImGuiWindowFlags flags = ImGuiWindowFlags.None, bool forceMainWindow = false) : base(
         Title, flags, forceMainWindow)
     {

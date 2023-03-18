@@ -8,6 +8,7 @@ using ImGuiNET;
 using KamiLib.ChatCommands;
 using KamiLib.Configuration;
 using Tf2CriticalHitsPlugin.Configuration;
+using Tf2CriticalHitsPlugin.CriticalHits.Configuration;
 
 namespace Tf2CriticalHitsPlugin.Windows;
 

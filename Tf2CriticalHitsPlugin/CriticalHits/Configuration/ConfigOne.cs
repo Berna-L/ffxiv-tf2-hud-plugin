@@ -8,21 +8,23 @@ using KamiLib.ChatCommands;
 using KamiLib.Configuration;
 using Lumina.Excel.GeneratedSheets;
 using Newtonsoft.Json;
+using Tf2CriticalHitsPlugin.Common.Configuration;
+using Tf2CriticalHitsPlugin.Configuration;
 using Tf2CriticalHitsPlugin.SeFunctions;
 using static Tf2CriticalHitsPlugin.Constants;
+using Configuration_ModuleType = Tf2CriticalHitsPlugin.Configuration.ModuleType;
 
-namespace Tf2CriticalHitsPlugin.Configuration;
+namespace Tf2CriticalHitsPlugin.CriticalHits.Configuration;
 
 [Serializable]
-public class ConfigOne : IPluginConfiguration
+public class ConfigOne : BaseConfiguration
 {
-    public int Version { get; set; } = 1;
-    public PluginVersion PluginVersion { get; set; } = PluginVersion.From(0, 0, 0);
 
     public SortedDictionary<uint, JobConfig> JobConfigurations { get; set; } = new();
 
     public ConfigOne()
     {
+        Version = 1;
         foreach (var (key, _) in CombatJobs)
         {
             JobConfigurations[key] = JobConfig.Create(key);
@@ -128,7 +130,7 @@ public class ConfigOne : IPluginConfiguration
         }
 
         public Setting<uint> ClassJobId { get; init; } = new(255);
-        public Setting<ModuleType> ModuleType { get; init; } = new(Configuration.ModuleType.DirectCriticalDamage);
+        public Setting<ModuleType> ModuleType { get; init; } = new(Configuration_ModuleType.DirectCriticalDamage);
         public Setting<bool> ApplyInPvP { get; set; } = new(false);
         public Setting<bool> UseCustomFile { get; set; } = new(false);
         public Setting<bool> SoundForActionsOnly { get; set; } = new(false);

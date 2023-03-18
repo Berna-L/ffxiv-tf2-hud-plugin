@@ -12,7 +12,14 @@ using FFXIVClientStructs.FFXIV.Client.Game.UI;
 using KamiLib;
 using KamiLib.ChatCommands;
 using Lumina.Excel.GeneratedSheets;
+using Tf2CriticalHitsPlugin.Common.Configuration;
 using Tf2CriticalHitsPlugin.Configuration;
+using Tf2CriticalHitsPlugin.Countdown;
+using Tf2CriticalHitsPlugin.Countdown.Configuration;
+using Tf2CriticalHitsPlugin.Countdown.Status;
+using Tf2CriticalHitsPlugin.Countdown.Windows;
+using Tf2CriticalHitsPlugin.CriticalHits.Configuration;
+using Tf2CriticalHitsPlugin.CriticalHits.Windows;
 using Tf2CriticalHitsPlugin.SeFunctions;
 using Tf2CriticalHitsPlugin.Windows;
 using static Dalamud.Logging.PluginLog;
@@ -25,24 +32,32 @@ namespace Tf2CriticalHitsPlugin
         public string Name => "TF2-ish Critical Hits";
         private const string CommandName = "/critconfig";
 
-        public ConfigOne Configuration { get; init; }
+        public ConfigOne CritConfiguration { get; init; }
+        public CountdownConfigZero CountdownConfig { get; init; }
+
+        
         public readonly WindowSystem WindowSystem = new("TF2CriticalHitsPlugin");
         internal static PlaySound? GameSoundPlayer;
+        private readonly CountdownModule countdownModule;
 
         public Tf2CriticalHitsPlugin(DalamudPluginInterface pluginInterface)
         {
             pluginInterface.Create<Service>();
-            KamiCommon.Initialize(pluginInterface, Name, () => Configuration?.Save());
+            KamiCommon.Initialize(pluginInterface, Name, () => CritConfiguration?.Save());
+            
+            this.CritConfiguration = InitConfig();
+            CritConfiguration.Save();
+            CountdownConfig = new CountdownConfigZero();
 
-            InitColors();
 
-            this.Configuration = InitConfig();
-            Configuration.Save();
+            KamiCommon.WindowManager.AddWindow(new ConfigWindow(CritConfiguration, CountdownConfig));
+            KamiCommon.WindowManager.AddWindow(new CritSettingsCopyWindow(CritConfiguration));
+            KamiCommon.WindowManager.AddWindow(new CountdownNewSettingWindow(CountdownConfig));
+            KamiCommon.WindowManager.AddWindow(new CountdownWhitelistWindow());
 
-            KamiCommon.WindowManager.AddWindow(new ConfigWindow(this));
-            KamiCommon.WindowManager.AddWindow(new SettingsCopyWindow(Configuration));
-            KamiCommon.WindowManager.AddWindow(new SettingsImportWindow(Configuration));
+            countdownModule = new CountdownModule(State.Instance(), CountdownConfig);
 
+            
             GameSoundPlayer = new PlaySound(Service.SigScanner);
 
             Service.CommandManager.AddHandler(CommandName, new CommandInfo(OnConfigCommand)
@@ -67,7 +82,7 @@ namespace Tf2CriticalHitsPlugin
             var configText = File.ReadAllText(configFile);
             try
             {
-                var versionCheck = JsonSerializer.Deserialize<VersionCheck>(configText);
+                var versionCheck = JsonSerializer.Deserialize<BaseConfiguration>(configText);
                 if (versionCheck is null)
                 {
                     return new ConfigOne();
@@ -111,32 +126,6 @@ namespace Tf2CriticalHitsPlugin
             }
         }
 
-
-        private static void InitColors()
-        {
-            ConfigWindow.ForegroundColors.Clear();
-            ConfigWindow.GlowColors.Clear();
-
-            if (Service.DataManager != null)
-            {
-                var colorSheet = Service.DataManager.GetExcelSheet<UIColor>();
-                if (colorSheet != null)
-                {
-                    for (var i = 0u; i < colorSheet.RowCount; i++)
-                    {
-                        var row = colorSheet.GetRow(i);
-                        if (row != null)
-                        {
-                            ConfigWindow.ForegroundColors.Add(
-                                (ushort)i, ColorInfo.FromUiColor((ushort)i, row.UIForeground));
-                            ConfigWindow.GlowColors.Add((ushort)i, ColorInfo.FromUiColor((ushort)i, row.UIGlow));
-                        }
-                    }
-                }
-            }
-        }
-
-
         public void FlyTextCreate(
             ref FlyTextKind kind,
             ref int val1,
@@ -157,7 +146,7 @@ namespace Tf2CriticalHitsPlugin
                                         : GetCurrentClassJobId();
             if (currentClassJobId is null) return;
 
-            foreach (var config in Configuration.JobConfigurations[currentClassJobId.Value])
+            foreach (var config in CritConfiguration.JobConfigurations[currentClassJobId.Value])
             {
                 if (ShouldTriggerInCurrentMode(config) &&
                     (IsAutoAttack(config, kind) ||
