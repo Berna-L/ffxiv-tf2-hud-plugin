@@ -34,7 +34,7 @@ public class CountdownModule: IDisposable
     {
         if (sender is null) return;
         var state = (State)sender;
-        SoundEngine.PlaySound("C:\\Users\\Bernardo\\Desktop\\mvm_start_wave.wav", 0.1f, "cd");
+        SoundEngine.PlaySound("C:\\Users\\Bernardo\\Desktop\\mvm_start_wave.wav", true, 100, "cd");
 
     }
 
@@ -45,7 +45,7 @@ public class CountdownModule: IDisposable
         if (state.countdownCancelled)
         {
             SoundEngine.StopSound("cd");
-            SoundEngine.PlaySound("C:\\Users\\Bernardo\\Downloads\\record-scratch-freesounds-luffy-3536.wav", 0.1f);
+            SoundEngine.PlaySound("C:\\Users\\Bernardo\\Downloads\\record-scratch-freesounds-luffy-3536.wav", true, 100);
         }
     }
 

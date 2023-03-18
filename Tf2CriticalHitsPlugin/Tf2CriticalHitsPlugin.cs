@@ -53,7 +53,6 @@ namespace Tf2CriticalHitsPlugin
             KamiCommon.WindowManager.AddWindow(new ConfigWindow(CritConfiguration, CountdownConfig));
             KamiCommon.WindowManager.AddWindow(new CritSettingsCopyWindow(CritConfiguration));
             KamiCommon.WindowManager.AddWindow(new CountdownNewSettingWindow(CountdownConfig));
-            KamiCommon.WindowManager.AddWindow(new CountdownWhitelistWindow());
 
             countdownModule = new CountdownModule(State.Instance(), CountdownConfig);
 
@@ -163,8 +162,7 @@ namespace Tf2CriticalHitsPlugin
                     {
                         if (config.UseCustomFile)
                         {
-                            var modifier = config.ApplySfxVolume ? GetEffectiveSfxVolume() : 1f;
-                            SoundEngine.PlaySound(config.FilePath.Value, config.Volume.Value * modifier * 0.01f);
+                            SoundEngine.PlaySound(config.FilePath.Value, config.ApplySfxVolume, config.Volume.Value);
                         }
                         else
                         {
