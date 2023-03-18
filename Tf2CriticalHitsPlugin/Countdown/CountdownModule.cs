@@ -1,15 +1,13 @@
 ﻿using System;
+using System.Linq;
 using Dalamud.Game;
-using Dalamud.Logging;
-using FFXIVClientStructs.FFXIV.Client.System.Scheduler.Base;
 using Tf2CriticalHitsPlugin.Countdown.Configuration;
 using Tf2CriticalHitsPlugin.Countdown.Game;
 using Tf2CriticalHitsPlugin.Countdown.Status;
-using Tf2CriticalHitsPlugin.SeFunctions;
 
 namespace Tf2CriticalHitsPlugin.Countdown;
 
-public class CountdownModule: IDisposable
+public class CountdownModule : IDisposable
 {
     private readonly State state;
     private readonly CountdownConfigZero config;
@@ -30,22 +28,33 @@ public class CountdownModule: IDisposable
         countdownHook.Update();
     }
 
-    private static void OnStartCountingDown(object? sender, EventArgs args)
+    private void OnStartCountingDown(object? sender, EventArgs args)
     {
         if (sender is null) return;
         var state = (State)sender;
-        SoundEngine.PlaySound("C:\\Users\\Bernardo\\Desktop\\mvm_start_wave.wav", true, 100, "cd");
+        var module = config.modules
+                           .Where(m => m.Enabled)
+                           .Where(m => m.ValidForCountdown(state.StartingValue))
+                           .FirstOrDefault(m => m.ValidForTerritory(Service.ClientState.TerritoryType));
 
+        if (module is null) return;
+        SoundEngine.PlaySound(module.FilePath.Value, module.ApplySfxVolume, module.Volume.Value,
+                              $"countdown|{module.Id}");
     }
 
-    private static void OnStopCountingDown(object? sender, EventArgs e)
+    private void OnStopCountingDown(object? sender, EventArgs e)
     {
         if (sender is null) return;
         var state = (State)sender;
         if (state.countdownCancelled)
         {
-            SoundEngine.StopSound("cd");
-            SoundEngine.PlaySound("C:\\Users\\Bernardo\\Downloads\\record-scratch-freesounds-luffy-3536.wav", true, 100);
+            var moduleToStop = config.modules
+                                     .FirstOrDefault(m => SoundEngine.IsPlaying($"countdown|{m.Id}"));
+            if (moduleToStop is null) return;
+
+            SoundEngine.StopSound($"countdown|{moduleToStop.Id}");
+            SoundEngine.PlaySound(moduleToStop.InterruptedFilePath.Value, moduleToStop.InterruptedApplySfxVolume,
+                                  moduleToStop.InterruptedVolume.Value, $"countdownstop|{moduleToStop.Id}");
         }
     }
 
