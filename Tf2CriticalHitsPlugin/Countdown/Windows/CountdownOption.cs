@@ -13,7 +13,6 @@ namespace Tf2CriticalHitsPlugin.Countdown.Windows;
 
 public class CountdownOption : ISelectable, IDrawable
 {
-    private readonly Setting<ZoneFilterTypeId> filterType = new(ZoneFilterType.WhiteList.Id);
     private readonly Setting<List<uint>> zones = new(new List<uint>());
 
     internal readonly CountdownConfigZeroModule Module;
@@ -23,6 +22,7 @@ public class CountdownOption : ISelectable, IDrawable
     {
         this.Module = module;
         this.dialogManager = dialogManager;
+        this.anywhereOrSelect = new Setting<Option>(Module.AllTerritories ? Option.Anywhere : Option.SelectTerritories);
     }
 
     public IDrawable Contents => this;
@@ -38,43 +38,40 @@ public class CountdownOption : ISelectable, IDrawable
 
     public string ID => Module.Id.Value;
 
+    private readonly Setting<Option> anywhereOrSelect;
+
     public void Draw()
     {
-        DrawDetailPane(Module, dialogManager);
+        DrawDetailPane(dialogManager);
     }
 
-    private void DrawDetailPane(CountdownConfigZeroModule module, FileDialogManager fileDialogManager)
+    private void DrawDetailPane(FileDialogManager fileDialogManager)
     {
-        if (ImGui.Checkbox("Enabled", ref Module.Enabled.Value))
-        {
-            // KamiCommon.SaveConfiguration();
-        }
 
-        ImGui.InputText("Name", ref Module.Label.Value, 40);
+        new SimpleDrawList()
+            .AddConfigCheckbox("Enabled", Module.Enabled)
+            .AddInputString("Name", Module.Label, 40)
+            .AddConfigRadio("Anywhere", anywhereOrSelect, Option.Anywhere)
+            .AddConfigRadio("Select territories", anywhereOrSelect, Option.SelectTerritories)
+            .SameLine()
+            .AddHelpMarker("To know the name of a Trial/Raid arena, check its description in the Duty Finder.")
+            .StartConditional(!Module.AllTerritories)
+            .AddAction(() => ZoneFilterListDraw.DrawFilterTypeRadio(Module.TerritoryFilterType))
+            .StartConditional(Service.ClientState.TerritoryType != 0)
+            .AddAction(() => ZoneFilterListDraw.DrawAddRemoveHere(zones))
+            .EndConditional()
+            .AddAction(() => ZoneFilterListDraw.DrawTerritorySearch(zones, ZoneFilterType.FromId(Module.TerritoryFilterType.Value)!))
+            .AddAction(() => ZoneFilterListDraw.DrawZoneList(zones, ZoneFilterType.FromId(Module.TerritoryFilterType.Value)!))
+            .EndConditional()
+            .Draw();
 
-        var anywhereOrSelect = Module.AllTerritories ? 1 : 2;
-        if (ImGui.RadioButton("Anywhere", ref anywhereOrSelect, 1) ||
-            ImGui.RadioButton("Select territories", ref anywhereOrSelect, 2))
-        {
-            Module.AllTerritories = new Setting<bool>(anywhereOrSelect == 1);
-        }
-        ImGui.SameLine();
-        ImGuiComponents.HelpMarker("To know the name of a Trial/Raid arena, check its description in the Duty Finder.");
-
-        if (anywhereOrSelect == 2)
-        {
-            ZoneFilterListDraw.DrawFilterTypeRadio(filterType);
-
-            if (Service.ClientState.TerritoryType != 0)
-            {
-                ZoneFilterListDraw.DrawAddRemoveHere(zones);
-            }
-
-            ZoneFilterListDraw.DrawTerritorySearch(zones,
-                                                   ZoneFilterType.FromId(filterType.Value)!);
-
-            ZoneFilterListDraw.DrawZoneList(zones,
-                                            ZoneFilterType.FromId(filterType.Value)!);
-        }
+        Module.AllTerritories.Value = anywhereOrSelect.Value == Option.Anywhere;
     }
+
+}
+
+public enum Option
+{
+    Anywhere = 0,
+    SelectTerritories = 1
 }
