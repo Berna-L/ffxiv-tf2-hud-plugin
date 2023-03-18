@@ -12,11 +12,16 @@ namespace Tf2CriticalHitsPlugin;
 
 public static class SoundEngine
 {
-    private static readonly IDictionary<string, bool> SoundState = new ConcurrentDictionary<string, bool>();
+    private static readonly IDictionary<string, byte> SoundState = new ConcurrentDictionary<string, byte>();
 
+    public static bool IsPlaying(string id)
+    {
+        return SoundState.ContainsKey(id);
+    }
+    
     public static void StopSound(string id)
     {
-        SoundState[id] = false;
+        SoundState.Remove(id);
     }
     
     // Copied from PeepingTom plugin, by ascclemens:
@@ -58,12 +63,12 @@ public static class SoundEngine
                     output.Play();
                     if (id is not null)
                     {
-                        SoundState[id] = true;
+                        SoundState[id] = 1;
                     }
 
                     while (output.PlaybackState == PlaybackState.Playing)
                     {
-                        if (id is not null && SoundState[id] == false)
+                        if (id is not null && !SoundState.ContainsKey(id))
                         {
                             output.Stop();
                         }
@@ -73,7 +78,7 @@ public static class SoundEngine
 
                     if (id is not null)
                     {
-                        SoundState[id] = false;
+                        SoundState.Remove(id);
                     }
                 }
                 catch (Exception ex)

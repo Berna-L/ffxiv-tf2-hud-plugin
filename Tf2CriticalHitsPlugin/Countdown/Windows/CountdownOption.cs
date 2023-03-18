@@ -7,6 +7,7 @@ using KamiLib.Configuration;
 using KamiLib.Drawing;
 using KamiLib.Interfaces;
 using KamiLib.ZoneFilterList;
+using Tf2CriticalHitsPlugin.Common.Window;
 using Tf2CriticalHitsPlugin.Countdown.Configuration;
 
 namespace Tf2CriticalHitsPlugin.Countdown.Windows;
@@ -47,10 +48,36 @@ public class CountdownOption : ISelectable, IDrawable
 
     private void DrawDetailPane(FileDialogManager fileDialogManager)
     {
-
         new SimpleDrawList()
             .AddConfigCheckbox("Enabled", Module.Enabled)
             .AddInputString("Name", Module.Label, 40)
+            .AddString("What to play")
+            .AddIndent(2)
+            .AddString("When countdown starts, play:")
+            .AddIndent(2)
+            .AddSoundFileConfiguration(Module.Id.Value + "start", Module.FilePath, Module.Volume, Module.ApplySfxVolume,
+                                       dialogManager, showPlayButton: true)
+            .AddIndent(-2)
+            .AddString("If the countdown is cancelled by anyone, play:")
+            .AddIndent(2)
+            .AddSoundFileConfiguration(Module.Id.Value + "cancel", Module.InterruptedFilePath, Module.InterruptedVolume,
+                                       Module.InterruptedApplySfxVolume, dialogManager, showPlayButton: true)
+            .AddIndent(-2)
+            .AddIndent(-2)
+            .AddString("When to play")
+            .AddIndent(2)
+            .AddString("Play when the countdown is between")
+            .SameLine()
+            .AddInputInt($"##{Module.Id}MinCD", Module.MinimumCountdownTimer, 5, Module.MaximumCountdownTimer.Value)
+            .SameLine()
+            .AddString("and")
+            .SameLine()
+            .AddInputInt($"##{Module.Id}MaxCD", Module.MaximumCountdownTimer, Module.MinimumCountdownTimer.Value, 30)
+            .SameLine()
+            .AddString("seconds long")
+            .AddIndent(-2)
+            .AddString("Where to play")
+            .AddIndent(2)
             .AddConfigRadio("Anywhere", anywhereOrSelect, Option.Anywhere)
             .AddConfigRadio("Select territories", anywhereOrSelect, Option.SelectTerritories)
             .SameLine()
@@ -60,14 +87,16 @@ public class CountdownOption : ISelectable, IDrawable
             .StartConditional(Service.ClientState.TerritoryType != 0)
             .AddAction(() => ZoneFilterListDraw.DrawAddRemoveHere(zones))
             .EndConditional()
-            .AddAction(() => ZoneFilterListDraw.DrawTerritorySearch(zones, ZoneFilterType.FromId(Module.TerritoryFilterType.Value)!))
-            .AddAction(() => ZoneFilterListDraw.DrawZoneList(zones, ZoneFilterType.FromId(Module.TerritoryFilterType.Value)!))
+            .AddAction(() => ZoneFilterListDraw.DrawTerritorySearch(
+                           zones, ZoneFilterType.FromId(Module.TerritoryFilterType.Value)!))
+            .AddAction(() => ZoneFilterListDraw.DrawZoneList(
+                           zones, ZoneFilterType.FromId(Module.TerritoryFilterType.Value)!))
             .EndConditional()
+            .AddIndent(-2)
             .Draw();
 
         Module.AllTerritories.Value = anywhereOrSelect.Value == Option.Anywhere;
     }
-
 }
 
 public enum Option

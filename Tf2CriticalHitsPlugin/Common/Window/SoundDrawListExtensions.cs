@@ -14,13 +14,22 @@ namespace Tf2CriticalHitsPlugin.Common.Window;
 public static class SoundDrawListExtensions
 {
     public static DrawList<T> AddSoundFileConfiguration<T>(
-        this DrawList<T> drawList, string id, Setting<string> filePath, Setting<int> volume, Setting<bool> applySfxVolume, FileDialogManager dialogManager) where T : DrawList<T>
+        this DrawList<T> drawList, string id, Setting<string> filePath, Setting<int> volume, Setting<bool> applySfxVolume, FileDialogManager dialogManager, bool showPlayButton = false) where T : DrawList<T>
     {
-        return drawList.AddInputString(string.Empty, filePath, 512, ImGuiInputTextFlags.ReadOnly)
+        return drawList.AddInputString($"##{id}FilePath", filePath, 512, ImGuiInputTextFlags.ReadOnly)
                        .SameLine()
                        .AddIconButton($"{id}FileBrowse", FontAwesomeIcon.Folder,
                                       () => openFileDialog(dialogManager, filePath),
                                       "Open file browser...")
+                       .StartConditional(showPlayButton)
+                       .SameLine()
+                       .StartConditional(!SoundEngine.IsPlaying($"{id}Test"))
+                       .AddIconButton($"{id}PlayButton", FontAwesomeIcon.Play, () => SoundEngine.PlaySound(filePath.Value, applySfxVolume, volume.Value, $"{id}Test"))
+                       .EndConditional()
+                       .StartConditional(SoundEngine.IsPlaying($"{id}Test"))
+                       .AddIconButton($"{id}StopButton", FontAwesomeIcon.Stop, () => SoundEngine.StopSound($"{id}Test"))
+                       .EndConditional()
+                       .EndConditional()
                        .AddSliderInt("Volume", volume, 0, 100)
                        .SameLine()
                        .AddConfigCheckbox("Affected by the game's sound effects volume", applySfxVolume,

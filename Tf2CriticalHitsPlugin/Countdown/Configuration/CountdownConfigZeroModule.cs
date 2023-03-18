@@ -12,10 +12,12 @@ public class CountdownConfigZeroModule
     public Setting<bool> Enabled { get; set; } = new(true);
     public Setting<string> FilePath { get; set; } = new(string.Empty);
     public Setting<int> Volume { get; set; } = new(100);
-    public Setting<bool> UseGameSfx { get; set; } = new(true);
-    public Setting<string> InterruptedPath { get; set; } = new(string.Empty);
+    public Setting<bool> ApplySfxVolume { get; set; } = new(true);
+    public Setting<string> InterruptedFilePath { get; set; } = new(string.Empty);
     public Setting<int> InterruptedVolume { get; set; } = new(100);
-    public Setting<bool> InterruptedUseGameSfx { get; set; } = new(true);
+    public Setting<bool> InterruptedApplySfxVolume { get; set; } = new(true);
+    public Setting<int> MinimumCountdownTimer { get; set; } = new(5);
+    public Setting<int> MaximumCountdownTimer { get; set; } = new(30);
     public Setting<bool> AllTerritories { get; set; } = new(true);
     public IList<uint> Territories { get; init; } = new List<uint>();
     public Setting<ZoneFilterTypeId> TerritoryFilterType { get; init; } = new(ZoneFilterTypeId.Whitelist);
