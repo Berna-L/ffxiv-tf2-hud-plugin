@@ -255,6 +255,7 @@ namespace Tf2CriticalHitsPlugin
         public void Dispose()
         {
             KamiCommon.Dispose();
+            countdownModule.Dispose();
             Service.FlyTextGui.FlyTextCreated -= FlyTextCreate;
             this.WindowSystem.RemoveAllWindows();
             Service.CommandManager.RemoveHandler(CommandName);
