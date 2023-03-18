@@ -11,6 +11,7 @@ using KamiLib.Configuration;
 using KamiLib.Drawing;
 using KamiLib.Interfaces;
 using Lumina.Excel.GeneratedSheets;
+using Tf2CriticalHitsPlugin.Common.Window;
 using Tf2CriticalHitsPlugin.Configuration;
 using Tf2CriticalHitsPlugin.CriticalHits.Configuration;
 using Tf2CriticalHitsPlugin.SeFunctions;
@@ -90,19 +91,7 @@ public class CritOption : ISelectable, IDrawable
                .StartConditional(config.UseCustomFile)
                .AddIndent(2)
                .AddConfigCheckbox("Play sound only for actions (ignore auto-attacks)", config.SoundForActionsOnly)
-               .AddInputString(string.Empty, config.FilePath, 512, ImGuiInputTextFlags.ReadOnly)
-               .SameLine()
-               .AddIconButton($"{config.GetId()}browse", FontAwesomeIcon.Folder, () => dialogManager.OpenFileDialog(
-                                  "Select the file", "Audio files{.wav,.mp3}", UpdatePath, 1,
-                                  config.FilePath.Value.IsNullOrEmpty()
-                                      ? Environment.ExpandEnvironmentVariables("%USERPROFILE%")
-                                      : Path.GetDirectoryName(config.FilePath.Value)), "Open file browser...")
-               .AddSliderInt("Volume", config.Volume, 0, 100)
-               .SameLine()
-               .AddConfigCheckbox("Affected by the game's sound effects volume", config.ApplySfxVolume,
-                                  "If enabled, consider the volume set here to be in relation to the game's other SFX," +
-                                  "\nsince the effective volume will also vary with your Master and Sound Effects volume." +
-                                  "\nIf disabled, It'll always play at the set volume, even if the game is muted internally.")
+               .AddSoundFileConfiguration(config.GetId(), config.FilePath, config.Volume, config.ApplySfxVolume, dialogManager)
                .AddIndent(-2)
                .EndConditional()
                .AddConfigCheckbox("Show flavor text with floating value", config.ShowText)
