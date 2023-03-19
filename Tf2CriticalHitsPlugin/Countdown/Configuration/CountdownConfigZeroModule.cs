@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using KamiLib.Configuration;
 using KamiLib.ZoneFilterList;
 
@@ -7,13 +8,17 @@ namespace Tf2CriticalHitsPlugin.Countdown.Configuration;
 
 public class CountdownConfigZeroModule
 {
+    private static string DefaultInterruptSound = Path.Combine(
+        Path.GetDirectoryName(Service.PluginInterface.AssemblyLocation.DirectoryName + "\\"),
+        @"Countdown\Sounds\record-scratch-freesounds-luffy-3536.wav");
+    
     public Setting<string> Id { get; set; } = new(Guid.NewGuid().ToString()); 
     public Setting<string> Label { get; set; } = new (string.Empty);
     public Setting<bool> Enabled { get; set; } = new(true);
     public Setting<string> FilePath { get; set; } = new(string.Empty);
     public Setting<int> Volume { get; set; } = new(100);
     public Setting<bool> ApplySfxVolume { get; set; } = new(true);
-    public Setting<string> InterruptedFilePath { get; set; } = new(string.Empty);
+    public Setting<string> InterruptedFilePath { get; set; } = new(DefaultInterruptSound);
     public Setting<int> InterruptedVolume { get; set; } = new(100);
     public Setting<bool> InterruptedApplySfxVolume { get; set; } = new(true);
     public Setting<int> MinimumCountdownTimer { get; set; } = new(5);
@@ -26,7 +31,6 @@ public class CountdownConfigZeroModule
 
     private CountdownConfigZeroModule()
     {
-        
     }
 
     public bool ValidForCountdown(double countdownValue)
