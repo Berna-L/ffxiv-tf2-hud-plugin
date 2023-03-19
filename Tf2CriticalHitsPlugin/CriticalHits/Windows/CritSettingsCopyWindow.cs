@@ -12,7 +12,7 @@ namespace Tf2CriticalHitsPlugin.CriticalHits.Windows;
 
 public class CritSettingsCopyWindow : Dalamud.Interface.Windowing.Window
 {
-    private readonly ConfigOne configOne;
+    private readonly CritConfigOne critConfigOne;
 
     private static readonly ClassJob[] Jobs = Constants.CombatJobs.Values
                                                 .OrderBy(j => j.Role)
@@ -24,10 +24,10 @@ public class CritSettingsCopyWindow : Dalamud.Interface.Windowing.Window
     private readonly ISet<int> destJobs = new HashSet<int>();
 
     public CritSettingsCopyWindow(
-        ConfigOne configOne, ImGuiWindowFlags flags = ImGuiWindowFlags.None, bool forceMainWindow = false) : base(
+        CritConfigOne critConfigOne, ImGuiWindowFlags flags = ImGuiWindowFlags.None, bool forceMainWindow = false) : base(
         Title, flags, forceMainWindow)
     {
-        this.configOne = configOne;
+        this.critConfigOne = critConfigOne;
         Size = new Vector2(300, 670);
     }
 
@@ -109,11 +109,11 @@ public class CritSettingsCopyWindow : Dalamud.Interface.Windowing.Window
         if (ImGui.Button("Copy"))
         {
             var sourceJob = Jobs[sourceJobIdx];
-            var sourceJobSettings = configOne.JobConfigurations[sourceJob.RowId];
+            var sourceJobSettings = critConfigOne.JobConfigurations[sourceJob.RowId];
             foreach (var destJobIdx in destJobs)
             {
                 var destJob = Jobs[destJobIdx];
-                configOne.JobConfigurations[destJob.RowId].CopySettingsFrom(sourceJobSettings);
+                critConfigOne.JobConfigurations[destJob.RowId].CopySettingsFrom(sourceJobSettings);
             }
             KamiCommon.SaveConfiguration();
             this.IsOpen = false;

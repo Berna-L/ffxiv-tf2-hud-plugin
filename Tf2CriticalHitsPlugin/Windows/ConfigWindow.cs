@@ -7,6 +7,7 @@ using ImGuiNET;
 using KamiLib.Drawing;
 using KamiLib.Interfaces;
 using KamiLib.Windows;
+using Tf2CriticalHitsPlugin.Common.Configuration;
 using Tf2CriticalHitsPlugin.Configuration;
 using Tf2CriticalHitsPlugin.Countdown.Configuration;
 using Tf2CriticalHitsPlugin.Countdown.Windows;
@@ -35,10 +36,10 @@ public class ConfigWindow : TabbedSelectionWindow, IDisposable
     }
 
 
-    public ConfigWindow(ConfigOne critConfig, CountdownConfigZero countdownConfig): base(Title, 55.0f)
+    public ConfigWindow(ConfigTwo config): base(Title, 55.0f)
     {
-        tabs.Add(new CritTab(critConfig, DialogManager));
-        tabs.Add(new CountdownTab(countdownConfig, DialogManager));
+        tabs.Add(new CritTab(config.criticalHits, DialogManager));
+        tabs.Add(new CountdownTab(config.countdownJams, DialogManager));
     }
 
     protected override IEnumerable<ISelectionWindowTab> GetTabs()

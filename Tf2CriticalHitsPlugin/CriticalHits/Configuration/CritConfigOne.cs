@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
-using Dalamud.Configuration;
+using KamiLib;
 using KamiLib.ChatCommands;
 using KamiLib.Configuration;
 using Lumina.Excel.GeneratedSheets;
@@ -17,12 +17,14 @@ using Configuration_ModuleType = Tf2CriticalHitsPlugin.Configuration.ModuleType;
 namespace Tf2CriticalHitsPlugin.CriticalHits.Configuration;
 
 [Serializable]
-public class ConfigOne : BaseConfiguration
+public class CritConfigOne
 {
+
+    public int Version { get; set; }
 
     public SortedDictionary<uint, JobConfig> JobConfigurations { get; set; } = new();
 
-    public ConfigOne()
+    public CritConfigOne()
     {
         Version = 1;
         foreach (var (key, _) in CombatJobs)
@@ -160,15 +162,7 @@ public class ConfigOne : BaseConfiguration
             TextItalics = other.TextItalics with { };
         }
     }
-
-
-    public void Save()
-    {
-        PluginVersion = PluginVersion.Current;
-        File.WriteAllText(Service.PluginInterface.ConfigFile.FullName,
-                          JsonConvert.SerializeObject(this, Formatting.Indented));
-    }
-
+    
     public void CreateZip(string path)
     {
         var actualPath = Path.HasExtension(path) ? path : $"{path}.zip";
@@ -207,37 +201,37 @@ public class ConfigOne : BaseConfiguration
         }
     }
 
-    public static ConfigOne? GenerateFrom(string zipPath)
+    public static CritConfigOne? GenerateFrom(string zipPath)
     {
         var zipArchive = ZipFile.OpenRead(zipPath);
         var configFile = zipArchive.GetEntry("config.json");
         if (configFile is null) return null;
-        var newConfig = JsonConvert.DeserializeObject<ConfigOne>(new StreamReader(configFile.Open()).ReadToEnd());
+        var newConfig = JsonConvert.DeserializeObject<CritConfigOne>(new StreamReader(configFile.Open()).ReadToEnd());
         return newConfig;
     }
 
-    public void ImportFrom(string zipPath, string soundsPath, ConfigOne newConfig)
+    public void ImportFrom(string zipPath, string soundsPath, CritConfigOne newCritConfig)
     {
         var zipArchive = ZipFile.OpenRead(zipPath);
         foreach (var entry in zipArchive.Entries.Where(e => e.Name is not "config.json"))
         {
             entry.ExtractToFile(Path.Join(soundsPath, entry.Name), true);
         }
-        foreach (var module in newConfig.JobConfigurations.Select(c => c.Value)
+        foreach (var module in newCritConfig.JobConfigurations.Select(c => c.Value)
                                         .SelectMany(c => c.GetModules))
         {
             module.FilePath = new Setting<string>(Path.Join(soundsPath, module.FilePath.Value));
         }
         foreach (var jobConfig in JobConfigurations.Select(c => c.Value))
         {
-            jobConfig.CopySettingsFrom(newConfig.JobConfigurations[jobConfig.ClassJobId.Value]);
+            jobConfig.CopySettingsFrom(newCritConfig.JobConfigurations[jobConfig.ClassJobId.Value]);
         }
-        Save();
+        KamiCommon.SaveConfiguration();
     }
 
-    private ConfigOne Clone()
+    private CritConfigOne Clone()
     {
-        var newInstance = new ConfigOne();
+        var newInstance = new CritConfigOne();
         newInstance.JobConfigurations.ToList()
                    .ForEach(kv => kv.Value.CopySettingsFrom(JobConfigurations[kv.Key]));
         return newInstance;
@@ -248,5 +242,14 @@ public class ConfigOne : BaseConfiguration
         var fileName = Guid.NewGuid() + Path.GetExtension(originalFile);
         File.Copy(originalFile, Path.Join(destDirectory.ToString(), fileName));
         return fileName;
+    }
+
+    public ConfigTwo MigrateToTwo(PluginVersion pluginVersion)
+    {
+        return new ConfigTwo
+        {
+            PluginVersion = pluginVersion,
+            criticalHits = this
+        };
     }
 }

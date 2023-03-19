@@ -7,7 +7,7 @@ namespace Tf2CriticalHitsPlugin.CriticalHits.Configuration
 {
     [Obsolete("Exists only for migration purposes.")]
     [Serializable]
-    public class ConfigZero
+    public class CritConfigZero
     {
         public int Version { get; set; }
 
@@ -37,9 +37,9 @@ namespace Tf2CriticalHitsPlugin.CriticalHits.Configuration
         }
 
         
-        public ConfigOne MigrateToOne()
+        public CritConfigOne MigrateToOne()
         {
-            var configOne = new ConfigOne();
+            var configOne = new CritConfigOne();
             var ownCriticalHealText = Critical.Text.Equals(ModuleDefaults.GetModuleDefaultText(ModuleType.CriticalDamage))
                                        ? new Setting<string>(ModuleDefaults.GetModuleDefaultText(ModuleType.OwnCriticalHeal))
                                        : new Setting<string>(Critical.Text);
@@ -60,7 +60,7 @@ namespace Tf2CriticalHitsPlugin.CriticalHits.Configuration
             return configOne;
         }
 
-        private static void MigrateSubConfig(SubConfiguration zeroSub, ConfigOne.ConfigModule oneSub)
+        private static void MigrateSubConfig(SubConfiguration zeroSub, CritConfigOne.ConfigModule oneSub)
         {
             if (zeroSub.PlaySound)
             {

@@ -14,7 +14,7 @@ using Tf2CriticalHitsPlugin.Windows;
 
 namespace Tf2CriticalHitsPlugin.CriticalHits.Windows;
 
-public class CritTab: SoundConfigurationTab<ConfigOne>
+public class CritTab: SoundConfigurationTab<CritConfigOne>
 {
 
     public static readonly SortedDictionary<ushort, ColorInfo> ForegroundColors = new();
@@ -110,15 +110,15 @@ public class CritTab: SoundConfigurationTab<ConfigOne>
         }
     }
     
-    private static void CreateZip(ConfigOne configOne, string path)
+    private static void CreateZip(CritConfigOne critConfigOne, string path)
     {
-        configOne.CreateZip(path);
+        critConfigOne.CreateZip(path);
     }
 
 
 
     
-    public CritTab(ConfigOne configuration, FileDialogManager dialogManager) : base("crits", "Critical and Direct Hits", configuration, dialogManager)
+    public CritTab(CritConfigOne configuration, FileDialogManager dialogManager) : base("crits", "Critical and Direct Hits", configuration, dialogManager)
     {
         
     }

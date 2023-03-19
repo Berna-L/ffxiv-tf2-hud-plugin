@@ -14,17 +14,17 @@ namespace Tf2CriticalHitsPlugin.Windows;
 
 public class SettingsImportWindow: Window
 {
-    private readonly ConfigOne configOne;
+    private readonly CritConfigOne critConfigOne;
     private const string Title = "TF2-ish Critical Hits - Import settings from ZIP";
     private string zipPath = string.Empty;
     private string soundsPath = string.Empty;
     private readonly Setting<bool> makeBackup = new(false);
     private string backupPath = string.Empty;
     
-    public SettingsImportWindow(ConfigOne configOne, bool forceMainWindow = false) : base(Title, ImGuiWindowFlags.Modal | ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoDocking | ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoResize, forceMainWindow)
+    public SettingsImportWindow(CritConfigOne critConfigOne, bool forceMainWindow = false) : base(Title, ImGuiWindowFlags.Modal | ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoDocking | ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoResize, forceMainWindow)
     {
         Size = new Vector2(700, 250);
-        this.configOne = configOne;
+        this.critConfigOne = critConfigOne;
     }
     
     
@@ -94,9 +94,9 @@ public class SettingsImportWindow: Window
                 {
                     Chat.PrintError("The defined backup path does not exist.");
                 }
-                configOne.CreateZip(backupPath);
+                critConfigOne.CreateZip(backupPath);
             }
-            ConfigOne.GenerateFrom(zipPath);
+            CritConfigOne.GenerateFrom(zipPath);
             IsOpen = false;
         }
     }

@@ -2,7 +2,6 @@
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
-using System.Text.Json;
 using Dalamud.Game.Command;
 using Dalamud.Plugin;
 using Dalamud.Game.Gui.FlyText;
@@ -11,11 +10,10 @@ using Dalamud.Interface.Windowing;
 using FFXIVClientStructs.FFXIV.Client.Game.UI;
 using KamiLib;
 using KamiLib.ChatCommands;
-using Lumina.Excel.GeneratedSheets;
+using Newtonsoft.Json;
 using Tf2CriticalHitsPlugin.Common.Configuration;
 using Tf2CriticalHitsPlugin.Configuration;
 using Tf2CriticalHitsPlugin.Countdown;
-using Tf2CriticalHitsPlugin.Countdown.Configuration;
 using Tf2CriticalHitsPlugin.Countdown.Status;
 using Tf2CriticalHitsPlugin.Countdown.Windows;
 using Tf2CriticalHitsPlugin.CriticalHits.Configuration;
@@ -23,7 +21,7 @@ using Tf2CriticalHitsPlugin.CriticalHits.Windows;
 using Tf2CriticalHitsPlugin.SeFunctions;
 using Tf2CriticalHitsPlugin.Windows;
 using static Dalamud.Logging.PluginLog;
-using static Tf2CriticalHitsPlugin.Common.GameSettings;
+using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace Tf2CriticalHitsPlugin
 {
@@ -32,9 +30,8 @@ namespace Tf2CriticalHitsPlugin
         public string Name => "TF2-ish Critical Hits";
         private const string CommandName = "/critconfig";
 
-        public ConfigOne CritConfiguration { get; init; }
-        public CountdownConfigZero CountdownConfig { get; init; }
-
+        public ConfigTwo Configuration { get; init; }
+        
         
         public readonly WindowSystem WindowSystem = new("TF2CriticalHitsPlugin");
         internal static PlaySound? GameSoundPlayer;
@@ -43,18 +40,17 @@ namespace Tf2CriticalHitsPlugin
         public Tf2CriticalHitsPlugin(DalamudPluginInterface pluginInterface)
         {
             pluginInterface.Create<Service>();
-            KamiCommon.Initialize(pluginInterface, Name, () => CritConfiguration?.Save());
+            KamiCommon.Initialize(pluginInterface, Name, () => Configuration?.Save());
             
-            this.CritConfiguration = InitConfig();
-            CritConfiguration.Save();
-            CountdownConfig = new CountdownConfigZero();
+            Configuration = InitConfig();
+            Configuration.Save();
+            
 
+            KamiCommon.WindowManager.AddWindow(new ConfigWindow(Configuration));
+            KamiCommon.WindowManager.AddWindow(new CritSettingsCopyWindow(Configuration.criticalHits));
+            KamiCommon.WindowManager.AddWindow(new CountdownNewSettingWindow(Configuration.countdownJams));
 
-            KamiCommon.WindowManager.AddWindow(new ConfigWindow(CritConfiguration, CountdownConfig));
-            KamiCommon.WindowManager.AddWindow(new CritSettingsCopyWindow(CritConfiguration));
-            KamiCommon.WindowManager.AddWindow(new CountdownNewSettingWindow(CountdownConfig));
-
-            countdownModule = new CountdownModule(State.Instance(), CountdownConfig);
+            countdownModule = new CountdownModule(State.Instance(), Configuration.countdownJams);
 
             
             GameSoundPlayer = new PlaySound(Service.SigScanner);
@@ -70,46 +66,54 @@ namespace Tf2CriticalHitsPlugin
             Service.FlyTextGui.FlyTextCreated += this.FlyTextCreate;
         }
 
-        private static ConfigOne InitConfig()
+        private static ConfigTwo InitConfig()
         {
             var configFile = Service.PluginInterface.ConfigFile.FullName;
             if (!File.Exists(configFile))
             {
-                return new ConfigOne();
+                return new ConfigTwo();
             }
 
             var configText = File.ReadAllText(configFile);
+            var unixTimeSeconds = DateTimeOffset.Now.ToUnixTimeSeconds();
+
             try
             {
                 var versionCheck = JsonSerializer.Deserialize<BaseConfiguration>(configText);
                 if (versionCheck is null)
                 {
-                    return new ConfigOne();
+                    return new ConfigTwo();
                 }
 
                 var version = versionCheck.Version;
                 var config = version switch
                 {
-                    0 => JsonSerializer.Deserialize<ConfigZero>(configText)?.MigrateToOne() ?? new ConfigOne(),
-                    1 => Service.PluginInterface.GetPluginConfig() as ConfigOne ?? new ConfigOne(),
-                    _ => new ConfigOne()
+                    0 => JsonSerializer.Deserialize<CritConfigZero>(configText)?.MigrateToOne().MigrateToTwo(versionCheck.PluginVersion) ?? new ConfigTwo(),
+                    1 => JsonConvert.DeserializeObject<CritConfigOne>(configText)?.MigrateToTwo(versionCheck.PluginVersion) ?? new ConfigTwo(),
+                    2 => JsonSerializer.Deserialize<ConfigTwo>(configText) ?? new ConfigTwo(),
+                    _ => new ConfigTwo()
                 };
 
                 TriggerChatAlertsForEarlierVersions(config);
                 
+                
+                // For testing only
+                Service.PluginInterface.ConfigFile.MoveTo(Service.PluginInterface.ConfigFile.FullName + $".{unixTimeSeconds}.old", true);
+
                 return config;
             }
             catch (Exception e)
             {
                 if (e.StackTrace is not null) LogError(e.StackTrace);
-                Service.PluginInterface.ConfigFile.MoveTo(Service.PluginInterface.ConfigFile.FullName + ".old", true);
+                // var unixTimeSeconds = DateTimeOffset.Now.ToUnixTimeSeconds();
+                // Service.PluginInterface.ConfigFile.MoveTo(Service.PluginInterface.ConfigFile.FullName + $".{unixTimeSeconds}.old", true);
                 Chat.PrintError(
-                    "There was an error while reading your configuration file and it was reset. The old file is available in your pluginConfigs folder, as Tf2CriticalHitsPlugin.json.old.");
-                return new ConfigOne();
+                    $"There was an error while reading your configuration file and it was reset. The old file is available in your pluginConfigs folder, as Tf2CriticalHitsPlugin.json.{unixTimeSeconds}.old.");
+                return new ConfigTwo();
             }
         }
 
-        private static void TriggerChatAlertsForEarlierVersions(ConfigOne config)
+        private static void TriggerChatAlertsForEarlierVersions(BaseConfiguration config)
         {
             if (config.PluginVersion.Before(2, 0, 0))
             {
@@ -122,6 +126,11 @@ namespace Tf2CriticalHitsPlugin
             if (config.PluginVersion.Before(2, 2, 0))
             {
                 Chat.Print("Update 2.2.0.0", "New volume settings have been added for v2.2.0.0, which are enabled by default. If you're using a custom sound and it's too low, open /critconfig and adjust.");
+            }
+
+            if (config.PluginVersion.Before(3, 0, 0))
+            {
+                Chat.Print("Update 3.0.0.0", "New module: Countdown Jams! Configure a sound to be played when a countdown begins... and if it's cancelled.");
             }
         }
 
@@ -145,7 +154,7 @@ namespace Tf2CriticalHitsPlugin
                                         : GetCurrentClassJobId();
             if (currentClassJobId is null) return;
 
-            foreach (var config in CritConfiguration.JobConfigurations[currentClassJobId.Value])
+            foreach (var config in Configuration.criticalHits.JobConfigurations[currentClassJobId.Value])
             {
                 if (ShouldTriggerInCurrentMode(config) &&
                     (IsAutoAttack(config, kind) ||
@@ -173,18 +182,18 @@ namespace Tf2CriticalHitsPlugin
             }
         }
 
-        private static bool ShouldTriggerInCurrentMode(ConfigOne.ConfigModule config)
+        private static bool ShouldTriggerInCurrentMode(CritConfigOne.ConfigModule config)
         {
             return !IsPvP() || config.ApplyInPvP;
         }
         
-        private static bool IsAutoAttack(ConfigOne.ConfigModule config, FlyTextKind kind)
+        private static bool IsAutoAttack(CritConfigOne.ConfigModule config, FlyTextKind kind)
         {
             return config.GetModuleDefaults().FlyTextType.AutoAttack.Contains(kind);
         }
 
         private static bool IsEnabledAction(
-            ConfigOne.ConfigModule config, FlyTextKind kind, SeString text, [DisallowNull] byte? currentClassJobId)
+            CritConfigOne.ConfigModule config, FlyTextKind kind, SeString text, [DisallowNull] byte? currentClassJobId)
         {
             // If it's not a FlyText for an action, return false
             if (!config.GetModuleDefaults().FlyTextType.Action.Contains(kind)) return false;
@@ -213,7 +222,7 @@ namespace Tf2CriticalHitsPlugin
             return Service.ClientState.IsPvP;
         }
         
-        public static void GenerateTestFlyText(ConfigOne.ConfigModule config)
+        public static void GenerateTestFlyText(CritConfigOne.ConfigModule config)
         {
             var kind = config.GetModuleDefaults().FlyTextType.Action.FirstOrDefault();
             LogDebug($"Kind: {kind}, Config ID: {config.GetId()}");
@@ -223,7 +232,7 @@ namespace Tf2CriticalHitsPlugin
                                           config.GetModuleDefaults().FlyTextColor, 0, 60012);
         }
 
-        private static string GetTestText(ConfigOne.ConfigModule configModule)
+        private static string GetTestText(CritConfigOne.ConfigModule configModule)
         {
             var array = configModule.ModuleType.Value == ModuleType.OwnCriticalHeal
                             ? Constants.ActionsPerJob[configModule.ClassJobId.Value].ToArray()
@@ -231,7 +240,7 @@ namespace Tf2CriticalHitsPlugin
             return array[(int)Math.Floor(Random.Shared.NextSingle() * array.Length)];
         }
 
-        private static SeString GenerateText(ConfigOne.ConfigModule config)
+        private static SeString GenerateText(CritConfigOne.ConfigModule config)
         {
             LogDebug(
                 $"Generating text with color {config.TextColor} and glow {config.TextGlowColor}");
