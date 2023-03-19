@@ -83,7 +83,7 @@ public class CritOption : ISelectable, IDrawable
                .AddConfigCombo(SoundsExtensions.Values(), config.GameSound, s => s.ToName(), width: 150.0f)
                .SameLine()
                .AddIconButton($"{config.GetId()}testSfx", FontAwesomeIcon.Play,
-                              () => Tf2CriticalHitsPlugin.GameSoundPlayer?.Play(config.GameSound.Value))
+                              () => CriticalHitsModule.GameSoundPlayer?.Play(config.GameSound.Value))
                .SameLine()
                .AddString("(Volume is controlled by the game's settings)")
                .AddIndent(-2)
@@ -125,7 +125,7 @@ public class CritOption : ISelectable, IDrawable
                .AddConfigCheckbox("Italics", config.TextItalics)
                .AddIndent(-2)
                .EndConditional()
-               .AddButton("Test configuration", () => Tf2CriticalHitsPlugin.GenerateTestFlyText(config))
+               .AddButton("Test configuration", () => CriticalHitsModule.GenerateTestFlyText(config))
                .Draw();
     }
 

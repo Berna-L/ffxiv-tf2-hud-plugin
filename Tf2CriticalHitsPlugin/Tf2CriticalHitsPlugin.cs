@@ -1,24 +1,18 @@
 ﻿using System;
-using System.Diagnostics.CodeAnalysis;
 using System.IO;
-using System.Linq;
 using Dalamud.Game.Command;
 using Dalamud.Plugin;
-using Dalamud.Game.Gui.FlyText;
-using Dalamud.Game.Text.SeStringHandling;
 using Dalamud.Interface.Windowing;
-using FFXIVClientStructs.FFXIV.Client.Game.UI;
 using KamiLib;
 using KamiLib.ChatCommands;
 using Newtonsoft.Json;
 using Tf2CriticalHitsPlugin.Common.Configuration;
-using Tf2CriticalHitsPlugin.Configuration;
 using Tf2CriticalHitsPlugin.Countdown;
 using Tf2CriticalHitsPlugin.Countdown.Status;
 using Tf2CriticalHitsPlugin.Countdown.Windows;
+using Tf2CriticalHitsPlugin.CriticalHits;
 using Tf2CriticalHitsPlugin.CriticalHits.Configuration;
 using Tf2CriticalHitsPlugin.CriticalHits.Windows;
-using Tf2CriticalHitsPlugin.SeFunctions;
 using Tf2CriticalHitsPlugin.Windows;
 using static Dalamud.Logging.PluginLog;
 using JsonSerializer = System.Text.Json.JsonSerializer;
@@ -27,14 +21,17 @@ namespace Tf2CriticalHitsPlugin
 {
     public sealed class Tf2CriticalHitsPlugin : IDalamudPlugin
     {
-        public string Name => "TF2-ish Critical Hits";
-        private const string CommandName = "/critconfig";
+        public string Name => PluginName;
+        public const string PluginName = "Hit it, Joe!";
+        private const string CommandName = "/joeconfig";
+        private const string LegacyCommandName = "/critconfig";
 
         public ConfigTwo Configuration { get; init; }
         
         
         public readonly WindowSystem WindowSystem = new("TF2CriticalHitsPlugin");
-        internal static PlaySound? GameSoundPlayer;
+        
+        private readonly CriticalHitsModule criticalHitsModule;
         private readonly CountdownModule countdownModule;
 
         public Tf2CriticalHitsPlugin(DalamudPluginInterface pluginInterface)
@@ -51,20 +48,23 @@ namespace Tf2CriticalHitsPlugin
             KamiCommon.WindowManager.AddWindow(new CriticalHitsImportWindow(Configuration.criticalHits));
             KamiCommon.WindowManager.AddWindow(new CountdownNewSettingWindow(Configuration.countdownJams));
 
+            criticalHitsModule = new CriticalHitsModule(Configuration.criticalHits);
             countdownModule = new CountdownModule(State.Instance(), Configuration.countdownJams);
 
-            
-            GameSoundPlayer = new PlaySound(Service.SigScanner);
+
 
             Service.CommandManager.AddHandler(CommandName, new CommandInfo(OnConfigCommand)
             {
-                HelpMessage = "Opens the TF2-ish Critical Hits configuration window"
+                HelpMessage = "Opens the Hit it, Joe! configuration window",
+            });
+            
+            Service.CommandManager.AddHandler(LegacyCommandName, new CommandInfo(OnConfigCommand)
+            {
+                ShowInHelp = false
             });
 
             Service.PluginInterface.UiBuilder.Draw += DrawUserInterface;
             Service.PluginInterface.UiBuilder.OpenConfigUi += DrawConfigWindow;
-
-            Service.FlyTextGui.FlyTextCreated += this.FlyTextCreate;
         }
 
         private static ConfigTwo InitConfig()
@@ -91,7 +91,7 @@ namespace Tf2CriticalHitsPlugin
                 {
                     0 => JsonSerializer.Deserialize<CriticalHitsConfigZero>(configText)?.MigrateToOne().MigrateToTwo(versionCheck.PluginVersion) ?? new ConfigTwo(),
                     1 => JsonConvert.DeserializeObject<CriticalHitsConfigOne>(configText)?.MigrateToTwo(versionCheck.PluginVersion) ?? new ConfigTwo(),
-                    2 => JsonSerializer.Deserialize<ConfigTwo>(configText) ?? new ConfigTwo(),
+                    2 => JsonConvert.DeserializeObject<ConfigTwo>(configText) ?? new ConfigTwo(),
                     _ => new ConfigTwo()
                 };
 
@@ -128,152 +128,28 @@ namespace Tf2CriticalHitsPlugin
             {
                 Chat.Print("Update 2.2.0.0", "New volume settings have been added for v2.2.0.0, which are enabled by default. If you're using a custom sound and it's too low, open /critconfig and adjust.");
             }
-
             if (config.PluginVersion.Before(3, 0, 0))
             {
-                Chat.Print("Update 3.0.0.0", "New module: Countdown Jams! Configure a sound to be played when a countdown begins... and if it's cancelled.");
+                Chat.Print("Update 3.0.0.0", "TF2-ish Critical Hits has been renamed to Hit it Joe, and comes with a new module: Countdown Jams! Configure a sound to be played when a countdown begins and if it's cancelled.");
             }
-        }
-
-        public void FlyTextCreate(
-            ref FlyTextKind kind,
-            ref int val1,
-            ref int val2,
-            ref SeString text1,
-            ref SeString text2,
-            ref uint color,
-            ref uint icon,
-            ref uint damageTypeIcon,
-            ref float yOffset,
-            ref bool handled)
-        {
-            var currentText2 = text2.ToString();
-            var currentClassJobId = currentText2.StartsWith("TF2TEST##")
-                                        ? byte.Parse(
-                                            currentText2[
-                                                (currentText2.LastIndexOf("#", StringComparison.Ordinal) + 1)..])
-                                        : GetCurrentClassJobId();
-            if (currentClassJobId is null) return;
-
-            foreach (var config in Configuration.criticalHits.JobConfigurations[currentClassJobId.Value])
-            {
-                if (ShouldTriggerInCurrentMode(config) &&
-                    (IsAutoAttack(config, kind) ||
-                     IsEnabledAction(config, kind, text1, currentClassJobId)))
-                {
-                    LogDebug($"{config.GetId()} registered!");
-                    if (config.ShowText)
-                    {
-                        text2 = GenerateText(config);
-                    }
-
-                    if (!config.SoundForActionsOnly ||
-                        config.GetModuleDefaults().FlyTextType.Action.Contains(kind))
-                    {
-                        if (config.UseCustomFile)
-                        {
-                            SoundEngine.PlaySound(config.FilePath.Value, config.ApplySfxVolume, config.Volume.Value);
-                        }
-                        else
-                        {
-                            GameSoundPlayer?.Play(config.GameSound.Value);
-                        }
-                    }
-                }
-            }
-        }
-
-        private static bool ShouldTriggerInCurrentMode(CriticalHitsConfigOne.ConfigModule config)
-        {
-            return !IsPvP() || config.ApplyInPvP;
         }
         
-        private static bool IsAutoAttack(CriticalHitsConfigOne.ConfigModule config, FlyTextKind kind)
-        {
-            return config.GetModuleDefaults().FlyTextType.AutoAttack.Contains(kind);
-        }
-
-        private static bool IsEnabledAction(
-            CriticalHitsConfigOne.ConfigModule config, FlyTextKind kind, SeString text, [DisallowNull] byte? currentClassJobId)
-        {
-            // If it's not a FlyText for an action, return false
-            if (!config.GetModuleDefaults().FlyTextType.Action.Contains(kind)) return false;
-            // If we're checking the Own Critical Heals section, check if it's an action of the current job
-            if (config.ModuleType == ModuleType.OwnCriticalHeal)
-            {
-                return Constants.ActionsPerJob[currentClassJobId.Value].Contains(text.TextValue);
-            }
-            // If we're checking the Other Critical Heals section, check if it's NOT an action of the current job
-            if (config.ModuleType == ModuleType.OtherCriticalHeal)
-            {
-                return !Constants.ActionsPerJob[currentClassJobId.Value].Contains(text.TextValue);
-            }
-            // If it's any other configuration section, it's enabled.
-            return true;
-        }
-
-        private static unsafe byte? GetCurrentClassJobId()
-        {
-            var classJobId = PlayerState.Instance()->CurrentClassJobId;
-            return Constants.CombatJobs.ContainsKey(classJobId) ? classJobId : null;
-        }
-
-        private static bool IsPvP()
-        {
-            return Service.ClientState.IsPvP;
-        }
-        
-        public static void GenerateTestFlyText(CriticalHitsConfigOne.ConfigModule config)
-        {
-            var kind = config.GetModuleDefaults().FlyTextType.Action.FirstOrDefault();
-            LogDebug($"Kind: {kind}, Config ID: {config.GetId()}");
-            var text = GetTestText(config);
-            Service.FlyTextGui.AddFlyText(kind, 1, 3333, 0, new SeStringBuilder().AddText(text).Build(),
-                                          new SeStringBuilder().AddText($"TF2TEST##{config.ClassJobId}").Build(),
-                                          config.GetModuleDefaults().FlyTextColor, 0, 60012);
-        }
-
-        private static string GetTestText(CriticalHitsConfigOne.ConfigModule configModule)
-        {
-            var array = configModule.ModuleType.Value == ModuleType.OwnCriticalHeal
-                            ? Constants.ActionsPerJob[configModule.ClassJobId.Value].ToArray()
-                            : Constants.TestFlavorText;
-            return array[(int)Math.Floor(Random.Shared.NextSingle() * array.Length)];
-        }
-
-        private static SeString GenerateText(CriticalHitsConfigOne.ConfigModule config)
-        {
-            LogDebug(
-                $"Generating text with color {config.TextColor} and glow {config.TextGlowColor}");
-            var stringBuilder = new SeStringBuilder()
-                                .AddUiForeground(config.TextColor.Value)
-                                .AddUiGlow(config.TextGlowColor.Value);
-            if (config.TextItalics)
-            {
-                stringBuilder.AddItalicsOn();
-            }
-
-            return stringBuilder
-                   .AddText(config.Text.Value)
-                   .AddItalicsOff()
-                   .AddUiForegroundOff()
-                   .AddUiGlowOff()
-                   .Build();
-        }
-
-
         public void Dispose()
         {
             KamiCommon.Dispose();
             countdownModule.Dispose();
-            Service.FlyTextGui.FlyTextCreated -= FlyTextCreate;
+            criticalHitsModule.Dispose();
             this.WindowSystem.RemoveAllWindows();
+            Service.CommandManager.RemoveHandler(LegacyCommandName);
             Service.CommandManager.RemoveHandler(CommandName);
         }
 
         private static void OnConfigCommand(string command, string args)
         {
-            // in response to the slash command, just display our main ui
+            if (command.Equals(LegacyCommandName))
+            {
+                Chat.Print("Deprecated Command", "The command /critconfig is deprecated and will be removed in the future. Use /joeconfig from now on.");
+            }
             if (KamiCommon.WindowManager.GetWindowOfType<ConfigWindow>() is { } window)
             {
                 window.IsOpen = true;

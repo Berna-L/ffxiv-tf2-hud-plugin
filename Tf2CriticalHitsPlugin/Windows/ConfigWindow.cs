@@ -8,18 +8,16 @@ using KamiLib.Drawing;
 using KamiLib.Interfaces;
 using KamiLib.Windows;
 using Tf2CriticalHitsPlugin.Common.Configuration;
-using Tf2CriticalHitsPlugin.Configuration;
-using Tf2CriticalHitsPlugin.Countdown.Configuration;
 using Tf2CriticalHitsPlugin.Countdown.Windows;
-using Tf2CriticalHitsPlugin.CriticalHits.Configuration;
 using Tf2CriticalHitsPlugin.CriticalHits.Windows;
+using static Tf2CriticalHitsPlugin.Tf2CriticalHitsPlugin;
 
 namespace Tf2CriticalHitsPlugin.Windows;
 
 public class ConfigWindow : TabbedSelectionWindow, IDisposable
 {
 
-    public const String Title = "TF2-ish Critical Hits — Configuration";
+    public const String Title = $"{PluginName} — Configuration";
     private readonly IList<ISelectionWindowTab> tabs = new List<ISelectionWindowTab>();
     private static readonly string PluginVersion = GetVersionText();
 

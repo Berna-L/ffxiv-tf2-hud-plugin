@@ -11,6 +11,7 @@ using Lumina.Excel.GeneratedSheets;
 using Tf2CriticalHitsPlugin.Common.Windows;
 using Tf2CriticalHitsPlugin.CriticalHits.Configuration;
 using Tf2CriticalHitsPlugin.Windows;
+using static Tf2CriticalHitsPlugin.Tf2CriticalHitsPlugin;
 
 namespace Tf2CriticalHitsPlugin.CriticalHits.Windows;
 
@@ -83,7 +84,7 @@ public class CritTab: SoundConfigurationTab<CriticalHitsConfigOne>
         ImGui.SameLine();
         if (ImGuiComponents.IconButton(FontAwesomeIcon.FileUpload))
         {
-            DialogManager.SaveFileDialog("TF2-ish Critical Hits — Share configuration...", "ZIP file{.zip}", "critical hits.zip", "zip", (b, s) =>
+            DialogManager.SaveFileDialog($"{PluginName} — Critical Hits — Share configuration...", "ZIP file{.zip}", "critical hits.zip", "zip", (b, s) =>
             {
                 if (b && !s.IsNullOrEmpty())
                 {

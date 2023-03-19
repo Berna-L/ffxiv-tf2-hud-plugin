@@ -7,6 +7,7 @@ using KamiLib;
 using Lumina.Excel.GeneratedSheets;
 using Tf2CriticalHitsPlugin.Configuration;
 using Tf2CriticalHitsPlugin.CriticalHits.Configuration;
+using static Tf2CriticalHitsPlugin.Tf2CriticalHitsPlugin;
 
 namespace Tf2CriticalHitsPlugin.CriticalHits.Windows;
 
@@ -18,7 +19,7 @@ public class CriticalHitsCopyWindow : Dalamud.Interface.Windowing.Window
                                                 .OrderBy(j => j.Role)
                                                 .ThenBy(j => j.NameEnglish.ToString()).ToArray();
 
-    private const string Title = "TF2-ish Critical Hits — Settings Copy";
+    private const string Title = $"{PluginName} — Critical Hits — Settings Copy";
 
     private int sourceJobIdx;
     private readonly ISet<int> destJobs = new HashSet<int>();

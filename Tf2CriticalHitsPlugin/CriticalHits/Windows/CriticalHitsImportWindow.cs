@@ -9,13 +9,14 @@ using KamiLib.ChatCommands;
 using KamiLib.Configuration;
 using Tf2CriticalHitsPlugin.CriticalHits.Configuration;
 using Tf2CriticalHitsPlugin.Windows;
+using static Tf2CriticalHitsPlugin.Tf2CriticalHitsPlugin;
 
 namespace Tf2CriticalHitsPlugin.CriticalHits.Windows;
 
 public class CriticalHitsImportWindow: Window
 {
     private readonly CriticalHitsConfigOne criticalHitsConfigOne;
-    private const string Title = "TF2-ish Critical Hits - Import settings from ZIP";
+    private const string Title = $"{PluginName} — Critical Hits — Import settings from ZIP";
     private string zipPath = string.Empty;
     private string soundsPath = string.Empty;
     private readonly Setting<bool> makeBackup = new(false);
@@ -35,7 +36,7 @@ public class CriticalHitsImportWindow: Window
         ImGui.SameLine();
         if (ImGuiComponents.IconButton(FontAwesomeIcon.FileArchive))
         {
-            CommonFileDialogManager.DialogManager.OpenFileDialog("TF2-ish Critical Hits - Select ZIP file", "ZIP files{.zip}", (b, s) =>
+            CommonFileDialogManager.DialogManager.OpenFileDialog($"{PluginName} — Critical Hits — Select ZIP file", "ZIP files{.zip}", (b, s) =>
             {
                 if (b && !s.IsNullOrEmpty())
                 {
@@ -54,7 +55,7 @@ public class CriticalHitsImportWindow: Window
         ImGui.SameLine();
         if (ImGuiComponents.IconButton(FontAwesomeIcon.Folder))
         {
-            CommonFileDialogManager.DialogManager.OpenFolderDialog("TF2-ish Critical Hits — Select where to store the sounds", (b, s) =>
+            CommonFileDialogManager.DialogManager.OpenFolderDialog($"{PluginName}  — Critical Hits — Select where to store the sounds", (b, s) =>
             {
                 if (b && !s.IsNullOrEmpty())
                 {
@@ -103,7 +104,7 @@ public class CriticalHitsImportWindow: Window
 
     private void OpenBackupPathSelection()
     {
-        CommonFileDialogManager.DialogManager.SaveFileDialog("TF2-ish Critical Hits — Select where to save the backup",
+        CommonFileDialogManager.DialogManager.SaveFileDialog($"{PluginName} — Critical Hits — Select where to save the backup",
                                                              "ZIP file{.zip}", "backup.zip", "zip",
                                                              (b, s) =>
                                                              {
