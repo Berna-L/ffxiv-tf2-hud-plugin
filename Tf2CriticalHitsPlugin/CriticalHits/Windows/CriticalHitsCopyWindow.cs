@@ -10,9 +10,9 @@ using Tf2CriticalHitsPlugin.CriticalHits.Configuration;
 
 namespace Tf2CriticalHitsPlugin.CriticalHits.Windows;
 
-public class CritSettingsCopyWindow : Dalamud.Interface.Windowing.Window
+public class CriticalHitsCopyWindow : Dalamud.Interface.Windowing.Window
 {
-    private readonly CritConfigOne critConfigOne;
+    private readonly CriticalHitsConfigOne criticalHitsConfigOne;
 
     private static readonly ClassJob[] Jobs = Constants.CombatJobs.Values
                                                 .OrderBy(j => j.Role)
@@ -23,11 +23,11 @@ public class CritSettingsCopyWindow : Dalamud.Interface.Windowing.Window
     private int sourceJobIdx;
     private readonly ISet<int> destJobs = new HashSet<int>();
 
-    public CritSettingsCopyWindow(
-        CritConfigOne critConfigOne, ImGuiWindowFlags flags = ImGuiWindowFlags.None, bool forceMainWindow = false) : base(
+    public CriticalHitsCopyWindow(
+        CriticalHitsConfigOne criticalHitsConfigOne, ImGuiWindowFlags flags = ImGuiWindowFlags.None, bool forceMainWindow = false) : base(
         Title, flags, forceMainWindow)
     {
-        this.critConfigOne = critConfigOne;
+        this.criticalHitsConfigOne = criticalHitsConfigOne;
         Size = new Vector2(300, 670);
     }
 
@@ -109,11 +109,11 @@ public class CritSettingsCopyWindow : Dalamud.Interface.Windowing.Window
         if (ImGui.Button("Copy"))
         {
             var sourceJob = Jobs[sourceJobIdx];
-            var sourceJobSettings = critConfigOne.JobConfigurations[sourceJob.RowId];
+            var sourceJobSettings = criticalHitsConfigOne.JobConfigurations[sourceJob.RowId];
             foreach (var destJobIdx in destJobs)
             {
                 var destJob = Jobs[destJobIdx];
-                critConfigOne.JobConfigurations[destJob.RowId].CopySettingsFrom(sourceJobSettings);
+                criticalHitsConfigOne.JobConfigurations[destJob.RowId].CopySettingsFrom(sourceJobSettings);
             }
             KamiCommon.SaveConfiguration();
             this.IsOpen = false;

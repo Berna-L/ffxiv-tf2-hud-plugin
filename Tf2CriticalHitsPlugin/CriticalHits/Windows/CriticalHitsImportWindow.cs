@@ -7,24 +7,24 @@ using Dalamud.Utility;
 using ImGuiNET;
 using KamiLib.ChatCommands;
 using KamiLib.Configuration;
-using Tf2CriticalHitsPlugin.Configuration;
 using Tf2CriticalHitsPlugin.CriticalHits.Configuration;
+using Tf2CriticalHitsPlugin.Windows;
 
-namespace Tf2CriticalHitsPlugin.Windows;
+namespace Tf2CriticalHitsPlugin.CriticalHits.Windows;
 
-public class SettingsImportWindow: Window
+public class CriticalHitsImportWindow: Window
 {
-    private readonly CritConfigOne critConfigOne;
+    private readonly CriticalHitsConfigOne criticalHitsConfigOne;
     private const string Title = "TF2-ish Critical Hits - Import settings from ZIP";
     private string zipPath = string.Empty;
     private string soundsPath = string.Empty;
     private readonly Setting<bool> makeBackup = new(false);
     private string backupPath = string.Empty;
     
-    public SettingsImportWindow(CritConfigOne critConfigOne, bool forceMainWindow = false) : base(Title, ImGuiWindowFlags.Modal | ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoDocking | ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoResize, forceMainWindow)
+    public CriticalHitsImportWindow(CriticalHitsConfigOne criticalHitsConfigOne, bool forceMainWindow = false) : base(Title, ImGuiWindowFlags.Modal | ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoDocking | ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoResize, forceMainWindow)
     {
         Size = new Vector2(700, 250);
-        this.critConfigOne = critConfigOne;
+        this.criticalHitsConfigOne = criticalHitsConfigOne;
     }
     
     
@@ -94,9 +94,9 @@ public class SettingsImportWindow: Window
                 {
                     Chat.PrintError("The defined backup path does not exist.");
                 }
-                critConfigOne.CreateZip(backupPath);
+                criticalHitsConfigOne.CreateZip(backupPath);
             }
-            CritConfigOne.GenerateFrom(zipPath);
+            CriticalHitsConfigOne.GenerateFrom(zipPath);
             IsOpen = false;
         }
     }

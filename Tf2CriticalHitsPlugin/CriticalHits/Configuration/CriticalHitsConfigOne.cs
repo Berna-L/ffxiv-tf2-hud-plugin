@@ -17,14 +17,14 @@ using Configuration_ModuleType = Tf2CriticalHitsPlugin.Configuration.ModuleType;
 namespace Tf2CriticalHitsPlugin.CriticalHits.Configuration;
 
 [Serializable]
-public class CritConfigOne
+public class CriticalHitsConfigOne
 {
 
     public int Version { get; set; }
 
     public SortedDictionary<uint, JobConfig> JobConfigurations { get; set; } = new();
 
-    public CritConfigOne()
+    public CriticalHitsConfigOne()
     {
         Version = 1;
         foreach (var (key, _) in CombatJobs)
@@ -201,37 +201,37 @@ public class CritConfigOne
         }
     }
 
-    public static CritConfigOne? GenerateFrom(string zipPath)
+    public static CriticalHitsConfigOne? GenerateFrom(string zipPath)
     {
         var zipArchive = ZipFile.OpenRead(zipPath);
         var configFile = zipArchive.GetEntry("config.json");
         if (configFile is null) return null;
-        var newConfig = JsonConvert.DeserializeObject<CritConfigOne>(new StreamReader(configFile.Open()).ReadToEnd());
+        var newConfig = JsonConvert.DeserializeObject<CriticalHitsConfigOne>(new StreamReader(configFile.Open()).ReadToEnd());
         return newConfig;
     }
 
-    public void ImportFrom(string zipPath, string soundsPath, CritConfigOne newCritConfig)
+    public void ImportFrom(string zipPath, string soundsPath, CriticalHitsConfigOne newCriticalHitsConfig)
     {
         var zipArchive = ZipFile.OpenRead(zipPath);
         foreach (var entry in zipArchive.Entries.Where(e => e.Name is not "config.json"))
         {
             entry.ExtractToFile(Path.Join(soundsPath, entry.Name), true);
         }
-        foreach (var module in newCritConfig.JobConfigurations.Select(c => c.Value)
+        foreach (var module in newCriticalHitsConfig.JobConfigurations.Select(c => c.Value)
                                         .SelectMany(c => c.GetModules))
         {
             module.FilePath = new Setting<string>(Path.Join(soundsPath, module.FilePath.Value));
         }
         foreach (var jobConfig in JobConfigurations.Select(c => c.Value))
         {
-            jobConfig.CopySettingsFrom(newCritConfig.JobConfigurations[jobConfig.ClassJobId.Value]);
+            jobConfig.CopySettingsFrom(newCriticalHitsConfig.JobConfigurations[jobConfig.ClassJobId.Value]);
         }
         KamiCommon.SaveConfiguration();
     }
 
-    private CritConfigOne Clone()
+    private CriticalHitsConfigOne Clone()
     {
-        var newInstance = new CritConfigOne();
+        var newInstance = new CriticalHitsConfigOne();
         newInstance.JobConfigurations.ToList()
                    .ForEach(kv => kv.Value.CopySettingsFrom(JobConfigurations[kv.Key]));
         return newInstance;

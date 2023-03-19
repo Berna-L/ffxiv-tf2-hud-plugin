@@ -47,7 +47,8 @@ namespace Tf2CriticalHitsPlugin
             
 
             KamiCommon.WindowManager.AddWindow(new ConfigWindow(Configuration));
-            KamiCommon.WindowManager.AddWindow(new CritSettingsCopyWindow(Configuration.criticalHits));
+            KamiCommon.WindowManager.AddWindow(new CriticalHitsCopyWindow(Configuration.criticalHits));
+            KamiCommon.WindowManager.AddWindow(new CriticalHitsImportWindow(Configuration.criticalHits));
             KamiCommon.WindowManager.AddWindow(new CountdownNewSettingWindow(Configuration.countdownJams));
 
             countdownModule = new CountdownModule(State.Instance(), Configuration.countdownJams);
@@ -88,8 +89,8 @@ namespace Tf2CriticalHitsPlugin
                 var version = versionCheck.Version;
                 var config = version switch
                 {
-                    0 => JsonSerializer.Deserialize<CritConfigZero>(configText)?.MigrateToOne().MigrateToTwo(versionCheck.PluginVersion) ?? new ConfigTwo(),
-                    1 => JsonConvert.DeserializeObject<CritConfigOne>(configText)?.MigrateToTwo(versionCheck.PluginVersion) ?? new ConfigTwo(),
+                    0 => JsonSerializer.Deserialize<CriticalHitsConfigZero>(configText)?.MigrateToOne().MigrateToTwo(versionCheck.PluginVersion) ?? new ConfigTwo(),
+                    1 => JsonConvert.DeserializeObject<CriticalHitsConfigOne>(configText)?.MigrateToTwo(versionCheck.PluginVersion) ?? new ConfigTwo(),
                     2 => JsonSerializer.Deserialize<ConfigTwo>(configText) ?? new ConfigTwo(),
                     _ => new ConfigTwo()
                 };
@@ -182,18 +183,18 @@ namespace Tf2CriticalHitsPlugin
             }
         }
 
-        private static bool ShouldTriggerInCurrentMode(CritConfigOne.ConfigModule config)
+        private static bool ShouldTriggerInCurrentMode(CriticalHitsConfigOne.ConfigModule config)
         {
             return !IsPvP() || config.ApplyInPvP;
         }
         
-        private static bool IsAutoAttack(CritConfigOne.ConfigModule config, FlyTextKind kind)
+        private static bool IsAutoAttack(CriticalHitsConfigOne.ConfigModule config, FlyTextKind kind)
         {
             return config.GetModuleDefaults().FlyTextType.AutoAttack.Contains(kind);
         }
 
         private static bool IsEnabledAction(
-            CritConfigOne.ConfigModule config, FlyTextKind kind, SeString text, [DisallowNull] byte? currentClassJobId)
+            CriticalHitsConfigOne.ConfigModule config, FlyTextKind kind, SeString text, [DisallowNull] byte? currentClassJobId)
         {
             // If it's not a FlyText for an action, return false
             if (!config.GetModuleDefaults().FlyTextType.Action.Contains(kind)) return false;
@@ -222,7 +223,7 @@ namespace Tf2CriticalHitsPlugin
             return Service.ClientState.IsPvP;
         }
         
-        public static void GenerateTestFlyText(CritConfigOne.ConfigModule config)
+        public static void GenerateTestFlyText(CriticalHitsConfigOne.ConfigModule config)
         {
             var kind = config.GetModuleDefaults().FlyTextType.Action.FirstOrDefault();
             LogDebug($"Kind: {kind}, Config ID: {config.GetId()}");
@@ -232,7 +233,7 @@ namespace Tf2CriticalHitsPlugin
                                           config.GetModuleDefaults().FlyTextColor, 0, 60012);
         }
 
-        private static string GetTestText(CritConfigOne.ConfigModule configModule)
+        private static string GetTestText(CriticalHitsConfigOne.ConfigModule configModule)
         {
             var array = configModule.ModuleType.Value == ModuleType.OwnCriticalHeal
                             ? Constants.ActionsPerJob[configModule.ClassJobId.Value].ToArray()
@@ -240,7 +241,7 @@ namespace Tf2CriticalHitsPlugin
             return array[(int)Math.Floor(Random.Shared.NextSingle() * array.Length)];
         }
 
-        private static SeString GenerateText(CritConfigOne.ConfigModule config)
+        private static SeString GenerateText(CriticalHitsConfigOne.ConfigModule config)
         {
             LogDebug(
                 $"Generating text with color {config.TextColor} and glow {config.TextGlowColor}");

@@ -21,10 +21,10 @@ namespace Tf2CriticalHitsPlugin.CriticalHits.Windows;
 
 public class CritOption : ISelectable, IDrawable
 {
-    internal readonly CritConfigOne.JobConfig JobConfig;
+    internal readonly CriticalHitsConfigOne.JobConfig JobConfig;
     private readonly FileDialogManager dialogManager;
 
-    internal CritOption(CritConfigOne.JobConfig jobConfig, FileDialogManager dialogManager)
+    internal CritOption(CriticalHitsConfigOne.JobConfig jobConfig, FileDialogManager dialogManager)
     {
         this.JobConfig = jobConfig;
         this.dialogManager = dialogManager;
@@ -47,7 +47,7 @@ public class CritOption : ISelectable, IDrawable
         DrawDetailPane(JobConfig, dialogManager);
     }
 
-    private static void DrawDetailPane(CritConfigOne.JobConfig jobConfig, FileDialogManager dialogManager)
+    private static void DrawDetailPane(CriticalHitsConfigOne.JobConfig jobConfig, FileDialogManager dialogManager)
     {
         ImGui.Text($"Configuration for {jobConfig.GetClassJob().NameEnglish}");
         foreach (var module in jobConfig)
@@ -56,7 +56,7 @@ public class CritOption : ISelectable, IDrawable
         }
     }
 
-    private static void DrawConfigModule(CritConfigOne.ConfigModule config, FileDialogManager dialogManager)
+    private static void DrawConfigModule(CriticalHitsConfigOne.ConfigModule config, FileDialogManager dialogManager)
     {
         void UpdatePath(bool success, List<string> paths)
         {

@@ -14,7 +14,7 @@ using Tf2CriticalHitsPlugin.Windows;
 
 namespace Tf2CriticalHitsPlugin.CriticalHits.Windows;
 
-public class CritTab: SoundConfigurationTab<CritConfigOne>
+public class CritTab: SoundConfigurationTab<CriticalHitsConfigOne>
 {
 
     public static readonly SortedDictionary<ushort, ColorInfo> ForegroundColors = new();
@@ -70,7 +70,7 @@ public class CritTab: SoundConfigurationTab<CritConfigOne>
         ImGui.GetContentRegionAvail();
         if (ImGuiComponents.IconButton(FontAwesomeIcon.Copy))
         {
-            if (KamiCommon.WindowManager.GetWindowOfType<CritSettingsCopyWindow>() is { } window)
+            if (KamiCommon.WindowManager.GetWindowOfType<CriticalHitsCopyWindow>() is { } window)
             {
                 window.Open();
             }
@@ -98,7 +98,7 @@ public class CritTab: SoundConfigurationTab<CritConfigOne>
         ImGui.SameLine();
         if (ImGuiComponents.IconButton(FontAwesomeIcon.FileDownload))
         {
-            if (KamiCommon.WindowManager.GetWindowOfType<SettingsImportWindow>() is { } window)
+            if (KamiCommon.WindowManager.GetWindowOfType<CriticalHitsImportWindow>() is { } window)
             {
                 window.IsOpen = true;
             }
@@ -110,15 +110,15 @@ public class CritTab: SoundConfigurationTab<CritConfigOne>
         }
     }
     
-    private static void CreateZip(CritConfigOne critConfigOne, string path)
+    private static void CreateZip(CriticalHitsConfigOne criticalHitsConfigOne, string path)
     {
-        critConfigOne.CreateZip(path);
+        criticalHitsConfigOne.CreateZip(path);
     }
 
 
 
     
-    public CritTab(CritConfigOne configuration, FileDialogManager dialogManager) : base("crits", "Critical and Direct Hits", configuration, dialogManager)
+    public CritTab(CriticalHitsConfigOne configuration, FileDialogManager dialogManager) : base("crits", "Critical and Direct Hits", configuration, dialogManager)
     {
         
     }

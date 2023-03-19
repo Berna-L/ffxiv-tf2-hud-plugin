@@ -9,13 +9,13 @@ namespace Tf2CriticalHitsPlugin.Common.Configuration;
 
 public class ConfigTwo: BaseConfiguration
 {
-    public CritConfigOne criticalHits;
+    public CriticalHitsConfigOne criticalHits;
     public CountdownConfigZero countdownJams;
     
     public ConfigTwo()
     {
         Version = 2;
-        criticalHits = new CritConfigOne();
+        criticalHits = new CriticalHitsConfigOne();
         countdownJams = new CountdownConfigZero();
     }
 
