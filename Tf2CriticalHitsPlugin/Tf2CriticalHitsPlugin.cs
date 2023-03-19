@@ -3,10 +3,14 @@ using System.IO;
 using Dalamud.Game.Command;
 using Dalamud.Plugin;
 using Dalamud.Interface.Windowing;
+using FFXIVClientStructs.FFXIV.Client.Game.UI;
+using ImGuiNET;
 using KamiLib;
 using KamiLib.ChatCommands;
 using Newtonsoft.Json;
 using Tf2CriticalHitsPlugin.Common.Configuration;
+using Tf2CriticalHitsPlugin.Common.Windows;
+using Tf2CriticalHitsPlugin.Configuration;
 using Tf2CriticalHitsPlugin.Countdown;
 using Tf2CriticalHitsPlugin.Countdown.Status;
 using Tf2CriticalHitsPlugin.Countdown.Windows;
@@ -25,6 +29,7 @@ namespace Tf2CriticalHitsPlugin
         public const string PluginName = "Hit it, Joe!";
         private const string CommandName = "/joeconfig";
         private const string LegacyCommandName = "/critconfig";
+        private const string TestCommandName = "/crittest";
 
         public ConfigTwo Configuration { get; init; }
         
@@ -33,11 +38,19 @@ namespace Tf2CriticalHitsPlugin
         
         private readonly CriticalHitsModule criticalHitsModule;
         private readonly CountdownModule countdownModule;
+        private DalamudPluginInterface dalamudPluginInterface;
+
+        private ImFontPtr tf2Font;
+        private ImFontPtr tf2ScoreFont;
+        private ImFontPtr tf2SecondaryFont;
 
         public Tf2CriticalHitsPlugin(DalamudPluginInterface pluginInterface)
         {
-            pluginInterface.Create<Service>();
-            KamiCommon.Initialize(pluginInterface, Name, () => Configuration?.Save());
+            dalamudPluginInterface = pluginInterface;
+            dalamudPluginInterface.UiBuilder.BuildFonts += LoadFonts;
+            dalamudPluginInterface.UiBuilder.RebuildFonts();
+            dalamudPluginInterface.Create<Service>();
+            KamiCommon.Initialize(dalamudPluginInterface, Name, () => Configuration?.Save());
             
             Configuration = InitConfig();
             Configuration.Save();
@@ -47,6 +60,11 @@ namespace Tf2CriticalHitsPlugin
             KamiCommon.WindowManager.AddWindow(new CriticalHitsCopyWindow(Configuration.criticalHits));
             KamiCommon.WindowManager.AddWindow(new CriticalHitsImportWindow(Configuration.criticalHits));
             KamiCommon.WindowManager.AddWindow(new CountdownNewSettingWindow(Configuration.countdownJams));
+            KamiCommon.WindowManager.AddWindow(new Tf2BluScore());
+            KamiCommon.WindowManager.AddWindow(new RedWindow());
+            KamiCommon.WindowManager.AddWindow(new DetailWindow());
+            KamiCommon.WindowManager.AddWindow(new Tf2TimerWindow());
+
 
             criticalHitsModule = new CriticalHitsModule(Configuration.criticalHits);
             countdownModule = new CountdownModule(State.Instance(), Configuration.countdownJams);
@@ -62,9 +80,39 @@ namespace Tf2CriticalHitsPlugin
             {
                 ShowInHelp = false
             });
+            Service.CommandManager.AddHandler(TestCommandName, new CommandInfo(OnTestCommand)
+            {
+                ShowInHelp = false
+            });
 
             Service.PluginInterface.UiBuilder.Draw += DrawUserInterface;
             Service.PluginInterface.UiBuilder.OpenConfigUi += DrawConfigWindow;
+            
+            // var package = new Package();
+            // package.Read(
+            //     "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Team Fortress 2\\tf\\tf2_sound_misc_dir.vpk");
+            // PluginLog.Debug(package.Entries?.ToString() ?? string.Empty);
+
+        }
+
+        private void LoadFonts()
+        {
+            tf2Font = ImGui.GetIO().Fonts
+                           .AddFontFromFileTTF(
+                               "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Team Fortress 2\\tf\\resource\\tf2.ttf",
+                               60
+                           );
+
+            tf2ScoreFont = ImGui.GetIO().Fonts
+                           .AddFontFromFileTTF(
+                               "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Team Fortress 2\\tf\\resource\\tf2.ttf",
+                               130
+                           );
+            tf2SecondaryFont = ImGui.GetIO().Fonts
+                                    .AddFontFromFileTTF(
+                                        "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Team Fortress 2\\tf\\resource\\tf2secondary.ttf",
+                                        40);
+            Tf2Window.UpdateFontPointers(tf2Font, tf2ScoreFont, tf2SecondaryFont);
         }
 
         private static ConfigTwo InitConfig()
@@ -137,11 +185,13 @@ namespace Tf2CriticalHitsPlugin
         public void Dispose()
         {
             KamiCommon.Dispose();
+            dalamudPluginInterface.UiBuilder.BuildFonts -= LoadFonts;
             countdownModule.Dispose();
             criticalHitsModule.Dispose();
             this.WindowSystem.RemoveAllWindows();
             Service.CommandManager.RemoveHandler(LegacyCommandName);
             Service.CommandManager.RemoveHandler(CommandName);
+            Service.CommandManager.RemoveHandler(TestCommandName);
         }
 
         private static void OnConfigCommand(string command, string args)
@@ -154,6 +204,25 @@ namespace Tf2CriticalHitsPlugin
             {
                 window.IsOpen = true;
             }
+        }
+
+        private static void OnTestCommand(string command, string args)
+        {
+            if (KamiCommon.WindowManager.GetWindowOfType<Tf2BluScore>() is { } bluWindow)
+            {
+                bluWindow.IsOpen = true;
+            }
+            if (KamiCommon.WindowManager.GetWindowOfType<RedWindow>() is { } redWindow)
+            {
+                redWindow.IsOpen = true;
+            }
+            if (KamiCommon.WindowManager.GetWindowOfType<DetailWindow>() is { } detailWindow)
+            {
+                detailWindow.IsOpen = true;
+            }
+
+
+
         }
 
         private void DrawUserInterface()
