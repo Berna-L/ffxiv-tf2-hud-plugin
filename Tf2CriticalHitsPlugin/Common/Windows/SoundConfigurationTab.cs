@@ -2,7 +2,7 @@
 using Dalamud.Interface.ImGuiFileDialog;
 using KamiLib.Interfaces;
 
-namespace Tf2CriticalHitsPlugin.Common.Window;
+namespace Tf2CriticalHitsPlugin.Common.Windows;
 
 public abstract class SoundConfigurationTab<T>: ISelectionWindowTab
 {

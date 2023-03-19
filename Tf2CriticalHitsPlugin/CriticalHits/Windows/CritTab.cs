@@ -8,7 +8,7 @@ using ImGuiNET;
 using KamiLib;
 using KamiLib.Interfaces;
 using Lumina.Excel.GeneratedSheets;
-using Tf2CriticalHitsPlugin.Common.Window;
+using Tf2CriticalHitsPlugin.Common.Windows;
 using Tf2CriticalHitsPlugin.CriticalHits.Configuration;
 using Tf2CriticalHitsPlugin.Windows;
 

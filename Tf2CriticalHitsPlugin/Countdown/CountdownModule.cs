@@ -12,6 +12,7 @@ public class CountdownModule : IDisposable
     private readonly State state;
     private readonly CountdownConfigZero config;
     private readonly CountdownHook countdownHook;
+    private bool playedForCurrentCountdown = false;
 
     public CountdownModule(State state, CountdownConfigZero config)
     {
@@ -26,20 +27,33 @@ public class CountdownModule : IDisposable
     private void OnUpdate(Framework framework)
     {
         countdownHook.Update();
+        var module = config.modules
+                           .Where(m => m.Enabled)
+                           .Where(m => m.DelayPlay)
+                           .Where(m => m.ValidForCountdown(state.StartingValue))
+                           .FirstOrDefault(m => m.ValidForTerritory(Service.ClientState.TerritoryType));
+        if (module is null) return;
+        if (!state.CountingDown || state.CountDownValue > module.DelayUntilCountdownHits.Value ||
+            playedForCurrentCountdown) return;
+        SoundEngine.PlaySound(module.FilePath.Value, module.ApplySfxVolume, module.Volume.Value, $"countdown|{module.Id}");
+        playedForCurrentCountdown = true;
     }
 
     private void OnStartCountingDown(object? sender, EventArgs args)
     {
+        playedForCurrentCountdown = false;
         if (sender is null) return;
         var state = (State)sender;
         var module = config.modules
                            .Where(m => m.Enabled)
+                           .Where(m => !m.DelayPlay)
                            .Where(m => m.ValidForCountdown(state.StartingValue))
                            .FirstOrDefault(m => m.ValidForTerritory(Service.ClientState.TerritoryType));
 
         if (module is null) return;
         SoundEngine.PlaySound(module.FilePath.Value, module.ApplySfxVolume, module.Volume.Value,
                               $"countdown|{module.Id}");
+        playedForCurrentCountdown = true;
     }
 
     private void OnStopCountingDown(object? sender, EventArgs e)
@@ -54,7 +68,7 @@ public class CountdownModule : IDisposable
 
             SoundEngine.StopSound($"countdown|{moduleToStop.Id}");
             SoundEngine.PlaySound(moduleToStop.InterruptedFilePath.Value, moduleToStop.InterruptedApplySfxVolume,
-                                  moduleToStop.InterruptedVolume.Value, $"countdownstop|{moduleToStop.Id}");
+                                  moduleToStop.InterruptedVolume.Value, $"countdownstop");
         }
     }
 

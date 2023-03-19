@@ -18,6 +18,8 @@ public class CountdownConfigZeroModule
     public Setting<bool> InterruptedApplySfxVolume { get; set; } = new(true);
     public Setting<int> MinimumCountdownTimer { get; set; } = new(5);
     public Setting<int> MaximumCountdownTimer { get; set; } = new(30);
+    public Setting<bool> DelayPlay { get; set; } = new(false);
+    public Setting<int> DelayUntilCountdownHits { get; set; } = new(1);
     public Setting<bool> AllTerritories { get; set; } = new(true);
     public IList<uint> Territories { get; init; } = new List<uint>();
     public Setting<ZoneFilterTypeId> TerritoryFilterType { get; init; } = new(ZoneFilterTypeId.Whitelist);

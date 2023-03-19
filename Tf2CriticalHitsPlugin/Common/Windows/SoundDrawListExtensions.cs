@@ -9,7 +9,7 @@ using KamiLib;
 using KamiLib.Configuration;
 using KamiLib.Drawing;
 
-namespace Tf2CriticalHitsPlugin.Common.Window;
+namespace Tf2CriticalHitsPlugin.Common.Windows;
 
 public static class SoundDrawListExtensions
 {

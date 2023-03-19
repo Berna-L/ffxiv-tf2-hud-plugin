@@ -11,7 +11,7 @@ using KamiLib.Configuration;
 using KamiLib.Drawing;
 using KamiLib.Interfaces;
 using Lumina.Excel.GeneratedSheets;
-using Tf2CriticalHitsPlugin.Common.Window;
+using Tf2CriticalHitsPlugin.Common.Windows;
 using Tf2CriticalHitsPlugin.Configuration;
 using Tf2CriticalHitsPlugin.CriticalHits.Configuration;
 using Tf2CriticalHitsPlugin.SeFunctions;

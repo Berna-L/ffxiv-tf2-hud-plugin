@@ -7,7 +7,7 @@ using KamiLib.Configuration;
 using KamiLib.Drawing;
 using KamiLib.Interfaces;
 using KamiLib.ZoneFilterList;
-using Tf2CriticalHitsPlugin.Common.Window;
+using Tf2CriticalHitsPlugin.Common.Windows;
 using Tf2CriticalHitsPlugin.Countdown.Configuration;
 
 namespace Tf2CriticalHitsPlugin.Countdown.Windows;
@@ -66,7 +66,7 @@ public class CountdownOption : ISelectable, IDrawable
             .AddIndent(-2)
             .AddString("When to play")
             .AddIndent(2)
-            .AddString("Play when the countdown is between")
+            .AddString("Enable for countdowns between")
             .SameLine()
             .AddInputInt($"##{Module.Id}MinCD", Module.MinimumCountdownTimer, 5, Module.MaximumCountdownTimer.Value)
             .SameLine()
@@ -75,6 +75,14 @@ public class CountdownOption : ISelectable, IDrawable
             .AddInputInt($"##{Module.Id}MaxCD", Module.MaximumCountdownTimer, Module.MinimumCountdownTimer.Value, 30)
             .SameLine()
             .AddString("seconds long")
+            .AddConfigCheckbox("Play when the countdown hits a specific mark (and not when it starts)", Module.DelayPlay)
+            .StartConditional(Module.DelayPlay)
+            .AddIndent(2)
+            .AddString("Start playing when it hits")
+            .SameLine()
+            .AddInputInt($"seconds##{Module.Id}PlayWhen", Module.DelayUntilCountdownHits, 1, Module.MaximumCountdownTimer.Value)
+            .AddIndent(-2)
+            .EndConditional()
             .AddIndent(-2)
             .AddString("Where to play")
             .AddIndent(2)
