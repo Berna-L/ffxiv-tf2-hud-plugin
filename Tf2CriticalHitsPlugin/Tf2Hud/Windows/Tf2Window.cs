@@ -2,30 +2,30 @@
 using Dalamud.Interface.Windowing;
 using ImGuiNET;
 
-namespace Tf2CriticalHitsPlugin.Common.Windows;
+namespace Tf2CriticalHitsPlugin.Tf2Hud.Windows;
 
 public abstract class Tf2Window: Window
 {
-    public static class Color
+    public static class TeamColor
     {
-        public static Vector4 Red = new Vector4(184 / 255f, 56 / 255f, 59 / 255f, 0);
-        public static Vector4 Blu = new Vector4(88 / 255f, 133 / 255f, 162 / 255f, 0);
+        internal static Vector4 Red = new(184 / 255f, 56 / 255f, 59 / 255f, 0);
+        internal static Vector4 Blu = new(88 / 255f, 133 / 255f, 162 / 255f, 0);
     }
-    
-    public static ImFontPtr Tf2Font { get; private set; }
+
+    protected static ImFontPtr Tf2Font { get; private set; }
     protected static ImFontPtr Tf2ScoreFont { get; private set; }
     protected static ImFontPtr Tf2SecondaryFont { get; private set; }
-    private readonly Vector4 backgroundColor;
+    public Vector4 BackgroundColor;
 
-    protected Tf2Window(string name, Vector4 backgroundColor) : base(name, ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoScrollWithMouse | ImGuiWindowFlags.NoScrollbar)
+    protected Tf2Window(string name, Vector4 backgroundColor) : base(name, ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoScrollWithMouse | ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoResize)
     {
-        this.backgroundColor = backgroundColor;
+        this.BackgroundColor = backgroundColor;
         BgAlpha = 0.8f;
     }
 
     public override void PreDraw()
     {
-        ImGui.PushStyleColor(ImGuiCol.WindowBg, backgroundColor);
+        ImGui.PushStyleColor(ImGuiCol.WindowBg, BackgroundColor);
         ImGui.PushStyleColor(ImGuiCol.Border, new Vector4(255, 255, 255, 20));
     }
 

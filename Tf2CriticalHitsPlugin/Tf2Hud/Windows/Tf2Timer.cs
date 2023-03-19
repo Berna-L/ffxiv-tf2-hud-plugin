@@ -1,13 +1,9 @@
 ﻿using System;
 using System.Numerics;
-using Dalamud.Interface.Windowing;
-using Dalamud.Logging;
 using ImGuiNET;
-using ImPlotNET;
 using KamiLib.Drawing;
-using SteamDatabase.ValvePak;
 
-namespace Tf2CriticalHitsPlugin.Common.Windows;
+namespace Tf2CriticalHitsPlugin.Tf2Hud.Windows;
 
 public class Tf2TimerWindow: Tf2Window
 {
@@ -15,7 +11,7 @@ public class Tf2TimerWindow: Tf2Window
     public long? maxTime { private get; set; }
 
 
-    public Tf2TimerWindow() : base("##Tf2TimerWindow", Color.Blu)
+    public Tf2TimerWindow() : base("##Tf2TimerWindow", TeamColor.Blu)
     {
         Size = new Vector2(220, 70);
         Position = new Vector2((ImGui.GetMainViewport().Size.X/2) - 110, 50);

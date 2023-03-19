@@ -1,11 +1,6 @@
 ﻿using System;
 using System.Linq;
 using Dalamud.Game;
-using Dalamud.Logging;
-using FFXIVClientStructs.FFXIV.Client.Game.Event;
-using FFXIVClientStructs.FFXIV.Client.Game.InstanceContent;
-using KamiLib;
-using Tf2CriticalHitsPlugin.Common.Windows;
 using Tf2CriticalHitsPlugin.Countdown.Configuration;
 using Tf2CriticalHitsPlugin.Countdown.Game;
 using Tf2CriticalHitsPlugin.Countdown.Status;
@@ -31,7 +26,6 @@ public class CountdownModule : IDisposable
 
     private void OnUpdate(Framework framework)
     {
-        test();
         countdownHook.Update();
         var module = config.modules
                            .Where(m => m.Enabled)
@@ -44,19 +38,7 @@ public class CountdownModule : IDisposable
         SoundEngine.PlaySound(module.FilePath.Value, module.ApplySfxVolume, module.Volume.Value, $"countdown|{module.Id}");
         playedForCurrentCountdown = true;
     }
-
-    private static unsafe void test()
-    {
-        var contentDirector = EventFramework.Instance()->GetInstanceContentDirector();
-        // if (contentDirector is null)
-        // {
-        if (KamiCommon.WindowManager.GetWindowOfType<Tf2TimerWindow>() is { } window)
-        {
-                window.timeRemaining = contentDirector is not null ? (long) Math.Round(contentDirector->ContentDirector.ContentTimeLeft) : null;
-                window.IsOpen = contentDirector is not null;
-        }
-    }
-
+    
     private void OnStartCountingDown(object? sender, EventArgs args)
     {
         playedForCurrentCountdown = false;

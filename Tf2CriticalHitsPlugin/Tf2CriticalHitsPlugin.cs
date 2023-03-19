@@ -3,20 +3,20 @@ using System.IO;
 using Dalamud.Game.Command;
 using Dalamud.Plugin;
 using Dalamud.Interface.Windowing;
-using FFXIVClientStructs.FFXIV.Client.Game.UI;
 using ImGuiNET;
 using KamiLib;
 using KamiLib.ChatCommands;
 using Newtonsoft.Json;
 using Tf2CriticalHitsPlugin.Common.Configuration;
 using Tf2CriticalHitsPlugin.Common.Windows;
-using Tf2CriticalHitsPlugin.Configuration;
 using Tf2CriticalHitsPlugin.Countdown;
 using Tf2CriticalHitsPlugin.Countdown.Status;
 using Tf2CriticalHitsPlugin.Countdown.Windows;
 using Tf2CriticalHitsPlugin.CriticalHits;
 using Tf2CriticalHitsPlugin.CriticalHits.Configuration;
 using Tf2CriticalHitsPlugin.CriticalHits.Windows;
+using Tf2CriticalHitsPlugin.Tf2Hud;
+using Tf2CriticalHitsPlugin.Tf2Hud.Windows;
 using Tf2CriticalHitsPlugin.Windows;
 using static Dalamud.Logging.PluginLog;
 using JsonSerializer = System.Text.Json.JsonSerializer;
@@ -29,7 +29,6 @@ namespace Tf2CriticalHitsPlugin
         public const string PluginName = "Hit it, Joe!";
         private const string CommandName = "/joeconfig";
         private const string LegacyCommandName = "/critconfig";
-        private const string TestCommandName = "/crittest";
 
         public ConfigTwo Configuration { get; init; }
         
@@ -38,11 +37,13 @@ namespace Tf2CriticalHitsPlugin
         
         private readonly CriticalHitsModule criticalHitsModule;
         private readonly CountdownModule countdownModule;
+        private readonly Tf2HudModule tf2HudModule;
         private DalamudPluginInterface dalamudPluginInterface;
 
         private ImFontPtr tf2Font;
         private ImFontPtr tf2ScoreFont;
         private ImFontPtr tf2SecondaryFont;
+        private readonly Tf2WinPanel tf2WinPanel;
 
         public Tf2CriticalHitsPlugin(DalamudPluginInterface pluginInterface)
         {
@@ -60,15 +61,11 @@ namespace Tf2CriticalHitsPlugin
             KamiCommon.WindowManager.AddWindow(new CriticalHitsCopyWindow(Configuration.criticalHits));
             KamiCommon.WindowManager.AddWindow(new CriticalHitsImportWindow(Configuration.criticalHits));
             KamiCommon.WindowManager.AddWindow(new CountdownNewSettingWindow(Configuration.countdownJams));
-            KamiCommon.WindowManager.AddWindow(new Tf2BluScore());
-            KamiCommon.WindowManager.AddWindow(new RedWindow());
-            KamiCommon.WindowManager.AddWindow(new DetailWindow());
-            KamiCommon.WindowManager.AddWindow(new Tf2TimerWindow());
 
 
             criticalHitsModule = new CriticalHitsModule(Configuration.criticalHits);
             countdownModule = new CountdownModule(State.Instance(), Configuration.countdownJams);
-
+            tf2HudModule = new Tf2HudModule();
 
 
             Service.CommandManager.AddHandler(CommandName, new CommandInfo(OnConfigCommand)
@@ -77,10 +74,6 @@ namespace Tf2CriticalHitsPlugin
             });
             
             Service.CommandManager.AddHandler(LegacyCommandName, new CommandInfo(OnConfigCommand)
-            {
-                ShowInHelp = false
-            });
-            Service.CommandManager.AddHandler(TestCommandName, new CommandInfo(OnTestCommand)
             {
                 ShowInHelp = false
             });
@@ -186,12 +179,12 @@ namespace Tf2CriticalHitsPlugin
         {
             KamiCommon.Dispose();
             dalamudPluginInterface.UiBuilder.BuildFonts -= LoadFonts;
+            tf2HudModule.Dispose();
             countdownModule.Dispose();
             criticalHitsModule.Dispose();
             this.WindowSystem.RemoveAllWindows();
             Service.CommandManager.RemoveHandler(LegacyCommandName);
             Service.CommandManager.RemoveHandler(CommandName);
-            Service.CommandManager.RemoveHandler(TestCommandName);
         }
 
         private static void OnConfigCommand(string command, string args)
@@ -206,22 +199,9 @@ namespace Tf2CriticalHitsPlugin
             }
         }
 
-        private static void OnTestCommand(string command, string args)
+        private void OnTestCommand(string command, string args)
         {
-            if (KamiCommon.WindowManager.GetWindowOfType<Tf2BluScore>() is { } bluWindow)
-            {
-                bluWindow.IsOpen = true;
-            }
-            if (KamiCommon.WindowManager.GetWindowOfType<RedWindow>() is { } redWindow)
-            {
-                redWindow.IsOpen = true;
-            }
-            if (KamiCommon.WindowManager.GetWindowOfType<DetailWindow>() is { } detailWindow)
-            {
-                detailWindow.IsOpen = true;
-            }
-
-
+            tf2WinPanel.IsOpen = true;
 
         }
 
