@@ -1,15 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Net.Http;
 using Dalamud.Game;
-using Dalamud.Game.ClientState.Objects;
 using Dalamud.Game.ClientState.Objects.Enums;
-using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Game.ClientState.Objects.Types;
 using Dalamud.Game.Text.SeStringHandling;
 using Dalamud.Logging;
-using FFXIVClientStructs.FFXIV.Client.Game;
+using Dalamud.Utility;
+using FFXIVClientStructs.FFXIV.Client.Game.Event;
 using KamiLib;
+using NAudio.Wave;
+using Sledge.Formats.Packages;
 using Tf2CriticalHitsPlugin.Common.Windows;
 using Tf2CriticalHitsPlugin.Tf2Hud.Windows;
 
@@ -19,8 +22,10 @@ public class Tf2HudModule: IDisposable
 {
     private readonly Tf2WinPanel tf2WinPanel;
 
-    private int bluScore = 0;
-    private int redScore = 0;
+    private byte[]? victorySound;
+    private byte[]? failSound;
+    private int bluScore;
+    private int redScore;
     private List<DeadEnemy> deadEnemies = new();
 
     private class DeadEnemy
@@ -47,17 +52,51 @@ public class Tf2HudModule: IDisposable
         KamiCommon.WindowManager.AddWindow(new Tf2RedScore());
         KamiCommon.WindowManager.AddWindow(new Tf2MvpList());
         KamiCommon.WindowManager.AddWindow(new Tf2TimerWindow());
+
+        ReadSoundFilesFromTf2();
+        
         tf2WinPanel = new Tf2WinPanel();
+    }
+
+    private void ReadSoundFilesFromTf2()
+    {
+        const string tf2VpkPath = "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Team Fortress 2\\tf\\tf2_sound_misc_dir.vpk";
+        if (!Path.Exists(tf2VpkPath))
+        {
+            return;
+        }
+        var package = new VpkPackage(tf2VpkPath);
+        var victory = package.Entries.First(e => e.Name == "your_team_won.wav");
+        using var victoryStream = package.Open(victory);
+        victorySound = new byte[victoryStream.Length];
+        victoryStream.Read(victorySound, 0, victorySound.Length);
+        
+        var fail = package.Entries.First(e => e.Name == "your_team_lost.wav");
+        using var failStream = package.Open(fail);
+        failSound = new byte[failStream.Length];
+        failStream.Read(failSound, 0, failSound.Length);
+        
     }
 
     private void OnUpdate(Framework? framework)
     {
+        UpdateTimer();
         foreach (var deadEnemy in Service.ObjectTable.Where(ot => ot.SubKind == (int)BattleNpcSubKind.Enemy)
                                      .Where(ot => ot.IsDead)
                                      .Select(ot => new DeadEnemy(ot))
                                      .Where(de => !deadEnemies.Contains(de)))
         {
             deadEnemies.Add(deadEnemy);
+        }
+    }
+
+    private static unsafe void UpdateTimer()
+    {
+        var contentDirector = EventFramework.Instance()->GetInstanceContentDirector();
+        if (KamiCommon.WindowManager.GetWindowOfType<Tf2TimerWindow>() is { } window)
+        {
+            window.timeRemaining = contentDirector is not null ? (long) Math.Round(contentDirector->ContentDirector.ContentTimeLeft) : null;
+            window.IsOpen = contentDirector is not null;
         }
     }
 
@@ -73,25 +112,24 @@ public class Tf2HudModule: IDisposable
         bluScore += 1;
         OnUpdate(null);
         tf2WinPanel.Show(bluScore, redScore, deadEnemies.Last().name.TextValue, Tf2Window.TeamColor.Blu);
+        if (victorySound is null) return;
+        SoundEngine.PlaySound(victorySound, true, 50);
     }
 
     private void OnWipe(object? sender, ushort e)
     {
-        PluginLog.LogDebug("================================");
-        foreach (var gameObject in Service.ObjectTable.Where(ot => ot.SubKind == (int)BattleNpcSubKind.Enemy).Where(ot => !ot.IsDead).ToList())
-        {
-                PluginLog.LogDebug($"{gameObject.Name.TextValue} | {gameObject.TargetObject?.Name ?? ""}");
-        }
-        PluginLog.LogDebug("================================");
         var enemy = Service.ObjectTable.Where(ot => ot.SubKind == (int)BattleNpcSubKind.Enemy)
                            .Where(ot => !ot.IsDead)
-                                .Select(ot => ot.Name.TextValue)
-                                .GroupBy(name => name)
-                                .OrderByDescending(g => g.Count())
-                                .Take(1).SingleOrDefault()?.Key ?? "an anonymous enemy";
-
+                           .Select(ot => ot.Name.TextValue)
+                           .Where(name => !name.IsNullOrWhitespace())
+                           .GroupBy(name => name)
+                           .OrderByDescending(g => g.Count())
+                           .Take(1).SingleOrDefault()?.Key?.Trim();
+        enemy = enemy.IsNullOrWhitespace() ? "an anonymous enemy" : enemy;
         redScore += 1;
         tf2WinPanel.Show(bluScore, redScore, enemy, Tf2Window.TeamColor.Red);
+        if (failSound is null) return;
+        SoundEngine.PlaySound(failSound, true, 50);
     }
 
     public void Dispose()

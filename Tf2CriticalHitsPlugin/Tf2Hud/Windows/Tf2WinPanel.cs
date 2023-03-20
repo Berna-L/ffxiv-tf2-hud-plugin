@@ -53,16 +53,12 @@ public class Tf2WinPanel: IDisposable
 
     public void Show(int bluScore, int redScore, string lastEnemy, Vector4 victorColor)
     {
-        var now = DateTime.Now;
-        if (now is { Day: 1, Month: 4 } || Service.PluginInterface.IsDevMenuOpen)
-        {
-            GetBluScoreWindow().Score = bluScore;
-            GetRedScoreWindow().Score = redScore;
-            GetMvpList().BackgroundColor = victorColor;
-            GetMvpList().LastEnemy = lastEnemy;
-            IsOpen = true;
-            timeOpened = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
-        }
+        GetBluScoreWindow().Score = bluScore;
+        GetRedScoreWindow().Score = redScore;
+        GetMvpList().BackgroundColor = victorColor;
+        GetMvpList().LastEnemy = lastEnemy;
+        IsOpen = true;
+        timeOpened = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
     }
 
     public void Dispose()

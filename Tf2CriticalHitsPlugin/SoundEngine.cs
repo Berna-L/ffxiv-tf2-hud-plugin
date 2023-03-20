@@ -87,6 +87,55 @@ public static class SoundEngine
             }
         }).Start();
     }
+    
+    public static void PlaySound(byte[] sound, bool useGameSfxVolume, int volume = 100, string? id = null)
+    {
+        var soundDevice = DirectSoundOut.DSDEVID_DefaultPlayback;
+        new Thread(() =>
+        {
+            var wave = new RawSourceWaveStream(sound, 0, sound.Length, new WaveFormat());
+            using var channel = new WaveChannel32(wave)
+            {
+                Volume = GetVolume(volume, useGameSfxVolume),
+                PadWithZeroes = false,
+            };
+
+            using (wave)
+            {
+                using var output = new DirectSoundOut(soundDevice);
+
+                try
+                {
+                    output.Init(channel);
+                    output.Play();
+                    if (id is not null)
+                    {
+                        SoundState[id] = 1;
+                    }
+
+                    while (output.PlaybackState == PlaybackState.Playing)
+                    {
+                        if (id is not null && !SoundState.ContainsKey(id))
+                        {
+                            output.Stop();
+                        }
+
+                        Thread.Sleep(500);
+                    }
+
+                    if (id is not null)
+                    {
+                        SoundState.Remove(id);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    PluginLog.LogError(ex, "Exception playing sound");
+                }
+            }
+        }).Start();
+    }
+
 
     private static float GetVolume(int baseVolume, bool applyGameSfxVolume)
     {

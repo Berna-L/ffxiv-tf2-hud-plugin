@@ -8,7 +8,6 @@ using KamiLib;
 using KamiLib.ChatCommands;
 using Newtonsoft.Json;
 using Tf2CriticalHitsPlugin.Common.Configuration;
-using Tf2CriticalHitsPlugin.Common.Windows;
 using Tf2CriticalHitsPlugin.Countdown;
 using Tf2CriticalHitsPlugin.Countdown.Status;
 using Tf2CriticalHitsPlugin.Countdown.Windows;
@@ -37,13 +36,12 @@ namespace Tf2CriticalHitsPlugin
         
         private readonly CriticalHitsModule criticalHitsModule;
         private readonly CountdownModule countdownModule;
-        private readonly Tf2HudModule tf2HudModule;
+        private readonly Tf2HudModule? tf2HudModule;
         private DalamudPluginInterface dalamudPluginInterface;
 
         private ImFontPtr tf2Font;
         private ImFontPtr tf2ScoreFont;
         private ImFontPtr tf2SecondaryFont;
-        private readonly Tf2WinPanel tf2WinPanel;
 
         public Tf2CriticalHitsPlugin(DalamudPluginInterface pluginInterface)
         {
@@ -65,7 +63,11 @@ namespace Tf2CriticalHitsPlugin
 
             criticalHitsModule = new CriticalHitsModule(Configuration.criticalHits);
             countdownModule = new CountdownModule(State.Instance(), Configuration.countdownJams);
-            tf2HudModule = new Tf2HudModule();
+            var now = DateTime.Now.Date;
+            if (now is { Day: 1, Month: 4 } || Service.PluginInterface.IsDev || Service.PluginInterface.IsDevMenuOpen)
+            {
+                tf2HudModule = new Tf2HudModule();
+            }
 
 
             Service.CommandManager.AddHandler(CommandName, new CommandInfo(OnConfigCommand)
@@ -80,12 +82,6 @@ namespace Tf2CriticalHitsPlugin
 
             Service.PluginInterface.UiBuilder.Draw += DrawUserInterface;
             Service.PluginInterface.UiBuilder.OpenConfigUi += DrawConfigWindow;
-            
-            // var package = new Package();
-            // package.Read(
-            //     "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Team Fortress 2\\tf\\tf2_sound_misc_dir.vpk");
-            // PluginLog.Debug(package.Entries?.ToString() ?? string.Empty);
-
         }
 
         private void LoadFonts()
@@ -179,7 +175,7 @@ namespace Tf2CriticalHitsPlugin
         {
             KamiCommon.Dispose();
             dalamudPluginInterface.UiBuilder.BuildFonts -= LoadFonts;
-            tf2HudModule.Dispose();
+            tf2HudModule?.Dispose();
             countdownModule.Dispose();
             criticalHitsModule.Dispose();
             this.WindowSystem.RemoveAllWindows();
@@ -198,13 +194,7 @@ namespace Tf2CriticalHitsPlugin
                 window.IsOpen = true;
             }
         }
-
-        private void OnTestCommand(string command, string args)
-        {
-            tf2WinPanel.IsOpen = true;
-
-        }
-
+        
         private void DrawUserInterface()
         {
             this.WindowSystem.Draw();
