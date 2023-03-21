@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="25515863-3d1b-4e47-a296-79591bc890f8" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/.idea/.idea.Tf2CriticalHitsPlugin/.idea/workspace.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Tf2Hud/Common/BernaUtil.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.editorconfig" beforeDir="false" afterPath="$PROJECT_DIR$/.editorconfig" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.idea.SamplePlugin/.idea/workspace.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.idea.Tf2CriticalHitsPlugin/.idea/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.idea.Tf2CriticalHitsPlugin/.idea/.name" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.idea.Tf2CriticalHitsPlugin/.idea/encodings.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.idea.Tf2CriticalHitsPlugin/.idea/indexLayout.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.idea.Tf2CriticalHitsPlugin/.idea/vcs.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/KamiLib" beforeDir="false" afterPath="$PROJECT_DIR$/KamiLib" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Tf2CriticalHitsPlugin.sln" beforeDir="false" afterPath="$PROJECT_DIR$/Tf2Hud.sln" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Tf2CriticalHitsPlugin/Common/Configuration/BaseConfiguration.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Tf2Hud/Common/Configuration/BaseConfiguration.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Tf2CriticalHitsPlugin/Common/Configuration/ConfigTwo.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Tf2Hud/Common/Configuration/ConfigZero.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Tf2CriticalHitsPlugin/Common/GameSettings.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Tf2Hud/Common/GameSettings.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Tf2CriticalHitsPlugin/Common/Template/RiderSourceTemplates.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Tf2Hud/Common/Template/RiderSourceTemplates.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Tf2CriticalHitsPlugin/Common/Windows/ImGuiHelper.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Tf2Hud/Common/Windows/ImGuiHelper.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Tf2CriticalHitsPlugin/Common/Windows/SoundConfigurationTab.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Tf2Hud/Common/Windows/SoundConfigurationTab.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Tf2CriticalHitsPlugin/Common/Windows/SoundDrawListExtensions.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Tf2Hud/Common/Windows/SoundDrawListExtensions.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Tf2CriticalHitsPlugin/Configuration/FlyTextParameters.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Tf2CriticalHitsPlugin/Configuration/FlyTextType.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Tf2Hud/Configuration/FlyTextType.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Tf2CriticalHitsPlugin/Configuration/ModuleDefaults.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Tf2CriticalHitsPlugin/Configuration/ModuleType.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Tf2CriticalHitsPlugin/Configuration/PluginVersion.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Tf2Hud/Common/Configuration/PluginVersion.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Tf2CriticalHitsPlugin/Constants.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Tf2Hud/Constants.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Tf2CriticalHitsPlugin/Countdown/Configuration/CountdownConfigZero.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Tf2CriticalHitsPlugin/Countdown/Configuration/CountdownConfigZeroModule.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Tf2CriticalHitsPlugin/Countdown/CountdownModule.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Tf2CriticalHitsPlugin/Countdown/Game/CountdownHook.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Tf2CriticalHitsPlugin/Countdown/Sounds/record-scratch-freesounds-luffy-3536.wav" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Tf2CriticalHitsPlugin/Countdown/Status/State.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Tf2CriticalHitsPlugin/Countdown/Windows/CountdownNewSettingWindow.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Tf2CriticalHitsPlugin/Countdown/Windows/CountdownOption.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Tf2CriticalHitsPlugin/Countdown/Windows/CountdownTab.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Tf2CriticalHitsPlugin/Countdown/Windows/CountdownWhitelistWindow.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Tf2CriticalHitsPlugin/CriticalHits/Configuration/CriticalHitsConfigOne.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Tf2CriticalHitsPlugin/CriticalHits/Configuration/CriticalHitsConfigZero.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Tf2CriticalHitsPlugin/CriticalHits/CriticalHitsModule.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Tf2CriticalHitsPlugin/CriticalHits/Windows/CritOption.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Tf2CriticalHitsPlugin/CriticalHits/Windows/CritTab.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Tf2CriticalHitsPlugin/CriticalHits/Windows/CriticalHitsCopyWindow.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Tf2CriticalHitsPlugin/CriticalHits/Windows/CriticalHitsImportWindow.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Tf2CriticalHitsPlugin/Game/GameConfig.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Tf2Hud/Game/GameConfig.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Tf2CriticalHitsPlugin/Game/SFX/PlaySound.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Tf2CriticalHitsPlugin/Game/SFX/SeFunctionBase.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Tf2CriticalHitsPlugin/Game/SFX/Sounds.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Tf2CriticalHitsPlugin/Game/SFX/credits.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Tf2CriticalHitsPlugin/Service.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Tf2Hud/Service.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Tf2CriticalHitsPlugin/SoundEngine.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Tf2Hud/SoundEngine.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Tf2CriticalHitsPlugin/Tf2CriticalHitsPlugin.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Tf2Hud/Plugin.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Tf2CriticalHitsPlugin/Tf2CriticalHitsPlugin.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/Tf2Hud/Tf2Hud.csproj" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Tf2CriticalHitsPlugin/Tf2CriticalHitsPlugin.json" beforeDir="false" afterPath="$PROJECT_DIR$/Tf2Hud/Tf2Hud.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Tf2CriticalHitsPlugin/Tf2Hud/Tf2HudModule.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Tf2Hud/Tf2Hud/Tf2HudModule.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Tf2CriticalHitsPlugin/Tf2Hud/Windows/Tf2BluScore.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Tf2Hud/Tf2Hud/Windows/Tf2BluScore.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Tf2CriticalHitsPlugin/Tf2Hud/Windows/Tf2MvpList.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Tf2Hud/Tf2Hud/Windows/Tf2MvpList.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Tf2CriticalHitsPlugin/Tf2Hud/Windows/Tf2RedScore.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Tf2Hud/Tf2Hud/Windows/Tf2RedScore.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Tf2CriticalHitsPlugin/Tf2Hud/Windows/Tf2Timer.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Tf2Hud/Tf2Hud/Windows/Tf2Timer.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Tf2CriticalHitsPlugin/Tf2Hud/Windows/Tf2WinPanel.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Tf2Hud/Tf2Hud/Windows/Tf2WinPanel.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Tf2CriticalHitsPlugin/Tf2Hud/Windows/Tf2Window.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Tf2Hud/Tf2Hud/Windows/Tf2Window.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Tf2CriticalHitsPlugin/Windows/ColorComponent.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Tf2Hud/Windows/ColorComponent.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Tf2CriticalHitsPlugin/Windows/ColorInfo.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Tf2Hud/Windows/ColorInfo.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Tf2CriticalHitsPlugin/Windows/CommonFileDialogManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Tf2Hud/Windows/CommonFileDialogManager.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Tf2CriticalHitsPlugin/Windows/ConfigWindow.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Tf2Hud/Windows/ConfigWindow.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Tf2CriticalHitsPlugin/packages.lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/Tf2Hud/packages.lock.json" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ChangesViewManager">
+    <option name="groupingKeys">
+      <option value="directory" />
+    </option>
+  </component>
+  <component name="HighlightingSettingsPerFile">
+    <setting file="file://$PROJECT_DIR$/Tf2Hud/Plugin.cs" root0="FORCE_HIGHLIGHTING" />
+  </component>
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
+  </component>
+  <component name="MetaFilesCheckinStateConfiguration" checkMetaFiles="true" />
+  <component name="ProjectId" id="2NKN4YeFxqXA6h87IvvfvfoPCjm" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "WebServerToolWindowFactoryState": "false",
+    "vue.rearranger.settings.migration": "true"
+  },
+  "keyToStringList": {
+    "rider.external.source.directories": [
+      "C:\\Users\\Bernardo\\AppData\\Roaming\\JetBrains\\Rider2022.3\\resharper-host\\DecompilerCache",
+      "C:\\Users\\Bernardo\\AppData\\Roaming\\JetBrains\\Rider2022.3\\resharper-host\\SourcesCache",
+      "C:\\Users\\Bernardo\\AppData\\Local\\Symbols\\src"
+    ]
+  }
+}]]></component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="25515863-3d1b-4e47-a296-79591bc890f8" name="Changes" comment="" />
+      <created>1679408622444</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1679408622444</updated>
+      <workItem from="1679408623535" duration="8565000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="UnityCheckinConfiguration" checkUnsavedScenes="true" />
+  <component name="UnityUnitTestConfiguration" currentTestLauncher="NUnit" />
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
+  </component>
+</project>

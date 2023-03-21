@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <Authors></Authors>
+        <Company></Company>
+        <Version>0.0.0.0</Version>
+        <Description>Deal critical hits just like in the #1 hat simulator, Team Fortress 2.</Description>
+        <Copyright></Copyright>
+        <PackageProjectUrl>https://github.com/Berna-L/ffxiv-tf2-crit-plugin</PackageProjectUrl>
+        <RootNamespace>Tf2Hud</RootNamespace>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <TargetFramework>net7.0-windows</TargetFramework>
+        <Platforms>x64</Platforms>
+        <Nullable>enable</Nullable>
+        <LangVersion>latest</LangVersion>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <ProduceReferenceAssembly>false</ProduceReferenceAssembly>
+        <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+        <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
+        <!-- adds dependencies (in this case, NAudio) to the output folder-->
+        <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    </PropertyGroup>
+
+    <!-- Copied from NoTankYou -->
+    <Target Name="GetGitHash" BeforeTargets="GetAssemblyVersion" Returns="InformationalVersion">
+        <Exec Command="git rev-parse --short HEAD" ConsoleToMSBuild="true" StandardOutputImportance="low">
+            <Output TaskParameter="ConsoleOutput" PropertyName="GitCommitHash" />
+        </Exec>
+
+        <PropertyGroup>
+            <InformationalVersion>$(GitCommitHash)</InformationalVersion>
+        </PropertyGroup>
+    </Target>
+
+
+    <PropertyGroup>
+        <DalamudLibPath>$(appdata)\XIVLauncher\addon\Hooks\dev\</DalamudLibPath>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Linux)))'">
+        <DalamudLibPath>$(DALAMUD_HOME)/</DalamudLibPath>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::OSX)))'">
+        <DalamudLibPath>$(HOME)/Library/Application Support/XIV on Mac/dalamud/Hooks/dev/</DalamudLibPath>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="DalamudPackager" Version="2.1.11" />
+        <PackageReference Include="Gameloop.Vdf" Version="0.6.2" />
+        <PackageReference Include="JetBrains.Annotations" Version="2022.3.1" />
+        <PackageReference Include="NAudio.Wasapi" Version="2.1.0" />
+        <PackageReference Include="Pilz.Dalamud" Version="0.2.0" />
+        <PackageReference Include="Sledge.Formats.Packages" Version="1.0.1" />
+        <PackageReference Include="Sledge.Formats.Texture" Version="1.0.3" />
+        <Reference Include="FFXIVClientStructs">
+            <HintPath>$(DalamudLibPath)FFXIVClientStructs.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="Newtonsoft.Json">
+            <HintPath>$(DalamudLibPath)Newtonsoft.Json.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="Dalamud">
+            <HintPath>$(DalamudLibPath)Dalamud.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="ImGui.NET">
+            <HintPath>$(DalamudLibPath)ImGui.NET.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="ImGuiScene">
+            <HintPath>$(DalamudLibPath)ImGuiScene.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="Lumina">
+            <HintPath>$(DalamudLibPath)Lumina.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="Lumina.Excel">
+            <HintPath>$(DalamudLibPath)Lumina.Excel.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\KamiLib\KamiLib.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Game" />
+    </ItemGroup>
+
+
+</Project>
