@@ -29,4 +29,13 @@ public static class ImGuiHelper
         ImGui.GetForegroundDrawList().AddText(font, 100.0f, position + DefaultShadowOffset, Colors.Black.ToU32(), text);
         ImGui.GetForegroundDrawList().AddText(font, 100.0f, position, Colors.White.ToU32(), text);
     }
+    
+    public static Vector2 CalcTextSize(ImFontPtr fontPtr, string text)
+    {
+        ImGui.PushFont(fontPtr);
+        var calcTextSize = ImGui.CalcTextSize(text);
+        ImGui.PopFont();
+        return calcTextSize;
+    }
+
 }
