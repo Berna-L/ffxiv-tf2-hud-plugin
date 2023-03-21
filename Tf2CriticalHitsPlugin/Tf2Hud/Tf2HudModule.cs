@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net.Http;
 using Dalamud.Game;
 using Dalamud.Game.ClientState.Objects.Enums;
 using Dalamud.Game.ClientState.Objects.Types;
@@ -11,7 +10,6 @@ using Dalamud.Logging;
 using Dalamud.Utility;
 using FFXIVClientStructs.FFXIV.Client.Game.Event;
 using KamiLib;
-using NAudio.Wave;
 using Sledge.Formats.Packages;
 using Tf2CriticalHitsPlugin.Common.Windows;
 using Tf2CriticalHitsPlugin.Tf2Hud.Windows;
@@ -24,9 +22,11 @@ public class Tf2HudModule: IDisposable
 
     private byte[]? victorySound;
     private byte[]? failSound;
+    private byte[]? scoredSound;
     private int bluScore;
     private int redScore;
     private List<DeadEnemy> deadEnemies = new();
+    private uint lastDutyTerritory;
 
     private class DeadEnemy
     {
@@ -54,8 +54,8 @@ public class Tf2HudModule: IDisposable
         KamiCommon.WindowManager.AddWindow(new Tf2TimerWindow());
 
         ReadSoundFilesFromTf2();
-        
-        tf2WinPanel = new Tf2WinPanel();
+
+        tf2WinPanel = new Tf2WinPanel(scoredSound);
     }
 
     private void ReadSoundFilesFromTf2()
@@ -65,7 +65,8 @@ public class Tf2HudModule: IDisposable
         {
             return;
         }
-        var package = new VpkPackage(tf2VpkPath);
+        using var package = new VpkPackage(tf2VpkPath);
+        
         var victory = package.Entries.First(e => e.Name == "your_team_won.wav");
         using var victoryStream = package.Open(victory);
         victorySound = new byte[victoryStream.Length];
@@ -76,6 +77,16 @@ public class Tf2HudModule: IDisposable
         failSound = new byte[failStream.Length];
         failStream.Read(failSound, 0, failSound.Length);
         
+        var scored = package.Entries.First(e => e.Path == "sound/ui/scored.wav");
+        using var scoredStream = package.Open(scored);
+        scoredSound = new byte[scoredStream.Length];
+        PluginLog.Debug(scoredSound.Length.ToString());
+        scoredStream.Read(scoredSound, 0, scoredSound.Length);
+        
+        package.Dispose();
+        scoredStream.Dispose();
+        failStream.Dispose();
+        victoryStream.Dispose();
     }
 
     private void OnUpdate(Framework? framework)
@@ -102,8 +113,13 @@ public class Tf2HudModule: IDisposable
 
     private void OnStart(object? sender, ushort e)
     {
-        bluScore = 0;
-        redScore = 0;
+        if (Service.ClientState.TerritoryType != lastDutyTerritory)
+        {
+            lastDutyTerritory = Service.ClientState.TerritoryType;
+            bluScore = 0;
+            redScore = 0;
+            Tf2WinPanel.ClearScores();
+        }
         deadEnemies.Clear();
     }
 

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Numerics;
 using Dalamud.Game;
 using KamiLib;
@@ -9,8 +8,12 @@ namespace Tf2CriticalHitsPlugin.Tf2Hud.Windows;
 
 public class Tf2WinPanel: IDisposable
 {
+    private readonly byte[]? scoredSound;
 
     private long timeOpened;
+    private bool waitingForNewScore;
+    private int newBluScore;
+    private int newRedScore;
 
     public bool IsOpen
     {
@@ -23,14 +26,27 @@ public class Tf2WinPanel: IDisposable
         }
     }
 
-    public Tf2WinPanel()
+    public Tf2WinPanel(byte[]? scoredSound)
     {
+        this.scoredSound = scoredSound;
         Service.Framework.Update += OnUpdate;
     }
 
     private void OnUpdate(Framework framework)
     {
-        if (IsOpen && DateTimeOffset.UtcNow.ToUnixTimeSeconds() - timeOpened > 10)
+        var openedFor = DateTimeOffset.UtcNow.ToUnixTimeSeconds() - timeOpened;
+        if (IsOpen && openedFor > 2 && waitingForNewScore)
+        {
+            GetBluScoreWindow().Score = newBluScore;
+            GetRedScoreWindow().Score = newRedScore;
+            if (scoredSound is not null)
+            {
+                SoundEngine.PlaySound(scoredSound, true, 50, sampleRate: 22050, channels: 1);
+            }
+
+            waitingForNewScore = false;
+        }
+        if (IsOpen && openedFor > 10)
         {
             IsOpen = false;
         }
@@ -53,16 +69,23 @@ public class Tf2WinPanel: IDisposable
 
     public void Show(int bluScore, int redScore, string lastEnemy, Vector4 victorColor)
     {
-        GetBluScoreWindow().Score = bluScore;
-        GetRedScoreWindow().Score = redScore;
+        IsOpen = true;
+        waitingForNewScore = true;
+        timeOpened = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
         GetMvpList().BackgroundColor = victorColor;
         GetMvpList().LastEnemy = lastEnemy;
-        IsOpen = true;
-        timeOpened = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+        newBluScore = bluScore;
+        newRedScore = redScore;
     }
 
     public void Dispose()
     {
         Service.Framework.Update -= OnUpdate;
+    }
+
+    public static void ClearScores()
+    {
+        GetBluScoreWindow().Score = 0;
+        GetRedScoreWindow().Score = 0;
     }
 }
