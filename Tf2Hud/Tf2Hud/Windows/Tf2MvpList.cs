@@ -1,10 +1,9 @@
-﻿using System.Linq;
+﻿using System;
 using System.Numerics;
 using Dalamud.Interface.GameFonts;
 using ImGuiNET;
 using KamiLib.Drawing;
 using Pilz.Dalamud.Icons;
-using Tf2Hud.Common;
 using Tf2Hud.Common.Windows;
 
 namespace Tf2Hud.Tf2Hud.Windows;
@@ -13,6 +12,7 @@ public class Tf2MvpList : Tf2Window
 {
     private readonly JobIconSets jobIconSets;
     private readonly GameFontHandle playerNameFont;
+    private Vector2 ClassJobIconSize = new(32, 32);
     private const int ScorePanelHeight = 280;
 
 
@@ -49,9 +49,6 @@ public class Tf2MvpList : Tf2Window
         ImGui.BeginChildFrame(12313, new Vector2(InnerFrameWidth, InnerFrameHeight));
         ImGui.PopStyleColor();
         ImGui.PopStyleVar();
-        var jobIcon = jobIconSets.GetJobIcon(JobIconSetName.Framed,
-                                             Constants.CombatJobs.First(cj => cj.Value.NameEnglish == "Scholar").Key);
-        var imGuiHandle = Service.DataManager?.GetImGuiTextureIcon((uint)jobIcon)?.ImGuiHandle;
         ImGui.Text("BLU team MVPs:");
         ImGui.SameLine();
         var pointsThisRound = "(everyone is an MVP :)";
@@ -62,24 +59,26 @@ public class Tf2MvpList : Tf2Window
                                           ImGui.GetCursorScreenPos() + new Vector2(InnerFrameWidth, 0), Colors.White.ToU32());
         ImGui.SetCursorPosY(ImGui.GetCursorPosY() + 10);
         var middlePosX = ImGui.GetCursorPosX() + (ImGui.GetContentRegionAvail().X / 2);
-        if (imGuiHandle is not null)
+        var partySize = Service.PartyList.Length;
+        ImGui.PushFont(playerNameFont.ImFont);
+        for (var i = 0; i < Math.Min(partySize, 4); i++)
         {
-            ImGui.PushFont(playerNameFont.ImFont);
-            for (int i = 0; i < 4; i++)
-            {
-                ImGui.Image(imGuiHandle.Value, new Vector2(32, 32));
-                ImGui.SameLine();
-                ImGui.SetCursorPosY(ImGui.GetCursorPosY() + 6);
-                ImGui.TextColored(TeamColor.Blu.Text, "Namesheavy Weaponsguy");
-                ImGui.SameLine();
-                ImGui.SetCursorPosX(middlePosX);
-                ImGui.Image(imGuiHandle.Value, new Vector2(32, 32));
-                ImGui.SameLine();
-                ImGui.SetCursorPosY(ImGui.GetCursorPosY() + 6);
-                ImGui.TextColored(TeamColor.Blu.Text, "Namesheavy Weaponsguy");
-            }
-            ImGui.PopFont();
+            var leftPartyMember = Service.PartyList[i];
+            if (leftPartyMember is null) break;
+            ImGui.Image(GetClassJobIcon(leftPartyMember.ClassJob.Id)!.Value, ClassJobIconSize);
+            ImGui.SameLine();
+            ImGui.SetCursorPosY(ImGui.GetCursorPosY() + 6);
+            ImGui.TextColored(TeamColor.Blu.Text, leftPartyMember.Name.TextValue);
+            var rightPartyMember = Service.PartyList[i + 4];
+            if (rightPartyMember is null) continue;
+            ImGui.SameLine();
+            ImGui.SetCursorPosX(middlePosX);
+            ImGui.Image(GetClassJobIcon(rightPartyMember.ClassJob.Id)!.Value, ClassJobIconSize);
+            ImGui.SameLine();
+            ImGui.SetCursorPosY(ImGui.GetCursorPosY() + 6);
+            ImGui.TextColored(TeamColor.Blu.Text, rightPartyMember.Name.TextValue);
         }
+        ImGui.PopFont();
 
         // ImGui.Text("Highest Killstreak:");
         // ImGui.SameLine();
@@ -91,6 +90,12 @@ public class Tf2MvpList : Tf2Window
         // ImGui.SetCursorPosY(ImGui.GetCursorPosY() + 10);
         // if (imGuiHandle is not null) ImGui.Image(imGuiHandle.Value, new Vector2(40, 40));
         ImGui.EndChildFrame();
+    }
+
+    private nint? GetClassJobIcon(uint id)
+    {
+        var iconId = jobIconSets.GetJobIcon(JobIconSetName.Framed, id);
+        return Service.DataManager?.GetImGuiTextureIcon((uint)iconId)?.ImGuiHandle;
     }
 
     private static int InnerFrameWidth => (ScorePanelWidth * 2) - 21;

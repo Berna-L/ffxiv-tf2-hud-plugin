@@ -3,6 +3,7 @@ using Dalamud.Game;
 using Dalamud.Game.ClientState;
 using Dalamud.Game.ClientState.Conditions;
 using Dalamud.Game.ClientState.Objects;
+using Dalamud.Game.ClientState.Party;
 using Dalamud.Game.Command;
 using Dalamud.Game.DutyState;
 using Dalamud.Game.Gui.FlyText;
@@ -42,4 +43,7 @@ public class Service
 
     [PluginService]
     public static ObjectTable ObjectTable { get; private set; } = null!;
+
+    [PluginService]
+    public static PartyList PartyList { get; private set; } = null!;
 }
