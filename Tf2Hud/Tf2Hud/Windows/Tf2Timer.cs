@@ -7,7 +7,7 @@ namespace Tf2Hud.Tf2Hud.Windows;
 
 public class Tf2Timer : Tf2Window
 {
-    public Tf2Timer() : base("##Tf2Timer", TeamColor.Blu)
+    public Tf2Timer() : base("##Tf2Timer", TeamColor.Blu.Background)
     {
         Size = new Vector2(220, 70);
         Position = new Vector2((ImGui.GetMainViewport().Size.X / 2) - 110, 50);

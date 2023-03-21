@@ -12,7 +12,7 @@ using static Tf2Hud.Plugin;
 
 namespace Tf2Hud.Common.Windows;
 
-public class ConfigWindow : TabbedSelectionWindow, IDisposable
+public class ConfigWindow : SelectionWindow, IDisposable
 {
     public const String Title = $"{PluginName} — Configuration";
     private static readonly string PluginVersion = GetVersionText();
@@ -39,12 +39,7 @@ public class ConfigWindow : TabbedSelectionWindow, IDisposable
     {
         DialogManager.Reset();
     }
-
-    protected override IEnumerable<ISelectionWindowTab> GetTabs()
-    {
-        return tabs;
-    }
-
+    
     public override void Draw()
     {
         base.Draw();
@@ -52,7 +47,13 @@ public class ConfigWindow : TabbedSelectionWindow, IDisposable
         DialogManager.Draw();
     }
 
-    protected override void DrawWindowExtras()
+    protected override IEnumerable<ISelectable> GetSelectables()
+    {
+        return new List<ISelectable>();
+    }
+
+
+    protected override void DrawExtras()
     {
         DrawVersionText();
     }

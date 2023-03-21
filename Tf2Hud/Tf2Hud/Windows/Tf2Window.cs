@@ -8,6 +8,7 @@ namespace Tf2Hud.Tf2Hud.Windows;
 public abstract class Tf2Window : Window
 {
     public Vector4 BackgroundColor;
+    protected const int ScorePanelWidth = 270; 
 
     protected Tf2Window(string name, Vector4 backgroundColor) : base(
         name,
@@ -43,7 +44,23 @@ public abstract class Tf2Window : Window
 
     public static class TeamColor
     {
-        internal static Vector4 Red = new(184 / 255f, 56 / 255f, 59 / 255f, 0);
-        internal static Vector4 Blu = new(88 / 255f, 133 / 255f, 162 / 255f, 0);
+
+        public static readonly TeamColorTypes Red = new()
+        {
+            Background = new Vector4(184 / 255f, 56 / 255f, 59 / 255f, 1f),
+            Text = new Vector4(255 / 255f, 64 / 255f, 64 / 255f, 1f)
+        };
+
+        public static readonly TeamColorTypes Blu = new()
+        {
+            Background = new Vector4(88 / 255f, 133 / 255f, 162 / 255f, 1f),
+            Text = new Vector4(153 / 255f, 204 / 255f, 255 / 255f, 1f)
+        };
+    }
+
+    public class TeamColorTypes
+    {
+        public Vector4 Background;
+        public Vector4 Text;
     }
 }

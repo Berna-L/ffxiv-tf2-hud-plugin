@@ -6,9 +6,9 @@ namespace Tf2Hud.Tf2Hud.Windows;
 
 public class Tf2BluScore : Tf2Window
 {
-    public Tf2BluScore() : base("##Tf2BluScore", TeamColor.Blu)
+    public Tf2BluScore() : base("##Tf2BluScore", TeamColor.Blu.Background)
     {
-        Size = new Vector2(258, 65);
+        Size = new Vector2(ScorePanelWidth, 65);
     }
 
     public int Score { get; set; } = 0;

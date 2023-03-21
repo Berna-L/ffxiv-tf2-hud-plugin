@@ -16,7 +16,7 @@ namespace Tf2Hud;
 
 public sealed class Plugin : IDalamudPlugin
 {
-    public const string PluginName = "Team Fortress 2 HUD!";
+    public const string PluginName = "Team Fortress 2 HUD";
     private const string CommandName = "/tf2hudconfig";
 
     private readonly Tf2HudModule? tf2HudModule;
@@ -32,6 +32,11 @@ public sealed class Plugin : IDalamudPlugin
         dalamudPluginInterface.Create<Service>();
         KamiCommon.Initialize(dalamudPluginInterface, Name, () => Configuration?.Save());
         tf2HudModule = new Tf2HudModule();
+
+        var config = (dalamudPluginInterface.GetPluginConfig() as ConfigZero) ?? new ConfigZero();
+
+        KamiCommon.WindowManager.AddWindow(new ConfigWindow(config));
+        
         dalamudPluginInterface.UiBuilder.RebuildFonts();
 
         Configuration = InitConfig();

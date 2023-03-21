@@ -6,9 +6,9 @@ namespace Tf2Hud.Common.Windows;
 
 public class Tf2RedScore : Tf2Window
 {
-    public Tf2RedScore() : base("##Tf2RedScore", TeamColor.Red)
+    public Tf2RedScore() : base("##Tf2RedScore", TeamColor.Red.Background)
     {
-        Size = new Vector2(258, 65);
+        Size = new Vector2(ScorePanelWidth, 65);
     }
 
     public int Score { get; set; } = 0;

@@ -197,7 +197,7 @@ public class Tf2HudModule : IDisposable
     {
         bluScore += 1;
         OnUpdate(null);
-        tf2WinPanel.Show(bluScore, redScore, deadEnemies.Last().name.TextValue, Tf2Window.TeamColor.Blu);
+        tf2WinPanel.Show(bluScore, redScore, deadEnemies.Last().name.TextValue, Tf2Window.TeamColor.Blu.Background);
         if (victorySound is null) return;
         SoundEngine.PlaySound(victorySound, true, 50);
     }
@@ -213,7 +213,7 @@ public class Tf2HudModule : IDisposable
                            .Take(1).SingleOrDefault()?.Key?.Trim();
         enemy = enemy.IsNullOrWhitespace() ? "an anonymous enemy" : enemy;
         redScore += 1;
-        tf2WinPanel.Show(bluScore, redScore, enemy, Tf2Window.TeamColor.Red);
+        tf2WinPanel.Show(bluScore, redScore, enemy, Tf2Window.TeamColor.Red.Background);
         if (failSound is null) return;
         SoundEngine.PlaySound(failSound, true, 50);
     }
