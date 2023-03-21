@@ -88,12 +88,12 @@ public static class SoundEngine
         }).Start();
     }
     
-    public static void PlaySound(byte[] sound, bool useGameSfxVolume, int volume = 100, string? id = null)
+    public static void PlaySound(byte[] sound, bool useGameSfxVolume, int volume = 100, int sampleRate = 44100, int channels = 2, string? id = null)
     {
         var soundDevice = DirectSoundOut.DSDEVID_DefaultPlayback;
         new Thread(() =>
         {
-            var wave = new RawSourceWaveStream(sound, 0, sound.Length, new WaveFormat());
+            var wave = new RawSourceWaveStream(sound, 0, sound.Length, new WaveFormat(sampleRate, channels));
             using var channel = new WaveChannel32(wave)
             {
                 Volume = GetVolume(volume, useGameSfxVolume),
