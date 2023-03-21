@@ -20,8 +20,8 @@ public class Tf2BluScore: Tf2Window
         ImGui.PushFont(Tf2SecondaryFont);
         ImGuiHelper.TextShadow("BLU");
         ImGui.PopFont();
-        ImGuiHelper.ForegroundTextShadow(Tf2ScoreFont, Score.ToString(), ImGui.GetCursorScreenPos() + new Vector2(180, -85));
+        var calcTextSize = ImGuiHelper.CalcTextSize(Tf2ScoreFont, Score.ToString());
+        ImGuiHelper.ForegroundTextShadow(Tf2ScoreFont, Score.ToString(), ImGui.GetCursorScreenPos() + ImGui.GetContentRegionAvail() with { Y = -85 } - calcTextSize with { Y = 0 });
         ImGui.GetWindowDrawList();
     }
-
 }
