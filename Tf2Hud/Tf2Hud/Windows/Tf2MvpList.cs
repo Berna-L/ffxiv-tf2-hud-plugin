@@ -29,10 +29,12 @@ public class Tf2MvpList : Tf2Window
     {
         base.PreDraw();
         ImGui.PushStyleVar(ImGuiStyleVar.FrameRounding, 0f);
+        ImGui.PushStyleColor(ImGuiCol.WindowBg, WinningTeam.BgColor);
     }
 
     public override void Draw()
     {
+        
         var teamWinMessage = $"{WinningTeam.Name} TEAM WINS!";
         ImGui.PushFont(Tf2SecondaryFont);
         ImGui.SetCursorPosX((ImGui.GetContentRegionAvail().X - ImGui.CalcTextSize(teamWinMessage).X) / 2);
@@ -101,6 +103,7 @@ public class Tf2MvpList : Tf2Window
 
     public override void PostDraw()
     {
+        ImGui.PopStyleColor();
         ImGui.PopStyleVar();
         base.PostDraw();
     }

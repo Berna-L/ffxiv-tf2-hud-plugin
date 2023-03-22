@@ -7,6 +7,7 @@ using Dalamud.Game.ClientState.Party;
 using Dalamud.Game.Command;
 using Dalamud.Game.DutyState;
 using Dalamud.Game.Gui.FlyText;
+using Dalamud.Interface.ImGuiFileDialog;
 using Dalamud.IoC;
 using Dalamud.Plugin;
 
@@ -46,4 +47,6 @@ public class Service
 
     [PluginService]
     public static PartyList PartyList { get; private set; } = null!;
+    
+    public static FileDialogManager DialogManager = new();
 }

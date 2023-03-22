@@ -2,6 +2,7 @@
 using System.Numerics;
 using ImGuiNET;
 using KamiLib.Drawing;
+using KamiLib.Misc;
 
 namespace Tf2Hud.Tf2Hud.Windows;
 
@@ -10,21 +11,41 @@ public class Tf2Timer : Tf2Window
     public Tf2Timer() : base("##Tf2Timer", Team.Blu)
     {
         Size = new Vector2(220, 70);
+        PositionCondition = ImGuiCond.FirstUseEver;
         Position = new Vector2((ImGui.GetMainViewport().Size.X / 2) - 110, 50);
     }
 
     public long? TimeRemaining { private get; set; }
     public long? MaxTime { private get; set; }
+    
+    public bool MoveMode { private get; set; }
 
     public override void Draw()
     {
         if (TimeRemaining is null or 0)
         {
             MaxTime = null;
-            return;
+            if (!MoveMode)
+            {
+                return;
+            }
         }
 
-        
+        if (TimeRemaining is null && MoveMode)
+        {
+            TimeRemaining = (33 * 60) + 30;
+            MaxTime = (long)((float)TimeRemaining * 1.33f);
+        }
+
+        if (MoveMode)
+        {
+            Flags &= ~ImGuiWindowFlags.NoMove;
+        }
+        else
+        {
+            Flags |= ImGuiWindowFlags.NoMove;
+        }
+
         MaxTime ??= TimeRemaining;
         if (MaxTime < TimeRemaining) MaxTime = TimeRemaining;
         var text = $"{TimeRemaining / 60}:{(TimeRemaining % 60).ToString().PadLeft(2, '0')}";

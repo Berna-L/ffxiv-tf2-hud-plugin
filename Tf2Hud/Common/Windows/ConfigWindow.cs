@@ -14,6 +14,7 @@ namespace Tf2Hud.Common.Windows;
 
 public class ConfigWindow : SelectionWindow, IDisposable
 {
+    private readonly ConfigZero config;
     public const String Title = $"{PluginName} — Configuration";
     private static readonly string PluginVersion = GetVersionText();
 
@@ -22,7 +23,9 @@ public class ConfigWindow : SelectionWindow, IDisposable
         AddedWindowFlags = ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoDocking
     };
 
-    private readonly IList<ISelectionWindowTab> tabs = new List<ISelectionWindowTab>();
+    private readonly GeneralConfigPane generalPane;
+    private readonly TimerConfigPane timerPane;
+    private readonly WinPanelConfigPane winPanelPane;
 
     static ConfigWindow()
     {
@@ -32,7 +35,13 @@ public class ConfigWindow : SelectionWindow, IDisposable
     }
 
 
-    public ConfigWindow(ConfigZero config) : base(Title, 55.0f) { }
+    public ConfigWindow(ConfigZero config) : base(Title, 55.0f)
+    {
+        this.config = config;
+        this.generalPane = new GeneralConfigPane(config);
+        this.timerPane = new TimerConfigPane(config);
+        this.winPanelPane = new WinPanelConfigPane(config);
+    }
 
 
     public void Dispose()
@@ -49,7 +58,7 @@ public class ConfigWindow : SelectionWindow, IDisposable
 
     protected override IEnumerable<ISelectable> GetSelectables()
     {
-        return new List<ISelectable>();
+        return new ConfigPane[] { generalPane, timerPane, winPanelPane };
     }
 
 

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using Dalamud.Configuration;
 using KamiLib.Configuration;
 using Newtonsoft.Json;
 using Tf2Hud.Configuration;
@@ -13,29 +14,32 @@ public class ConfigZero : BaseConfiguration
         Version = 0;
     }
 
-    public Setting<string>? Tf2InstallPath { get; set; } = null;
+    public class TimerConfigZero : ModuleConfiguration
+    {
+
+    }
+
+    public class WinPanelConfigZero : ModuleConfiguration
+    {
+        public Setting<ScoreBehaviorKind> ScoreBehavior { get; set; } = new(ScoreBehaviorKind.ResetIfDutyChanged);
+        public Setting<int> TimeToClose { get; set; } = new(10);
+
+    }
+    
+    public Setting<string> Tf2InstallPath { get; set; } = new(string.Empty);
+
+    [NonSerialized]
+    public bool Tf2InstallPathAutoDetected;
+    
     public Setting<TeamPreferenceKind> TeamPreference { get; set; } = new(TeamPreferenceKind.Random);
-    public Setting<ScoreBehaviorKind> ScoreBehavior { get; set; } = new(ScoreBehaviorKind.ResetIfDutyChanged);
-    
-    
+
+    public TimerConfigZero Timer = new();
+    public WinPanelConfigZero WinPanel = new();
+
     public void Save()
     {
         PluginVersion = PluginVersion.Current;
         File.WriteAllText(Service.PluginInterface.ConfigFile.FullName,
                           JsonConvert.SerializeObject(this, Formatting.Indented));
     }
-}
-
-public enum TeamPreferenceKind
-{
-    Blu,
-    Red,
-    Random
-}
-
-public enum ScoreBehaviorKind
-{
-    ResetEveryInstance,
-    ResetIfDutyChanged,
-    ResetUponClosingGame
 }

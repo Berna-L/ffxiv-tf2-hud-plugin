@@ -1,15 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Numerics;
 using Dalamud.Game;
-using Dalamud.Game.ClientState.Party;
 using KamiLib;
-using Tf2Hud.Common.Windows;
+using Tf2Hud.Common.Configuration;
 
 namespace Tf2Hud.Tf2Hud.Windows;
 
 public class Tf2WinPanel : IDisposable
 {
+    private readonly ConfigZero configZero;
     private readonly byte[]? scoredSound;
     private int newPlayerTeamScore;
     private int newEnemyTeamScore;
@@ -17,8 +16,9 @@ public class Tf2WinPanel : IDisposable
     private long timeOpened;
     private bool waitingForNewScore;
 
-    public Tf2WinPanel(byte[]? scoredSound)
+    public Tf2WinPanel(ConfigZero configZero, byte[]? scoredSound)
     {
+        this.configZero = configZero;
         this.scoredSound = scoredSound;
         Service.Framework.Update += OnUpdate;
     }
@@ -53,7 +53,7 @@ public class Tf2WinPanel : IDisposable
             waitingForNewScore = false;
         }
 
-        if (IsOpen && openedFor > 10) IsOpen = false;
+        if (IsOpen && openedFor > configZero.WinPanel.TimeToClose.Value) IsOpen = false;
     }
 
     private static Tf2MvpList GetMvpList()
@@ -81,6 +81,8 @@ public class Tf2WinPanel : IDisposable
         GetMvpList().PlayerTeam = PlayerTeam;
         GetMvpList().PartyList = partyList;
         GetMvpList().LastEnemy = lastEnemy;
+        GetPlayerTeamScoreWindow().Score = newPlayerTeamScore;
+        GetEnemyTeamScoreWindow().Score = newEnemyTeamScore;
         newPlayerTeamScore = playerTeamScore;
         newEnemyTeamScore = enemyTeamScore;
         IsOpen = true;

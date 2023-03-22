@@ -3,8 +3,11 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Dalamud.Game;
+using Dalamud.Game.ClientState;
 using Dalamud.Game.ClientState.Objects.Enums;
 using Dalamud.Game.ClientState.Objects.Types;
+using Dalamud.Game.Command;
+using Dalamud.Interface.GameFonts;
 using Dalamud.Logging;
 using Dalamud.Utility;
 using FFXIVClientStructs.FFXIV.Client.Game.Event;
@@ -13,27 +16,31 @@ using Gameloop.Vdf;
 using Gameloop.Vdf.Linq;
 using ImGuiNET;
 using KamiLib;
+using KamiLib.Configuration;
 using Microsoft.Win32;
 using Sledge.Formats.Packages;
 using Tf2Hud.Common;
+using Tf2Hud.Common.Configuration;
 using Tf2Hud.Tf2Hud.Windows;
 
 namespace Tf2Hud.Tf2Hud;
 
 public class Tf2HudModule : IDisposable
 {
+    public const string CloseWinPanel = "/tf2hudclose";
+    
     private readonly Tf2WinPanel tf2WinPanel;
     private BattleNpc? lastEnemyTarget;
 
     private byte[]? victorySound;
     private byte[]? failSound;
-    private byte[]? scoredSound;
+    private byte[]? scoreDingSound;
 
     private ImFontPtr tf2Font;
     private ImFontPtr tf2ScoreFont;
     private ImFontPtr tf2SecondaryFont;
 
-    private readonly Team playerTeam = Team.Red;
+    private Team playerTeam = Team.Red;
 
     private uint lastDutyTerritory;
 
@@ -41,20 +48,35 @@ public class Tf2HudModule : IDisposable
     private int enemyTeamScore;
     private readonly string? tf2InstallFolder;
     private static readonly Tf2Timer? GetTimer = KamiCommon.WindowManager.GetWindowOfType<Tf2Timer>();
+    private readonly ConfigZero configZero;
 
 
-    public Tf2HudModule()
+    public Tf2HudModule(ConfigZero configZero)
     {
-        tf2InstallFolder = GetTf2InstallFolder();
-        if (tf2InstallFolder == null) return;
+        this.configZero = configZero;
+        tf2InstallFolder = FindTf2InstallFolder();
+        if (tf2InstallFolder is not null)
+        {
+            this.configZero.Tf2InstallPathAutoDetected = true;
+            this.configZero.Tf2InstallPath = new Setting<string>(tf2InstallFolder);
+        }
+        else
+        {
+            tf2InstallFolder = this.configZero.Tf2InstallPath.Value;
+        }
 
+        Service.CommandManager.AddHandler(CloseWinPanel, new CommandInfo(OnCloseWinPanelCommand)
+        {
+            HelpMessage = "Closes the win panel immediately if needed."
+        });
+        
         Service.DutyState.DutyStarted += OnStart;
         Service.DutyState.DutyCompleted += OnComplete;
         Service.DutyState.DutyWiped += OnWipe;
         Service.Framework.Update += OnUpdate;
         Service.PluginInterface.UiBuilder.BuildFonts += LoadTf2Fonts;
+        
         LoadTf2SoundFiles();
-
 
         KamiCommon.WindowManager.AddWindow(new Tf2BluScoreWindow());
         KamiCommon.WindowManager.AddWindow(new Tf2RedScoreWindow());
@@ -62,10 +84,15 @@ public class Tf2HudModule : IDisposable
         KamiCommon.WindowManager.AddWindow(new Tf2Timer());
 
         
-        tf2WinPanel = new Tf2WinPanel(scoredSound);
+        tf2WinPanel = new Tf2WinPanel(this.configZero, scoreDingSound);
     }
 
-    private static string? GetTf2InstallFolder()
+    private void OnCloseWinPanelCommand(string command, string arguments)
+    {
+        tf2WinPanel.IsOpen = false;
+    }
+
+    private static string? FindTf2InstallFolder()
     {
         switch (BernaUtil.GetOS())
         {
@@ -110,15 +137,30 @@ public class Tf2HudModule : IDisposable
 
     private void LoadTf2Fonts()
     {
-        var resourceFolder = Path.Combine(tf2InstallFolder, "tf", "resource");
-        tf2Font = ImGui.GetIO().Fonts
-                       .AddFontFromFileTTF(Path.Combine(resourceFolder, "tf2.ttf"), 60);
+        if (tf2InstallFolder is not null)
+        {
+            var resourceFolder = Path.Combine(tf2InstallFolder, "tf", "resource");
+            tf2Font = ImGui.GetIO().Fonts
+                           .AddFontFromFileTTF(Path.Combine(resourceFolder, "tf2.ttf"), 60);
 
-        tf2ScoreFont = ImGui.GetIO().Fonts
-                            .AddFontFromFileTTF(Path.Combine(resourceFolder, "tf2.ttf"), 130);
-        tf2SecondaryFont = ImGui.GetIO().Fonts
-                                .AddFontFromFileTTF(Path.Combine(resourceFolder, "tf2secondary.ttf"), 40);
-        Tf2Window.UpdateFontPointers(tf2Font, tf2ScoreFont, tf2SecondaryFont);
+            tf2ScoreFont = ImGui.GetIO().Fonts
+                                .AddFontFromFileTTF(Path.Combine(resourceFolder, "tf2.ttf"), 130);
+            tf2SecondaryFont = ImGui.GetIO().Fonts
+                                    .AddFontFromFileTTF(Path.Combine(resourceFolder, "tf2secondary.ttf"), 40);
+        }
+        else
+        {
+            tf2Font = Service.PluginInterface.UiBuilder.GetGameFontHandle(new GameFontStyle(GameFontFamily.Meidinger, 60))
+                             .ImFont;
+
+            tf2ScoreFont = Service.PluginInterface.UiBuilder.GetGameFontHandle(new GameFontStyle(GameFontFamily.Meidinger, 130))
+                                  .ImFont;
+
+            tf2SecondaryFont = Service.PluginInterface.UiBuilder.GetGameFontHandle(new GameFontStyle(GameFontFamily.Axis, 40))
+                                      .ImFont;
+        }
+        Tf2Window.UpdateFontPointers(tf2Font, tf2ScoreFont, tf2SecondaryFont);    
+
     }
 
 
@@ -129,56 +171,73 @@ public class Tf2HudModule : IDisposable
         Service.DutyState.DutyCompleted -= OnComplete;
         Service.DutyState.DutyWiped -= OnWipe;
         Service.Framework.Update -= OnUpdate;
+
+        Service.CommandManager.RemoveHandler(CloseWinPanel);
     }
 
     private void LoadTf2SoundFiles()
     {
+        if (tf2InstallFolder is null) return;
         var tf2VpkPath = Path.Combine(tf2InstallFolder, "tf", "tf2_sound_misc_dir.vpk");
         if (!Path.Exists(tf2VpkPath)) return;
         using var package = new VpkPackage(tf2VpkPath);
 
-        var victory = package.Entries.First(e => e.Name == "your_team_won.wav");
-        using var victoryStream = package.Open(victory);
-        victorySound = new byte[victoryStream.Length];
-        victoryStream.Read(victorySound, 0, victorySound.Length);
-
-        var fail = package.Entries.First(e => e.Name == "your_team_lost.wav");
-        using var failStream = package.Open(fail);
-        failSound = new byte[failStream.Length];
-        failStream.Read(failSound, 0, failSound.Length);
-
-        var scored = package.Entries.First(e => e.Path == "sound/ui/scored.wav");
-        using var scoredStream = package.Open(scored);
-        scoredSound = new byte[scoredStream.Length];
-        PluginLog.Debug(scoredSound.Length.ToString());
-        scoredStream.Read(scoredSound, 0, scoredSound.Length);
-
+        victorySound = LoadSoundFile(package, "sound/misc/your_team_won.wav");
+        failSound = LoadSoundFile(package, "sound/misc/your_team_lost.wav");
+        scoreDingSound = LoadSoundFile(package, "sound/ui/scored.wav");
+        
         package.Dispose();
-        scoredStream.Dispose();
-        failStream.Dispose();
-        victoryStream.Dispose();
+        
+    }
+
+    private static byte[] LoadSoundFile(IPackage package, string filePath)
+    {
+        var file = package.Entries.First(e => e.Path == filePath);
+        using var fileStream = package.Open(file);
+        var result = new byte[fileStream.Length];
+        fileStream.Read(result, 0, result.Length);
+        fileStream.Dispose();
+        return result;
     }
 
     private void OnUpdate(Framework? framework)
     {
+        UpdatePointers();
         UpdateTimer();
         UpdateTarget();
     }
 
+    private void UpdatePointers()
+    {
+        if (tf2InstallFolder != configZero.Tf2InstallPath.Value)
+        {
+            LoadTf2Fonts();
+            LoadTf2SoundFiles();
+        }
+    }
+
     private unsafe void UpdateTimer()
     {
+        if (GetTimer is null) return;
+        var timerMoveMode = configZero.Timer.MoveMode;
+        GetTimer.MoveMode = timerMoveMode;
         var contentDirector = EventFramework.Instance()->GetInstanceContentDirector();
-        if (Service.DutyState.IsDutyStarted && GetTimer is not null)
+        if (Service.DutyState.IsDutyStarted)
         {
             GetTimer.Team = playerTeam;
             GetTimer.IsOpen = true;
+        }
+
+        if (!GetTimer.IsOpen)
+        {
+            GetTimer.IsOpen = timerMoveMode;
         }
         if (GetTimer is { IsOpen: true } window)
         {
             if (contentDirector is null)
             {
                 window.TimeRemaining = null;
-                window.IsOpen = false;
+                window.IsOpen = timerMoveMode;
             }
             else
             {
@@ -189,19 +248,38 @@ public class Tf2HudModule : IDisposable
 
     private void OnStart(object? sender, ushort e)
     {
+        this.playerTeam = UpdatePlayerTeam();
         if (GetTimer is not null)
         {
             GetTimer.Team = playerTeam;
             GetTimer.IsOpen = true;
         }
-        if (Service.ClientState.TerritoryType != lastDutyTerritory)
-        {
-            lastDutyTerritory = Service.ClientState.TerritoryType;
-            playerTeamScore = 0;
-            enemyTeamScore = 0;
-            tf2WinPanel.ClearScores();
-        }
 
+        
+        
+        switch (configZero.WinPanel.ScoreBehavior.Value)
+        {
+            case ScoreBehaviorKind.ResetEveryInstance:
+                ClearScores();
+                break;
+            case ScoreBehaviorKind.ResetIfDutyChanged:
+                if (Service.ClientState.TerritoryType != lastDutyTerritory)
+                {
+                    ClearScores();
+                }
+                break;
+            case ScoreBehaviorKind.ResetUponClosingGame:
+            default:
+                break;
+        }
+        lastDutyTerritory = Service.ClientState.TerritoryType;
+    }
+
+    private void ClearScores()
+    {
+        playerTeamScore = 0;
+        enemyTeamScore = 0;
+        tf2WinPanel.ClearScores();
     }
 
     private void OnComplete(object? sender, ushort e)
@@ -221,6 +299,21 @@ public class Tf2HudModule : IDisposable
         if (failSound is null) return;
         SoundEngine.PlaySound(failSound, true, 50);
         lastEnemyTarget = null;
+    }
+
+    private Team UpdatePlayerTeam()
+    {
+        switch (configZero.TeamPreference.Value)
+        {
+            case TeamPreferenceKind.Blu:
+                return Team.Blu;
+            case TeamPreferenceKind.Red:
+                return Team.Red;
+            case TeamPreferenceKind.Random:
+                return Random.Shared.NextSingle() < 0.5 ? Team.Blu : Team.Red;
+            default:
+                throw new ArgumentOutOfRangeException();
+        }
     }
 
     private string GetEnemyName()

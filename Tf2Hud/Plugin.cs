@@ -23,29 +23,21 @@ public sealed class Plugin : IDalamudPlugin
 
 
     public readonly WindowSystem WindowSystem = new("Tf2Hud");
-    private readonly DalamudPluginInterface dalamudPluginInterface;
 
 
     public Plugin(DalamudPluginInterface pluginInterface)
     {
-        dalamudPluginInterface = pluginInterface;
-        dalamudPluginInterface.Create<Service>();
-        KamiCommon.Initialize(dalamudPluginInterface, Name, () => Configuration?.Save());
-        tf2HudModule = new Tf2HudModule();
-
-        var config = (dalamudPluginInterface.GetPluginConfig() as ConfigZero) ?? new ConfigZero();
-
-        KamiCommon.WindowManager.AddWindow(new ConfigWindow(config));
-        
-        dalamudPluginInterface.UiBuilder.RebuildFonts();
-
+        pluginInterface.Create<Service>();
+        KamiCommon.Initialize(Service.PluginInterface, Name, () => Configuration?.Save());
         Configuration = InitConfig();
         Configuration.Save();
+        tf2HudModule = new Tf2HudModule(Configuration);
 
 
         KamiCommon.WindowManager.AddWindow(new ConfigWindow(Configuration));
 
-        
+        Service.PluginInterface.UiBuilder.RebuildFonts();
+
 
         Service.CommandManager.AddHandler(CommandName, new CommandInfo(OnConfigCommand)
         {
@@ -88,11 +80,14 @@ public sealed class Plugin : IDalamudPlugin
                 0 => JsonConvert.DeserializeObject<ConfigZero>(configText) ?? new ConfigZero(),
                 _ => new ConfigZero()
             };
-            
 
-            // For testing only
-            Service.PluginInterface.ConfigFile.MoveTo(
-                Service.PluginInterface.ConfigFile.FullName + $".{unixTimeSeconds}.old", true);
+
+            
+            if (Service.PluginInterface.IsTesting || Service.PluginInterface.IsDev)
+            {
+                Service.PluginInterface.ConfigFile.MoveTo(
+                    Service.PluginInterface.ConfigFile.FullName + $".{unixTimeSeconds}.old", true);    
+            }
 
             return config;
         }
