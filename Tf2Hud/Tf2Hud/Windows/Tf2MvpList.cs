@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Numerics;
 using Dalamud.Interface.GameFonts;
+using Dalamud.Utility;
 using ImGuiNET;
 using KamiLib.Drawing;
 using Pilz.Dalamud.Icons;
@@ -12,15 +13,16 @@ public class Tf2MvpList : Tf2Window
 {
     private readonly JobIconSets jobIconSets;
     private readonly GameFontHandle playerNameFont;
-    private readonly Vector2 classJobIconSize = new(32, 32);
-    private const int ScorePanelHeight = 280;
-
+    private static readonly Vector2 ClassJobIconSize = new(32, 32);
+    private static readonly Vector2 DefaultPosition = new((ImGui.GetMainViewport().Size.X / 2) - ScorePanelWidth, ImGui.GetMainViewport().Size.Y - 500 + ScorePanelHeight);
+    
 
     public Tf2MvpList() : base("##Tf2MvpList", Team.Red)
     {
-        Size = new Vector2(ScorePanelWidth * 2, ScorePanelHeight);
+        Size = new Vector2(ScorePanelWidth * 2, MvpListHeight);
         jobIconSets = new JobIconSets();
         playerNameFont = Service.PluginInterface.UiBuilder.GetGameFontHandle(new GameFontStyle(GameFontFamily.Axis, 18));
+        Position = DefaultPosition;
     }
 
     public string? LastEnemy { get; set; }
@@ -34,15 +36,15 @@ public class Tf2MvpList : Tf2Window
 
     public override void Draw()
     {
-        
+        var enemyName = LastEnemy.IsNullOrWhitespace() ? "an anonymous enemy" : LastEnemy;
         var teamWinMessage = $"{WinningTeam.Name} TEAM WINS!";
         ImGui.PushFont(Tf2SecondaryFont);
         ImGui.SetCursorPosX((ImGui.GetContentRegionAvail().X - ImGui.CalcTextSize(teamWinMessage).X) / 2);
         ImGuiHelper.TextShadow(teamWinMessage);
         ImGui.PopFont();
         var winConditionMessage = WinningTeam == PlayerTeam
-                                      ? $"{WinningTeam.Name} defeated {LastEnemy} before the time ran out"
-                                      : $"{WinningTeam.Name}, led by {LastEnemy}, wiped {WinningTeam.Enemy.Name}";
+                                      ? $"{WinningTeam.Name} defeated {enemyName} before the time ran out"
+                                      : $"{WinningTeam.Name}, led by {enemyName}, wiped {WinningTeam.Enemy.Name}";
         ImGui.SetCursorPosX((ImGui.GetContentRegionAvail().X - ImGui.CalcTextSize(winConditionMessage).X) / 2);
         ImGui.Text(winConditionMessage);
         ImGui.PushStyleVar(ImGuiStyleVar.Alpha, 0.85f);
@@ -66,7 +68,7 @@ public class Tf2MvpList : Tf2Window
             if (PartyList.Count <= i) break; 
             var leftPartyMember = PartyList[i];
             if (leftPartyMember is null) break;
-            ImGui.Image(GetClassJobIcon(leftPartyMember.ClassJobId)!.Value, classJobIconSize);
+            ImGui.Image(GetClassJobIcon(leftPartyMember.ClassJobId)!.Value, ClassJobIconSize);
             ImGui.SameLine();
             ImGui.SetCursorPosY(ImGui.GetCursorPosY() + 6);
             ImGui.TextColored(WinningTeam.TextColor, leftPartyMember.Name);
@@ -77,7 +79,7 @@ public class Tf2MvpList : Tf2Window
                 i++;
                 ImGui.SameLine();
                 ImGui.SetCursorPosX(middlePosX);
-                ImGui.Image(GetClassJobIcon(rightPartyMember.ClassJobId)!.Value, classJobIconSize);
+                ImGui.Image(GetClassJobIcon(rightPartyMember.ClassJobId)!.Value, ClassJobIconSize);
                 ImGui.SameLine();
                 ImGui.SetCursorPosY(ImGui.GetCursorPosY() + 6);
                 ImGui.TextColored(WinningTeam.TextColor, rightPartyMember.Name);
@@ -95,7 +97,7 @@ public class Tf2MvpList : Tf2Window
     }
 
     private static int InnerFrameWidth => (ScorePanelWidth * 2) - 21;
-    private static int InnerFrameHeight => ScorePanelHeight - 85;
+    private static int InnerFrameHeight => MvpListHeight - 85;
     public List<Tf2MvpMember> PartyList { get; set; }
     public Team PlayerTeam { get; set; }
     public Team WinningTeam { get; set; }

@@ -16,7 +16,7 @@ public class TimerConfigPane: ConfigPane
     {
         new SimpleDrawList()
             .AddConfigCheckbox("Enabled", configZero.Timer.Enabled)
-            .AddConfigCheckbox("Repositioning mode", configZero.Timer.MoveMode,
+            .AddConfigCheckbox("Repositioning mode", configZero.Timer.RepositionMode,
                                "Enables you to move this component. Disable to use it.")
             .Draw();
     }

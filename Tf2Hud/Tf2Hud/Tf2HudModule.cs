@@ -81,10 +81,12 @@ public class Tf2HudModule : IDisposable
         KamiCommon.WindowManager.AddWindow(new Tf2BluScoreWindow());
         KamiCommon.WindowManager.AddWindow(new Tf2RedScoreWindow());
         KamiCommon.WindowManager.AddWindow(new Tf2MvpList());
-        KamiCommon.WindowManager.AddWindow(new Tf2Timer());
-
+        KamiCommon.WindowManager.AddWindow(new Tf2WinPanelRepositionWindow());
+        KamiCommon.WindowManager.AddWindow(new Tf2Timer(this.configZero));
         
-        tf2WinPanel = new Tf2WinPanel(this.configZero, scoreDingSound);
+        tf2WinPanel = new Tf2WinPanel(this.configZero, playerTeam, GetPartyList(), scoreDingSound);
+
+
     }
 
     private void OnCloseWinPanelCommand(string command, string arguments)
@@ -205,6 +207,7 @@ public class Tf2HudModule : IDisposable
         UpdatePointers();
         UpdateTimer();
         UpdateTarget();
+        tf2WinPanel.RepositionMode = configZero.WinPanel.RepositionMode;
     }
 
     private void UpdatePointers()
@@ -219,25 +222,25 @@ public class Tf2HudModule : IDisposable
     private unsafe void UpdateTimer()
     {
         if (GetTimer is null) return;
-        var timerMoveMode = configZero.Timer.MoveMode;
-        GetTimer.MoveMode = timerMoveMode;
+        var enabled = configZero.Timer.Enabled;
+        var timerMoveMode = configZero.Timer.RepositionMode;
         var contentDirector = EventFramework.Instance()->GetInstanceContentDirector();
         if (Service.DutyState.IsDutyStarted)
         {
             GetTimer.Team = playerTeam;
-            GetTimer.IsOpen = true;
+            GetTimer.IsOpen = enabled;
         }
 
         if (!GetTimer.IsOpen)
         {
-            GetTimer.IsOpen = timerMoveMode;
+            GetTimer.IsOpen = timerMoveMode && enabled;
         }
         if (GetTimer is { IsOpen: true } window)
         {
             if (contentDirector is null)
             {
                 window.TimeRemaining = null;
-                window.IsOpen = timerMoveMode;
+                window.IsOpen = timerMoveMode && enabled;
             }
             else
             {
@@ -316,11 +319,9 @@ public class Tf2HudModule : IDisposable
         }
     }
 
-    private string GetEnemyName()
+    private string? GetEnemyName()
     {
-        var enemyName = lastEnemyTarget?.Name.TextValue;
-        var enemy = enemyName.IsNullOrWhitespace() ? "an anonymous enemy" : enemyName;
-        return enemy;
+        return lastEnemyTarget?.Name.TextValue;
     }
 
     private static List<Tf2MvpMember> GetPartyList()

@@ -13,11 +13,17 @@ public class WinPanelConfigPane: ConfigPane
 
     public override void DrawLabel()
     {
-        ImGui.Text("Win Panel");
+        ImGui.TextColored(configZero.WinPanel.Enabled ? Colors.Green : Colors.Red, "Win Panel");
     }
 
     public override void Draw()
     {
+        new SimpleDrawList()
+            .AddConfigCheckbox("Enabled", configZero.WinPanel.Enabled)
+            .AddConfigCheckbox("Repositioning mode", configZero.WinPanel.RepositionMode,
+                               "Enables you to move this component. Disable to use it.")
+            .Draw();
+
         InfoBox.Instance
                .AddTitle("Scoring persistence")
                .AddConfigRadio("Reset scores when I enter an instance of a different duty than the last",

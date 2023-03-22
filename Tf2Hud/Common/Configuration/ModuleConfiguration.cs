@@ -11,6 +11,6 @@ public abstract class ModuleConfiguration : IPluginConfiguration
     public Setting<bool> Enabled { get; set; } = new(true);
 
     [NonSerialized]
-    public Setting<bool> MoveMode = new(false);
+    public Setting<bool> RepositionMode = new(false);
 
 }

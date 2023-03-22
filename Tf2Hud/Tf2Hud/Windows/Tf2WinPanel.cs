@@ -1,8 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Numerics;
 using Dalamud.Game;
+using ImGuiNET;
 using KamiLib;
+using KamiLib.Configuration;
 using Tf2Hud.Common.Configuration;
+using Tf2Hud.Common.Windows;
 
 namespace Tf2Hud.Tf2Hud.Windows;
 
@@ -15,11 +19,19 @@ public class Tf2WinPanel : IDisposable
 
     private long timeOpened;
     private bool waitingForNewScore;
+    private static Tf2BluScoreWindow BluScoreWindow => KamiCommon.WindowManager.GetWindowOfType<Tf2BluScoreWindow>()!;
+    private static Tf2RedScoreWindow RedScoreWindow => KamiCommon.WindowManager.GetWindowOfType<Tf2RedScoreWindow>()!;
+    private static Tf2MvpList MvpListWindow => KamiCommon.WindowManager.GetWindowOfType<Tf2MvpList>()!;
 
-    public Tf2WinPanel(ConfigZero configZero, byte[]? scoredSound)
+
+    public Tf2WinPanel(ConfigZero configZero, Team playerTeam, List<Tf2MvpMember> initialPartyList, byte[]? scoredSound)
     {
         this.configZero = configZero;
         this.scoredSound = scoredSound;
+        PlayerTeam = playerTeam;
+        MvpListWindow.PlayerTeam = PlayerTeam;
+        MvpListWindow.WinningTeam = PlayerTeam;
+        MvpListWindow.PartyList = initialPartyList;
         Service.Framework.Update += OnUpdate;
     }
 
@@ -28,13 +40,15 @@ public class Tf2WinPanel : IDisposable
         get => KamiCommon.WindowManager.GetWindowOfType<Tf2BluScoreWindow>()?.IsOpen ?? false;
         set
         {
-            GetPlayerTeamScoreWindow().IsOpen = value;
-            GetEnemyTeamScoreWindow().IsOpen = value;
-            GetMvpList().IsOpen = value;
+            var actualValue = value && configZero.WinPanel.Enabled;
+            GetPlayerTeamScoreWindow().IsOpen = actualValue;
+            GetEnemyTeamScoreWindow().IsOpen = actualValue;
+            MvpListWindow.IsOpen = actualValue;
         }
     }
 
     public Team PlayerTeam { get; set; }
+    public Setting<bool> RepositionMode { get; set; }
 
     public void Dispose()
     {
@@ -53,34 +67,52 @@ public class Tf2WinPanel : IDisposable
             waitingForNewScore = false;
         }
 
-        if (IsOpen && openedFor > configZero.WinPanel.TimeToClose.Value) IsOpen = false;
+        if (RepositionMode)
+        {
+            IsOpen = true;
+            if (!GetRepositionWindow().IsOpen)
+            {
+                GetRepositionWindow().IsOpen = true;
+            }
+            BluScoreWindow.Position = GetRepositionWindow().Position;
+            RedScoreWindow.Position = GetRepositionWindow().Position + new Vector2(Tf2Window.ScorePanelWidth, 0);
+            MvpListWindow.Position = GetRepositionWindow().Position + new Vector2(0, Tf2Window.ScorePanelHeight);
+        }
+        else
+        {
+            GetRepositionWindow().IsOpen = false;
+        }
+
+        if (IsOpen && openedFor > configZero.WinPanel.TimeToClose.Value && !configZero.WinPanel.RepositionMode) IsOpen = false;
     }
 
-    private static Tf2MvpList GetMvpList()
+    private static Tf2WinPanelRepositionWindow GetRepositionWindow()
     {
-        return KamiCommon.WindowManager.GetWindowOfType<Tf2MvpList>()!;
+        return KamiCommon.WindowManager.GetWindowOfType<Tf2WinPanelRepositionWindow>()!;
     }
+
 
     private Tf2TeamScoreWindow GetPlayerTeamScoreWindow()
     {
-        return PlayerTeam.IsBlu ? KamiCommon.WindowManager.GetWindowOfType<Tf2BluScoreWindow>()!
-                   : KamiCommon.WindowManager.GetWindowOfType<Tf2RedScoreWindow>()!;
+        return PlayerTeam.IsBlu ? BluScoreWindow
+                   : RedScoreWindow!;
     }
+
 
     private Tf2TeamScoreWindow GetEnemyTeamScoreWindow()
     {
-        return PlayerTeam.Enemy.IsBlu ? KamiCommon.WindowManager.GetWindowOfType<Tf2BluScoreWindow>()!
-                   : KamiCommon.WindowManager.GetWindowOfType<Tf2RedScoreWindow>()!;
+        return PlayerTeam.Enemy.IsBlu ? BluScoreWindow
+                   : RedScoreWindow!;
     }
 
-    public void Show(int playerTeamScore, int enemyTeamScore, List<Tf2MvpMember> partyList, string lastEnemy, Team winningTeam)
+    public void Show(int playerTeamScore, int enemyTeamScore, List<Tf2MvpMember> partyList, string? lastEnemy, Team winningTeam)
     {
         waitingForNewScore = true;
         timeOpened = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
-        GetMvpList().WinningTeam = winningTeam;
-        GetMvpList().PlayerTeam = PlayerTeam;
-        GetMvpList().PartyList = partyList;
-        GetMvpList().LastEnemy = lastEnemy;
+        MvpListWindow.WinningTeam = winningTeam;
+        MvpListWindow.PlayerTeam = PlayerTeam;
+        MvpListWindow.PartyList = partyList;
+        MvpListWindow.LastEnemy = lastEnemy;
         GetPlayerTeamScoreWindow().Score = newPlayerTeamScore;
         GetEnemyTeamScoreWindow().Score = newEnemyTeamScore;
         newPlayerTeamScore = playerTeamScore;

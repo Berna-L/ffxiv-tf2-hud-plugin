@@ -2,42 +2,44 @@
 using System.Numerics;
 using ImGuiNET;
 using KamiLib.Drawing;
-using KamiLib.Misc;
+using Tf2Hud.Common.Configuration;
 
 namespace Tf2Hud.Tf2Hud.Windows;
 
 public class Tf2Timer : Tf2Window
 {
-    public Tf2Timer() : base("##Tf2Timer", Team.Blu)
+    private readonly ConfigZero configZero;
+    private static readonly Vector2 DefaultPosition = new((ImGui.GetMainViewport().Size.X / 2) - 110, 50);
+
+    public Tf2Timer(ConfigZero configZero) : base("##Tf2Timer", Team.Blu)
     {
+        this.configZero = configZero;
         Size = new Vector2(220, 70);
         PositionCondition = ImGuiCond.FirstUseEver;
-        Position = new Vector2((ImGui.GetMainViewport().Size.X / 2) - 110, 50);
+        Position = DefaultPosition;
     }
 
     public long? TimeRemaining { private get; set; }
     public long? MaxTime { private get; set; }
     
-    public bool MoveMode { private get; set; }
-
     public override void Draw()
     {
         if (TimeRemaining is null or 0)
         {
             MaxTime = null;
-            if (!MoveMode)
+            if (!configZero.Timer.RepositionMode)
             {
                 return;
             }
         }
 
-        if (TimeRemaining is null && MoveMode)
+        if (TimeRemaining is null && configZero.Timer.RepositionMode)
         {
             TimeRemaining = (33 * 60) + 30;
             MaxTime = (long)((float)TimeRemaining * 1.33f);
         }
 
-        if (MoveMode)
+        if (configZero.Timer.RepositionMode)
         {
             Flags &= ~ImGuiWindowFlags.NoMove;
         }

@@ -8,7 +8,9 @@ namespace Tf2Hud.Tf2Hud.Windows;
 public abstract class Tf2Window : Window
 {
     public Team Team { get; set; }
-    protected const int ScorePanelWidth = 270; 
+    public const int ScorePanelWidth = 270;
+    public const int ScorePanelHeight = 65;
+    public const int MvpListHeight = 280;
 
     protected Tf2Window(string name, Team team) : base(
         name,
@@ -16,6 +18,7 @@ public abstract class Tf2Window : Window
         ImGuiWindowFlags.NoResize)
     {
         Team = team;
+        PositionCondition = ImGuiCond.Always;
         BgAlpha = 0.8f;
     }
 

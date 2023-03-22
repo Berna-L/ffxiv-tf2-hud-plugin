@@ -6,9 +6,12 @@ namespace Tf2Hud.Tf2Hud.Windows;
 
 public class Tf2BluScoreWindow : Tf2TeamScoreWindow
 {
+    private static readonly Vector2 DefaultPosition = new((ImGui.GetMainViewport().Size.X / 2) - ScorePanelWidth, ImGui.GetMainViewport().Size.Y - 500);
+
     public Tf2BluScoreWindow() : base("##Tf2BluScore", Team.Blu)
     {
-        Size = new Vector2(ScorePanelWidth, 65);
+        Size = new Vector2(ScorePanelWidth, ScorePanelHeight);
+        Position = DefaultPosition;
     }
 
     public override void Draw()
