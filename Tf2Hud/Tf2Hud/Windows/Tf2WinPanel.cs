@@ -100,6 +100,7 @@ public class Tf2WinPanel : IDisposable
         MvpListWindow.WinningTeam = winningTeam;
         MvpListWindow.PlayerTeam = PlayerTeam;
         MvpListWindow.PartyList = partyList;
+        MvpListWindow.NameDisplay = configZero.WinPanel.NameDisplay.Value;
         MvpListWindow.LastEnemy = lastEnemy;
         GetPlayerTeamScoreWindow().Score = newPlayerTeamScore;
         GetEnemyTeamScoreWindow().Score = newEnemyTeamScore;

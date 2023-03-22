@@ -26,6 +26,8 @@ public class ConfigZero : BaseConfiguration
     {
         public Setting<ScoreBehaviorKind> ScoreBehavior { get; set; } = new(ScoreBehaviorKind.ResetIfDutyChanged);
         public Setting<int> TimeToClose { get; set; } = new(10);
+
+        public Setting<NameDisplayKind> NameDisplay { get; set; } = new(NameDisplayKind.FullName);
         
         public override float GetPositionXDefault() => (ImGui.GetMainViewport().Size.X / 2) - Tf2Window.ScorePanelWidth;
 

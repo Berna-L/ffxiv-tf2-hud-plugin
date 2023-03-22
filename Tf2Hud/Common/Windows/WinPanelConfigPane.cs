@@ -38,6 +38,16 @@ public class WinPanelConfigPane: ConfigPane
             .Draw();
 
         InfoBox.Instance
+               .AddTitle("Naming Format")
+               .AddConfigRadio("Full name", configZero.WinPanel.NameDisplay, NameDisplayKind.FullName)
+               .AddConfigRadio("Surname Abbreviated", configZero.WinPanel.NameDisplay,
+                               NameDisplayKind.SurnameAbbreviated)
+               .AddConfigRadio("Forename Abbreviated", configZero.WinPanel.NameDisplay,
+                               NameDisplayKind.ForenameAbbreviated)
+               .AddConfigRadio("Initials", configZero.WinPanel.NameDisplay, NameDisplayKind.Initials)
+               .Draw();
+        
+        InfoBox.Instance
                .AddTitle("Scoring persistence")
                .AddConfigRadio("Reset scores when I enter an instance of a different duty than the last",
                                configZero.WinPanel.ScoreBehavior, ScoreBehaviorKind.ResetIfDutyChanged,

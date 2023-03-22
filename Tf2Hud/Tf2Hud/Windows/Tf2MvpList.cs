@@ -1,10 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Numerics;
 using Dalamud.Interface.GameFonts;
 using Dalamud.Utility;
 using ImGuiNET;
 using KamiLib.Drawing;
 using Pilz.Dalamud.Icons;
+using Tf2Hud.Common.Configuration;
 using Tf2Hud.Common.Windows;
 
 namespace Tf2Hud.Tf2Hud.Windows;
@@ -71,7 +73,7 @@ public class Tf2MvpList : Tf2Window
             ImGui.Image(GetClassJobIcon(leftPartyMember.ClassJobId)!.Value, ClassJobIconSize);
             ImGui.SameLine();
             ImGui.SetCursorPosY(ImGui.GetCursorPosY() + 6);
-            ImGui.TextColored(WinningTeam.TextColor, leftPartyMember.Name);
+            ImGui.TextColored(WinningTeam.TextColor, leftPartyMember.Name.ToDesiredFormat(NameDisplay));
             if (PartyList.Count > 4 && PartyList.Count > i + 1)
             {
                 var rightPartyMember = PartyList[i + 1];
@@ -82,7 +84,7 @@ public class Tf2MvpList : Tf2Window
                 ImGui.Image(GetClassJobIcon(rightPartyMember.ClassJobId)!.Value, ClassJobIconSize);
                 ImGui.SameLine();
                 ImGui.SetCursorPosY(ImGui.GetCursorPosY() + 6);
-                ImGui.TextColored(WinningTeam.TextColor, rightPartyMember.Name);
+                ImGui.TextColored(WinningTeam.TextColor, rightPartyMember.Name.ToDesiredFormat(NameDisplay));
             }
         }
         ImGui.PopFont();
@@ -96,9 +98,12 @@ public class Tf2MvpList : Tf2Window
         return Service.DataManager?.GetImGuiTextureIcon((uint)iconId)?.ImGuiHandle;
     }
 
+
     private static int InnerFrameWidth => (ScorePanelWidth * 2) - 21;
     private static int InnerFrameHeight => MvpListHeight - 85;
     public List<Tf2MvpMember> PartyList { get; set; }
+    
+    public NameDisplayKind NameDisplay { get; set; }
     public Team PlayerTeam { get; set; }
     public Team WinningTeam { get; set; }
 
@@ -108,5 +113,23 @@ public class Tf2MvpList : Tf2Window
         ImGui.PopStyleColor();
         ImGui.PopStyleVar();
         base.PostDraw();
+    }
+}
+
+static class Extension
+{
+    public static string ToDesiredFormat(this string s, NameDisplayKind nameDisplay)
+    {
+        var fullName = s.Split(' ');
+        var forenameAbbrev = $"{fullName[0][0]}.";
+        var surnameAbbrev = $"{fullName[1][0]}.";
+        return nameDisplay switch
+        {
+            NameDisplayKind.FullName => s,
+            NameDisplayKind.ForenameAbbreviated => forenameAbbrev + " " + fullName[1],
+            NameDisplayKind.SurnameAbbreviated => fullName[0] + " " + surnameAbbrev,
+            NameDisplayKind.Initials => forenameAbbrev + " " + surnameAbbrev,
+            _ => throw new ArgumentOutOfRangeException()
+        };
     }
 }
