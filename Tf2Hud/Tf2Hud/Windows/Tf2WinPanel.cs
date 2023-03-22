@@ -11,8 +11,8 @@ namespace Tf2Hud.Tf2Hud.Windows;
 public class Tf2WinPanel : IDisposable
 {
     private readonly byte[]? scoredSound;
-    private int newBluScore;
-    private int newRedScore;
+    private int newPlayerTeamScore;
+    private int newEnemyTeamScore;
 
     private long timeOpened;
     private bool waitingForNewScore;
@@ -23,16 +23,18 @@ public class Tf2WinPanel : IDisposable
         Service.Framework.Update += OnUpdate;
     }
 
-    public static bool IsOpen
+    public bool IsOpen
     {
-        get => KamiCommon.WindowManager.GetWindowOfType<Tf2BluScore>()?.IsOpen ?? false;
+        get => KamiCommon.WindowManager.GetWindowOfType<Tf2BluScoreWindow>()?.IsOpen ?? false;
         set
         {
-            GetBluScoreWindow().IsOpen = value;
-            GetRedScoreWindow().IsOpen = value;
+            GetPlayerTeamScoreWindow().IsOpen = value;
+            GetEnemyTeamScoreWindow().IsOpen = value;
             GetMvpList().IsOpen = value;
         }
     }
+
+    public Team PlayerTeam { get; set; }
 
     public void Dispose()
     {
@@ -44,8 +46,8 @@ public class Tf2WinPanel : IDisposable
         var openedFor = DateTimeOffset.UtcNow.ToUnixTimeSeconds() - timeOpened;
         if (IsOpen && openedFor > 2 && waitingForNewScore)
         {
-            GetBluScoreWindow().Score = newBluScore;
-            GetRedScoreWindow().Score = newRedScore;
+            GetPlayerTeamScoreWindow().Score = newPlayerTeamScore;
+            GetEnemyTeamScoreWindow().Score = newEnemyTeamScore;
             if (scoredSound is not null) SoundEngine.PlaySound(scoredSound, true, 50, 22050, 1);
 
             waitingForNewScore = false;
@@ -59,31 +61,34 @@ public class Tf2WinPanel : IDisposable
         return KamiCommon.WindowManager.GetWindowOfType<Tf2MvpList>()!;
     }
 
-    private static Tf2RedScore GetRedScoreWindow()
+    private Tf2TeamScoreWindow GetPlayerTeamScoreWindow()
     {
-        return KamiCommon.WindowManager.GetWindowOfType<Tf2RedScore>()!;
+        return PlayerTeam.IsBlu ? KamiCommon.WindowManager.GetWindowOfType<Tf2BluScoreWindow>()!
+                   : KamiCommon.WindowManager.GetWindowOfType<Tf2RedScoreWindow>()!;
     }
 
-    private static Tf2BluScore GetBluScoreWindow()
+    private Tf2TeamScoreWindow GetEnemyTeamScoreWindow()
     {
-        return KamiCommon.WindowManager.GetWindowOfType<Tf2BluScore>()!;
+        return PlayerTeam.Enemy.IsBlu ? KamiCommon.WindowManager.GetWindowOfType<Tf2BluScoreWindow>()!
+                   : KamiCommon.WindowManager.GetWindowOfType<Tf2RedScoreWindow>()!;
     }
 
-    public void Show(int bluScore, int redScore, List<PartyMember> partyList, string lastEnemy, Vector4 victorColor)
+    public void Show(int playerTeamScore, int enemyTeamScore, List<Tf2MvpMember> partyList, string lastEnemy, Team winningTeam)
     {
-        IsOpen = true;
         waitingForNewScore = true;
         timeOpened = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
-        GetMvpList().BackgroundColor = victorColor;
+        GetMvpList().WinningTeam = winningTeam;
+        GetMvpList().PlayerTeam = PlayerTeam;
         GetMvpList().PartyList = partyList;
         GetMvpList().LastEnemy = lastEnemy;
-        newBluScore = bluScore;
-        newRedScore = redScore;
+        newPlayerTeamScore = playerTeamScore;
+        newEnemyTeamScore = enemyTeamScore;
+        IsOpen = true;
     }
 
-    public static void ClearScores()
+    public void ClearScores()
     {
-        GetBluScoreWindow().Score = 0;
-        GetRedScoreWindow().Score = 0;
+        GetPlayerTeamScoreWindow().Score = 0;
+        GetEnemyTeamScoreWindow().Score = 0;
     }
 }

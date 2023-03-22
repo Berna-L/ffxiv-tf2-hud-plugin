@@ -25,8 +25,11 @@
     <setting file="mock://C:/Users/Bernardo/workspace/ffxiv-plugins/ffxiv-tf2-hud-plugin/Tf2Hud/Plugin.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Tf2Hud/Plugin.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="mock://C:/Users/Bernardo/workspace/ffxiv-plugins/ffxiv-tf2-hud-plugin/Tf2Hud/Service.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock://C:/Users/Bernardo/workspace/ffxiv-plugins/ffxiv-tf2-hud-plugin/Tf2Hud/Tf2Hud/Tf2HudModule.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="mock://C:/Users/Bernardo/workspace/ffxiv-plugins/ffxiv-tf2-hud-plugin/Tf2Hud/Tf2Hud/Windows/Tf2BluScore.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="mock://C:/Users/Bernardo/workspace/ffxiv-plugins/ffxiv-tf2-hud-plugin/Tf2Hud/Tf2Hud/Windows/Tf2MvpList.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock://C:/Users/Bernardo/workspace/ffxiv-plugins/ffxiv-tf2-hud-plugin/Tf2Hud/Tf2Hud/Windows/Tf2MvpList.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock://C:/Users/Bernardo/workspace/ffxiv-plugins/ffxiv-tf2-hud-plugin/Tf2Hud/Tf2Hud/Windows/Tf2WinPanel.cs" root0="SKIP_HIGHLIGHTING" />
   </component>
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
@@ -60,7 +63,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1679408622444</updated>
-      <workItem from="1679408623535" duration="21917000" />
+      <workItem from="1679408623535" duration="23824000" />
     </task>
     <task id="LOCAL-00001" summary="Changes, big changes.">
       <created>1679429403974</created>
@@ -83,7 +86,14 @@
       <option name="project" value="LOCAL" />
       <updated>1679443163419</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="+ MVP list won't change if people leave.&#10;+ Better algorithm to determine who's the boss.">
+      <created>1679450012572</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1679450012572</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -108,6 +118,7 @@
     <MESSAGE value="Changes, big changes." />
     <MESSAGE value="Second prototype of the MVP list." />
     <MESSAGE value="Now uses the actual party list to populate the MVP panel." />
-    <option name="LAST_COMMIT_MESSAGE" value="Now uses the actual party list to populate the MVP panel." />
+    <MESSAGE value="+ MVP list won't change if people leave.&#10;+ Better algorithm to determine who's the boss." />
+    <option name="LAST_COMMIT_MESSAGE" value="+ MVP list won't change if people leave.&#10;+ Better algorithm to determine who's the boss." />
   </component>
 </project>

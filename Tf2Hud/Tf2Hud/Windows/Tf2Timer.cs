@@ -7,7 +7,7 @@ namespace Tf2Hud.Tf2Hud.Windows;
 
 public class Tf2Timer : Tf2Window
 {
-    public Tf2Timer() : base("##Tf2Timer", TeamColor.Blu.Background)
+    public Tf2Timer() : base("##Tf2Timer", Team.Blu)
     {
         Size = new Vector2(220, 70);
         Position = new Vector2((ImGui.GetMainViewport().Size.X / 2) - 110, 50);
@@ -24,7 +24,7 @@ public class Tf2Timer : Tf2Window
             return;
         }
 
-        ;
+        
         MaxTime ??= TimeRemaining;
         if (MaxTime < TimeRemaining) MaxTime = TimeRemaining;
         var text = $"{TimeRemaining / 60}:{(TimeRemaining % 60).ToString().PadLeft(2, '0')}";

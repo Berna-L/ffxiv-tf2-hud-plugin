@@ -5,8 +5,6 @@ using System.Linq;
 using Dalamud.Game;
 using Dalamud.Game.ClientState.Objects.Enums;
 using Dalamud.Game.ClientState.Objects.Types;
-using Dalamud.Game.ClientState.Party;
-using Dalamud.Game.Text.SeStringHandling;
 using Dalamud.Logging;
 using Dalamud.Utility;
 using FFXIVClientStructs.FFXIV.Client.Game.Event;
@@ -18,7 +16,6 @@ using KamiLib;
 using Microsoft.Win32;
 using Sledge.Formats.Packages;
 using Tf2Hud.Common;
-using Tf2Hud.Common.Windows;
 using Tf2Hud.Tf2Hud.Windows;
 
 namespace Tf2Hud.Tf2Hud;
@@ -26,7 +23,7 @@ namespace Tf2Hud.Tf2Hud;
 public class Tf2HudModule : IDisposable
 {
     private readonly Tf2WinPanel tf2WinPanel;
-    private GameObject? lastEnemyTarget;
+    private BattleNpc? lastEnemyTarget;
 
     private byte[]? victorySound;
     private byte[]? failSound;
@@ -36,12 +33,14 @@ public class Tf2HudModule : IDisposable
     private ImFontPtr tf2ScoreFont;
     private ImFontPtr tf2SecondaryFont;
 
+    private readonly Team playerTeam = Team.Red;
 
     private uint lastDutyTerritory;
 
-    private int bluScore;
-    private int redScore;
+    private int playerTeamScore;
+    private int enemyTeamScore;
     private readonly string? tf2InstallFolder;
+    private static readonly Tf2Timer? GetTimer = KamiCommon.WindowManager.GetWindowOfType<Tf2Timer>();
 
 
     public Tf2HudModule()
@@ -57,8 +56,8 @@ public class Tf2HudModule : IDisposable
         LoadTf2SoundFiles();
 
 
-        KamiCommon.WindowManager.AddWindow(new Tf2BluScore());
-        KamiCommon.WindowManager.AddWindow(new Tf2RedScore());
+        KamiCommon.WindowManager.AddWindow(new Tf2BluScoreWindow());
+        KamiCommon.WindowManager.AddWindow(new Tf2RedScoreWindow());
         KamiCommon.WindowManager.AddWindow(new Tf2MvpList());
         KamiCommon.WindowManager.AddWindow(new Tf2Timer());
 
@@ -166,43 +165,59 @@ public class Tf2HudModule : IDisposable
         UpdateTarget();
     }
 
-    private static unsafe void UpdateTimer()
+    private unsafe void UpdateTimer()
     {
         var contentDirector = EventFramework.Instance()->GetInstanceContentDirector();
-        if (KamiCommon.WindowManager.GetWindowOfType<Tf2Timer>() is { } window)
+        if (Service.DutyState.IsDutyStarted && GetTimer is not null)
         {
-            window.TimeRemaining = contentDirector is not null
-                                       ? (long)Math.Round(contentDirector->ContentDirector.ContentTimeLeft)
-                                       : null;
-            window.IsOpen = contentDirector is not null;
+            GetTimer.Team = playerTeam;
+            GetTimer.IsOpen = true;
+        }
+        if (GetTimer is { IsOpen: true } window)
+        {
+            if (contentDirector is null)
+            {
+                window.TimeRemaining = null;
+                window.IsOpen = false;
+            }
+            else
+            {
+                window.TimeRemaining = (long)Math.Floor(contentDirector->ContentDirector.ContentTimeLeft);
+            }
         }
     }
 
     private void OnStart(object? sender, ushort e)
     {
+        if (GetTimer is not null)
+        {
+            GetTimer.Team = playerTeam;
+            GetTimer.IsOpen = true;
+        }
         if (Service.ClientState.TerritoryType != lastDutyTerritory)
         {
             lastDutyTerritory = Service.ClientState.TerritoryType;
-            bluScore = 0;
-            redScore = 0;
-            Tf2WinPanel.ClearScores();
+            playerTeamScore = 0;
+            enemyTeamScore = 0;
+            tf2WinPanel.ClearScores();
         }
 
     }
 
     private void OnComplete(object? sender, ushort e)
     {
-        bluScore += 1;
-        OnUpdate(null);
-        tf2WinPanel.Show(bluScore, redScore, GetPartyList(), GetEnemyName(), Tf2Window.TeamColor.Blu.Background);
+        playerTeamScore += 1;
+        tf2WinPanel.PlayerTeam = playerTeam;
+        tf2WinPanel.Show(playerTeamScore, enemyTeamScore, GetPartyList(), GetEnemyName(), playerTeam);
         if (victorySound is null) return;
         SoundEngine.PlaySound(victorySound, true, 50);
     }
 
     private void OnWipe(object? sender, ushort e)
     {
-        redScore += 1;
-        tf2WinPanel.Show(bluScore, redScore, GetPartyList(), GetEnemyName(), Tf2Window.TeamColor.Red.Background);
+        enemyTeamScore += 1;
+        tf2WinPanel.PlayerTeam = playerTeam;
+        tf2WinPanel.Show(playerTeamScore, enemyTeamScore, GetPartyList(), GetEnemyName(), playerTeam.Enemy);
         if (failSound is null) return;
         SoundEngine.PlaySound(failSound, true, 50);
         lastEnemyTarget = null;
@@ -215,30 +230,38 @@ public class Tf2HudModule : IDisposable
         return enemy;
     }
 
-    private List<PartyMember> GetPartyList()
+    private static List<Tf2MvpMember> GetPartyList()
     {
-        return Service.PartyList.OrderBy(pm => pm.ClassJob.GameData.Role).ToList();
-    }
-
-    private class Enemy
-    {
-        public Enemy(GameObject gameObject)
+        if (Service.PartyList.Length == 0)
         {
-            id = gameObject.ObjectId;
-            name = gameObject.Name;
+            if (Service.ClientState.LocalPlayer is null) return new List<Tf2MvpMember>();
+            return new[]
+            {
+                new Tf2MvpMember()
+                {
+                    Name = Service.ClientState.LocalPlayer.Name.TextValue,
+                    ClassJobId = Service.ClientState.LocalPlayer.ClassJob.Id
+                }
+            }.ToList();
         }
-
-        public uint id { get; }
-        public SeString name { get; }
+        return Service.PartyList.OrderBy(pm => pm.ClassJob.GameData.Role).Select(pm => new Tf2MvpMember()
+        {
+            ClassJobId = pm.ClassJob.Id,
+            Name = pm.Name.TextValue
+        }).ToList();
     }
 
     private unsafe void UpdateTarget()
     {
         var playerId = PlayerState.Instance()->ObjectId;
         var targetObject = Service.ObjectTable.FirstOrDefault(go => go.ObjectId == playerId)?.TargetObject;
-        if (targetObject?.SubKind == (byte)BattleNpcSubKind.Enemy)
+        if (targetObject?.SubKind == (byte)BattleNpcSubKind.Enemy && targetObject is BattleNpc battleNpc)
         {
-            lastEnemyTarget = targetObject;
+            if (battleNpc.Name.TextValue != lastEnemyTarget?.Name.TextValue && battleNpc.MaxHp > 0.8f * (lastEnemyTarget?.MaxHp ?? 0))
+            {
+                lastEnemyTarget = battleNpc;
+                PluginLog.Debug($"New last enemy: {lastEnemyTarget?.Name}, HP: {lastEnemyTarget?.MaxHp}");
+            }
         }
     }
 }
