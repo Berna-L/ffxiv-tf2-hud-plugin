@@ -1,5 +1,6 @@
-﻿using System;
+﻿using System.Collections.Generic;
 using System.Numerics;
+using Dalamud.Game.ClientState.Party;
 using Dalamud.Interface.GameFonts;
 using ImGuiNET;
 using KamiLib.Drawing;
@@ -59,37 +60,32 @@ public class Tf2MvpList : Tf2Window
                                           ImGui.GetCursorScreenPos() + new Vector2(InnerFrameWidth, 0), Colors.White.ToU32());
         ImGui.SetCursorPosY(ImGui.GetCursorPosY() + 10);
         var middlePosX = ImGui.GetCursorPosX() + (ImGui.GetContentRegionAvail().X / 2);
-        var partySize = Service.PartyList.Length;
         ImGui.PushFont(playerNameFont.ImFont);
-        for (var i = 0; i < Math.Min(partySize, 4); i++)
+        for (var i = 0; i < PartyList.Count; i++)
         {
-            var leftPartyMember = Service.PartyList[i];
+            if (PartyList.Count <= i) break; 
+            var leftPartyMember = PartyList[i];
             if (leftPartyMember is null) break;
             ImGui.Image(GetClassJobIcon(leftPartyMember.ClassJob.Id)!.Value, ClassJobIconSize);
             ImGui.SameLine();
             ImGui.SetCursorPosY(ImGui.GetCursorPosY() + 6);
             ImGui.TextColored(TeamColor.Blu.Text, leftPartyMember.Name.TextValue);
-            var rightPartyMember = Service.PartyList[i + 4];
-            if (rightPartyMember is null) continue;
-            ImGui.SameLine();
-            ImGui.SetCursorPosX(middlePosX);
-            ImGui.Image(GetClassJobIcon(rightPartyMember.ClassJob.Id)!.Value, ClassJobIconSize);
-            ImGui.SameLine();
-            ImGui.SetCursorPosY(ImGui.GetCursorPosY() + 6);
-            ImGui.TextColored(TeamColor.Blu.Text, rightPartyMember.Name.TextValue);
+            if (PartyList.Count > 4 && PartyList.Count > i + 1)
+            {
+                var rightPartyMember = PartyList[i + 1];
+                if (rightPartyMember is null) continue;
+                i++;
+                ImGui.SameLine();
+                ImGui.SetCursorPosX(middlePosX);
+                ImGui.Image(GetClassJobIcon(rightPartyMember.ClassJob.Id)!.Value, ClassJobIconSize);
+                ImGui.SameLine();
+                ImGui.SetCursorPosY(ImGui.GetCursorPosY() + 6);
+                ImGui.TextColored(TeamColor.Blu.Text, rightPartyMember.Name.TextValue);
+            }
         }
         ImGui.PopFont();
-
-        // ImGui.Text("Highest Killstreak:");
-        // ImGui.SameLine();
-        // var count = "Count:";
-        // ImGui.SetCursorPosX(ImGui.GetCursorPosX() + ImGui.GetContentRegionAvail().X - ImGui.CalcTextSize(count).X);
-        // ImGui.Text(count);
-        // ImGui.GetWindowDrawList().AddLine(ImGui.GetCursorScreenPos() + new Vector2(0, 0),
-        //                                   ImGui.GetCursorScreenPos() + new Vector2(490, 0), Colors.White.ToU32());
-        // ImGui.SetCursorPosY(ImGui.GetCursorPosY() + 10);
-        // if (imGuiHandle is not null) ImGui.Image(imGuiHandle.Value, new Vector2(40, 40));
         ImGui.EndChildFrame();
+        
     }
 
     private nint? GetClassJobIcon(uint id)
@@ -100,6 +96,7 @@ public class Tf2MvpList : Tf2Window
 
     private static int InnerFrameWidth => (ScorePanelWidth * 2) - 21;
     private static int InnerFrameHeight => ScorePanelHeight - 85;
+    public List<PartyMember> PartyList { get; set; }
 
 
     public override void PostDraw()

@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Numerics;
 using Dalamud.Game;
+using Dalamud.Game.ClientState.Party;
 using KamiLib;
 using Tf2Hud.Common.Windows;
 
@@ -67,12 +69,13 @@ public class Tf2WinPanel : IDisposable
         return KamiCommon.WindowManager.GetWindowOfType<Tf2BluScore>()!;
     }
 
-    public void Show(int bluScore, int redScore, string lastEnemy, Vector4 victorColor)
+    public void Show(int bluScore, int redScore, List<PartyMember> partyList, string lastEnemy, Vector4 victorColor)
     {
         IsOpen = true;
         waitingForNewScore = true;
         timeOpened = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
         GetMvpList().BackgroundColor = victorColor;
+        GetMvpList().PartyList = partyList;
         GetMvpList().LastEnemy = lastEnemy;
         newBluScore = bluScore;
         newRedScore = redScore;

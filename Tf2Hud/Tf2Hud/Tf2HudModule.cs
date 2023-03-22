@@ -5,10 +5,12 @@ using System.Linq;
 using Dalamud.Game;
 using Dalamud.Game.ClientState.Objects.Enums;
 using Dalamud.Game.ClientState.Objects.Types;
+using Dalamud.Game.ClientState.Party;
 using Dalamud.Game.Text.SeStringHandling;
 using Dalamud.Logging;
 using Dalamud.Utility;
 using FFXIVClientStructs.FFXIV.Client.Game.Event;
+using FFXIVClientStructs.FFXIV.Client.Game.UI;
 using Gameloop.Vdf;
 using Gameloop.Vdf.Linq;
 using ImGuiNET;
@@ -24,7 +26,7 @@ namespace Tf2Hud.Tf2Hud;
 public class Tf2HudModule : IDisposable
 {
     private readonly Tf2WinPanel tf2WinPanel;
-    private readonly List<DeadEnemy> deadEnemies = new();
+    private GameObject? lastEnemyTarget;
 
     private byte[]? victorySound;
     private byte[]? failSound;
@@ -161,11 +163,7 @@ public class Tf2HudModule : IDisposable
     private void OnUpdate(Framework? framework)
     {
         UpdateTimer();
-        foreach (var deadEnemy in Service.ObjectTable.Where(ot => ot.SubKind == (int)BattleNpcSubKind.Enemy)
-                                         .Where(ot => ot.IsDead)
-                                         .Select(ot => new DeadEnemy(ot))
-                                         .Where(de => !deadEnemies.Contains(de)))
-            deadEnemies.Add(deadEnemy);
+        UpdateTarget();
     }
 
     private static unsafe void UpdateTimer()
@@ -190,37 +188,41 @@ public class Tf2HudModule : IDisposable
             Tf2WinPanel.ClearScores();
         }
 
-        deadEnemies.Clear();
     }
 
     private void OnComplete(object? sender, ushort e)
     {
         bluScore += 1;
         OnUpdate(null);
-        tf2WinPanel.Show(bluScore, redScore, deadEnemies.Last().name.TextValue, Tf2Window.TeamColor.Blu.Background);
+        tf2WinPanel.Show(bluScore, redScore, GetPartyList(), GetEnemyName(), Tf2Window.TeamColor.Blu.Background);
         if (victorySound is null) return;
         SoundEngine.PlaySound(victorySound, true, 50);
     }
 
     private void OnWipe(object? sender, ushort e)
     {
-        var enemy = Service.ObjectTable.Where(ot => ot.SubKind == (int)BattleNpcSubKind.Enemy)
-                           .Where(ot => !ot.IsDead)
-                           .Select(ot => ot.Name.TextValue)
-                           .Where(name => !name.IsNullOrWhitespace())
-                           .GroupBy(name => name)
-                           .OrderByDescending(g => g.Count())
-                           .Take(1).SingleOrDefault()?.Key?.Trim();
-        enemy = enemy.IsNullOrWhitespace() ? "an anonymous enemy" : enemy;
         redScore += 1;
-        tf2WinPanel.Show(bluScore, redScore, enemy, Tf2Window.TeamColor.Red.Background);
+        tf2WinPanel.Show(bluScore, redScore, GetPartyList(), GetEnemyName(), Tf2Window.TeamColor.Red.Background);
         if (failSound is null) return;
         SoundEngine.PlaySound(failSound, true, 50);
+        lastEnemyTarget = null;
     }
 
-    private class DeadEnemy
+    private string GetEnemyName()
     {
-        public DeadEnemy(GameObject gameObject)
+        var enemyName = lastEnemyTarget?.Name.TextValue;
+        var enemy = enemyName.IsNullOrWhitespace() ? "an anonymous enemy" : enemyName;
+        return enemy;
+    }
+
+    private List<PartyMember> GetPartyList()
+    {
+        return Service.PartyList.OrderBy(pm => pm.ClassJob.GameData.Role).ToList();
+    }
+
+    private class Enemy
+    {
+        public Enemy(GameObject gameObject)
         {
             id = gameObject.ObjectId;
             name = gameObject.Name;
@@ -228,5 +230,15 @@ public class Tf2HudModule : IDisposable
 
         public uint id { get; }
         public SeString name { get; }
+    }
+
+    private unsafe void UpdateTarget()
+    {
+        var playerId = PlayerState.Instance()->ObjectId;
+        var targetObject = Service.ObjectTable.FirstOrDefault(go => go.ObjectId == playerId)?.TargetObject;
+        if (targetObject?.SubKind == (byte)BattleNpcSubKind.Enemy)
+        {
+            lastEnemyTarget = targetObject;
+        }
     }
 }
