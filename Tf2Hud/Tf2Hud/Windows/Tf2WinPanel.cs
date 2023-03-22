@@ -57,6 +57,9 @@ public class Tf2WinPanel : IDisposable
 
     private void OnUpdate(Framework framework)
     {
+        BluScoreWindow.Position = configZero.WinPanel.GetPosition();
+        RedScoreWindow.Position = configZero.WinPanel.GetPosition() + new Vector2(Tf2Window.ScorePanelWidth, 0);
+        MvpListWindow.Position = configZero.WinPanel.GetPosition() + new Vector2(0, Tf2Window.ScorePanelHeight);
         var openedFor = DateTimeOffset.UtcNow.ToUnixTimeSeconds() - timeOpened;
         if (IsOpen && openedFor > 2 && waitingForNewScore)
         {
@@ -70,26 +73,11 @@ public class Tf2WinPanel : IDisposable
         if (RepositionMode)
         {
             IsOpen = true;
-            if (!GetRepositionWindow().IsOpen)
-            {
-                GetRepositionWindow().IsOpen = true;
-            }
-            BluScoreWindow.Position = GetRepositionWindow().Position;
-            RedScoreWindow.Position = GetRepositionWindow().Position + new Vector2(Tf2Window.ScorePanelWidth, 0);
-            MvpListWindow.Position = GetRepositionWindow().Position + new Vector2(0, Tf2Window.ScorePanelHeight);
-        }
-        else
-        {
-            GetRepositionWindow().IsOpen = false;
         }
 
         if (IsOpen && openedFor > configZero.WinPanel.TimeToClose.Value && !configZero.WinPanel.RepositionMode) IsOpen = false;
     }
 
-    private static Tf2WinPanelRepositionWindow GetRepositionWindow()
-    {
-        return KamiCommon.WindowManager.GetWindowOfType<Tf2WinPanelRepositionWindow>()!;
-    }
 
 
     private Tf2TeamScoreWindow GetPlayerTeamScoreWindow()

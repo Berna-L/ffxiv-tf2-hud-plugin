@@ -94,5 +94,7 @@ public class ConfigWindow : SelectionWindow, IDisposable
     public override void OnClose()
     {
         DialogManager.Reset();
+        config.Timer.RepositionMode.Value = false;
+        config.WinPanel.RepositionMode.Value = false;
     }
 }

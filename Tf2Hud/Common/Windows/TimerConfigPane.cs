@@ -18,6 +18,19 @@ public class TimerConfigPane: ConfigPane
             .AddConfigCheckbox("Enabled", configZero.Timer.Enabled)
             .AddConfigCheckbox("Repositioning mode", configZero.Timer.RepositionMode,
                                "Enables you to move this component. Disable to use it.")
+            .AddIndent(2)
+            .AddString("Position:")
+            .SameLine()
+            .BeginDisabled(!configZero.Timer.RepositionMode)
+            .AddDragFloat("##TimerXPosition", configZero.Timer.PositionX, 0, ImGui.GetMainViewport().Size.X, 100.0f)
+            .SameLine()
+            .AddString("x")
+            .SameLine()
+            .AddDragFloat("##TimerYPosition", configZero.Timer.PositionY, 0, ImGui.GetMainViewport().Size.Y, 100.0f)
+            .SameLine()
+            .AddButton("Default", () => configZero.Timer.RestoreDefaultPosition())
+            .EndDisabled()
+            .AddIndent(-2)
             .Draw();
     }
 }

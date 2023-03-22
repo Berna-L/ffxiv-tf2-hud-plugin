@@ -21,7 +21,20 @@ public class WinPanelConfigPane: ConfigPane
         new SimpleDrawList()
             .AddConfigCheckbox("Enabled", configZero.WinPanel.Enabled)
             .AddConfigCheckbox("Repositioning mode", configZero.WinPanel.RepositionMode,
-                               "Enables you to move this component. Disable to use it.")
+                               "Shows the component and enables the controls below. Disable to use it.")
+            .AddIndent(2)
+            .AddString("Position:")
+            .SameLine()
+            .BeginDisabled(!configZero.WinPanel.RepositionMode)
+            .AddDragFloat("##WinPanelXPosition", configZero.WinPanel.PositionX, 0, ImGui.GetMainViewport().Size.X, 100.0f)
+            .SameLine()
+            .AddString("x")
+            .SameLine()
+            .AddDragFloat("##WinPanelYPosition", configZero.WinPanel.PositionY, 0, ImGui.GetMainViewport().Size.Y, 100.0f)
+            .SameLine()
+            .AddButton("Default", () => configZero.WinPanel.RestoreDefaultPosition())
+            .EndDisabled()
+            .AddIndent(-2)
             .Draw();
 
         InfoBox.Instance

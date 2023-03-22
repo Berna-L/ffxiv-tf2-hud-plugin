@@ -9,14 +9,12 @@ namespace Tf2Hud.Tf2Hud.Windows;
 public class Tf2Timer : Tf2Window
 {
     private readonly ConfigZero configZero;
-    private static readonly Vector2 DefaultPosition = new((ImGui.GetMainViewport().Size.X / 2) - 110, 50);
 
     public Tf2Timer(ConfigZero configZero) : base("##Tf2Timer", Team.Blu)
     {
         this.configZero = configZero;
         Size = new Vector2(220, 70);
-        PositionCondition = ImGuiCond.FirstUseEver;
-        Position = DefaultPosition;
+        PositionCondition = ImGuiCond.Always;
     }
 
     public long? TimeRemaining { private get; set; }
@@ -24,6 +22,7 @@ public class Tf2Timer : Tf2Window
     
     public override void Draw()
     {
+        Position = configZero.Timer.GetPosition();
         if (TimeRemaining is null or 0)
         {
             MaxTime = null;

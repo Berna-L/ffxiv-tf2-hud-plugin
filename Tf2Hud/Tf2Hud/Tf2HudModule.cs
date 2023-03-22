@@ -81,7 +81,6 @@ public class Tf2HudModule : IDisposable
         KamiCommon.WindowManager.AddWindow(new Tf2BluScoreWindow());
         KamiCommon.WindowManager.AddWindow(new Tf2RedScoreWindow());
         KamiCommon.WindowManager.AddWindow(new Tf2MvpList());
-        KamiCommon.WindowManager.AddWindow(new Tf2WinPanelRepositionWindow());
         KamiCommon.WindowManager.AddWindow(new Tf2Timer(this.configZero));
         
         tf2WinPanel = new Tf2WinPanel(this.configZero, playerTeam, GetPartyList(), scoreDingSound);
