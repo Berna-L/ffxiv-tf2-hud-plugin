@@ -65,7 +65,7 @@ public class Tf2WinPanel : IDisposable
         {
             GetPlayerTeamScoreWindow().Score = newPlayerTeamScore;
             GetEnemyTeamScoreWindow().Score = newEnemyTeamScore;
-            if (scoredSound is not null) SoundEngine.PlaySound(scoredSound, true, 50, 22050, 1);
+            if (scoredSound is not null) SoundEngine.PlaySound(scoredSound, configZero.ApplySfxVolume, configZero.Volume.Value, 22050, 1);
 
             waitingForNewScore = false;
         }

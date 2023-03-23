@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using Dalamud.Interface;
+using Dalamud.Logging;
 using Dalamud.Utility;
 using ImGuiNET;
 using KamiLib;
@@ -13,7 +14,9 @@ namespace Tf2Hud.Common.Windows;
 
 public class GeneralConfigPane: ConfigPane
 {
-    
+    private readonly byte[]?[] testSounds = {Tf2HudModule.VictorySound, Tf2HudModule.FailSound };
+    private static readonly string testSoundId = "TF2HUD+TestSound";
+
     public GeneralConfigPane(ConfigZero configZero): base(configZero)
     {
     }
@@ -36,6 +39,22 @@ public class GeneralConfigPane: ConfigPane
                .Draw();
         
         InfoBox.Instance
+               .AddTitle("Volume")
+               .AddConfigCheckbox("Affected by the game's sound effects volume", configZero.ApplySfxVolume,
+                                  "If enabled, consider the volume set here to be in relation to the game's other SFX," +
+                                  "\nsince the effective volume will also vary with your Master and Sound Effects volume." +
+                                  "\nIf disabled, It'll always play at the set volume, even if the game is muted internally.")
+               .AddSliderInt("Volume##TF2GeneralVolume", configZero.Volume, 0, 100)
+               .SameLine()
+               .StartConditional(IsSoundTextPlaying())
+               .AddIconButton("##TF2GeneralVolumeStop", FontAwesomeIcon.Stop, StopSoundTest)
+               .EndConditional()
+               .StartConditional(!IsSoundTextPlaying())
+               .AddIconButton("##TF2GeneralVolumePlay", FontAwesomeIcon.Play, PlaySoundTest)
+               .EndConditional()
+               .Draw();
+        
+        InfoBox.Instance
                .AddTitle("Team Fortress 2 install folder")
                .AddInputString("##TF2InstallFolder", configZero.Tf2InstallPath, 512, ImGuiInputTextFlags.ReadOnly)
                .StartConditional(configZero.Tf2InstallPathAutoDetected)
@@ -50,7 +69,27 @@ public class GeneralConfigPane: ConfigPane
                .EndConditional()
                .Draw();
     }
-    
+
+    private void PlaySoundTest()
+    {
+        var nextDouble = Random.Shared.NextDouble();
+        PluginLog.Debug($"{nextDouble.ToString()} | {nextDouble * testSounds.Length}");
+        var selectedSound = testSounds[(int)Math.Floor(nextDouble * testSounds.Length)];
+        if (selectedSound is null) return;
+        if (SoundEngine.IsPlaying(testSoundId)) return;
+        SoundEngine.PlaySound(selectedSound, configZero.ApplySfxVolume, configZero.Volume.Value, id: testSoundId);
+    }
+
+    private static void StopSoundTest()
+    {
+        SoundEngine.StopSound(id: testSoundId);
+    }
+
+    private bool IsSoundTextPlaying()
+    {
+        return SoundEngine.IsPlaying(testSoundId);
+    }
+
     private static void openFolderDialog(Setting<string> filePath)
     {
         CommonFileDialogManager.DialogManager.OpenFolderDialog(

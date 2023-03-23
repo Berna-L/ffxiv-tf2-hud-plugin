@@ -41,6 +41,9 @@ public class ConfigZero : BaseConfiguration
     
     public Setting<TeamPreferenceKind> TeamPreference { get; set; } = new(TeamPreferenceKind.Random);
 
+    public Setting<int> Volume { get; set; } = new(50);
+    public Setting<bool> ApplySfxVolume { get; set; } = new(true);
+    
     public TimerConfigZero Timer = new();
     public WinPanelConfigZero WinPanel = new();
 

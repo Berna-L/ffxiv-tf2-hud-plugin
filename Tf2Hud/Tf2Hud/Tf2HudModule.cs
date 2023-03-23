@@ -32,9 +32,9 @@ public class Tf2HudModule : IDisposable
     private readonly Tf2WinPanel tf2WinPanel;
     private BattleNpc? lastEnemyTarget;
 
-    private byte[]? victorySound;
-    private byte[]? failSound;
-    private byte[]? scoreDingSound;
+    public static byte[]? VictorySound;
+    public static byte[]? FailSound;
+    public static byte[]? ScoreDingSound;
 
     private ImFontPtr tf2Font;
     private ImFontPtr tf2ScoreFont;
@@ -83,7 +83,7 @@ public class Tf2HudModule : IDisposable
         KamiCommon.WindowManager.AddWindow(new Tf2MvpList());
         KamiCommon.WindowManager.AddWindow(new Tf2Timer(this.configZero));
         
-        tf2WinPanel = new Tf2WinPanel(this.configZero, playerTeam, GetPartyList(), scoreDingSound);
+        tf2WinPanel = new Tf2WinPanel(this.configZero, playerTeam, GetPartyList(), ScoreDingSound);
 
 
     }
@@ -183,9 +183,9 @@ public class Tf2HudModule : IDisposable
         if (!Path.Exists(tf2VpkPath)) return;
         using var package = new VpkPackage(tf2VpkPath);
 
-        victorySound = LoadSoundFile(package, "sound/misc/your_team_won.wav");
-        failSound = LoadSoundFile(package, "sound/misc/your_team_lost.wav");
-        scoreDingSound = LoadSoundFile(package, "sound/ui/scored.wav");
+        VictorySound = LoadSoundFile(package, "sound/misc/your_team_won.wav");
+        FailSound = LoadSoundFile(package, "sound/misc/your_team_lost.wav");
+        ScoreDingSound = LoadSoundFile(package, "sound/ui/scored.wav");
         
         package.Dispose();
         
@@ -289,8 +289,8 @@ public class Tf2HudModule : IDisposable
         playerTeamScore += 1;
         tf2WinPanel.PlayerTeam = playerTeam;
         tf2WinPanel.Show(playerTeamScore, enemyTeamScore, GetPartyList(), GetEnemyName(), playerTeam);
-        if (victorySound is null) return;
-        SoundEngine.PlaySound(victorySound, true, 50);
+        if (VictorySound is null) return;
+        SoundEngine.PlaySound(VictorySound, configZero.ApplySfxVolume, configZero.Volume.Value);
     }
 
     private void OnWipe(object? sender, ushort e)
@@ -298,8 +298,8 @@ public class Tf2HudModule : IDisposable
         enemyTeamScore += 1;
         tf2WinPanel.PlayerTeam = playerTeam;
         tf2WinPanel.Show(playerTeamScore, enemyTeamScore, GetPartyList(), GetEnemyName(), playerTeam.Enemy);
-        if (failSound is null) return;
-        SoundEngine.PlaySound(failSound, true, 50);
+        if (FailSound is null) return;
+        SoundEngine.PlaySound(FailSound, configZero.ApplySfxVolume, configZero.Volume.Value);
         lastEnemyTarget = null;
     }
 
