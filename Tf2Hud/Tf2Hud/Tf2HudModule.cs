@@ -47,7 +47,7 @@ public class Tf2HudModule : IDisposable
     private int playerTeamScore;
     private int enemyTeamScore;
     private readonly string? tf2InstallFolder;
-    private static readonly Tf2Timer? GetTimer = KamiCommon.WindowManager.GetWindowOfType<Tf2Timer>();
+    private static Tf2Timer? GetTimer => KamiCommon.WindowManager.GetWindowOfType<Tf2Timer>();
     private readonly ConfigZero configZero;
 
 
@@ -232,6 +232,7 @@ public class Tf2HudModule : IDisposable
 
         if (!GetTimer.IsOpen)
         {
+            PluginLog.Debug("got here");
             GetTimer.IsOpen = timerMoveMode && enabled;
         }
         if (GetTimer is { IsOpen: true } window)
