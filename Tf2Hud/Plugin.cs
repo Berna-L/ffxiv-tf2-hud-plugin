@@ -16,13 +16,13 @@ namespace Tf2Hud;
 
 public sealed class Plugin : IDalamudPlugin
 {
-    public const string PluginName = "Team Fortress 2 HUD";
-    private const string CommandName = "/tf2hudconfig";
+    public const string PluginName = "Team Fortress Fantasy";
+    private const string CommandName = "/tfconfig";
 
     private readonly Tf2HudModule? tf2HudModule;
 
 
-    public readonly WindowSystem WindowSystem = new("Tf2Hud");
+    public readonly WindowSystem WindowSystem = new("TeamFortressFantasy");
 
 
     public Plugin(DalamudPluginInterface pluginInterface)
@@ -41,7 +41,7 @@ public sealed class Plugin : IDalamudPlugin
 
         Service.CommandManager.AddHandler(CommandName, new CommandInfo(OnConfigCommand)
         {
-            HelpMessage = "Opens the TF2 HUD configuration window"
+            HelpMessage = "Opens the Team Fortress Fantasy configuration window"
         });
 
 
