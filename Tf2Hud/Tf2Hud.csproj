@@ -89,9 +89,5 @@
         <ProjectReference Include="..\KamiLib\KamiLib.csproj" />
     </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="Game" />
-    </ItemGroup>
-
 
 </Project>

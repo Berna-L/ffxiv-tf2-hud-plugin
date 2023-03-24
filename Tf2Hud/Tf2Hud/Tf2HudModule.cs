@@ -232,7 +232,6 @@ public class Tf2HudModule : IDisposable
 
         if (!GetTimer.IsOpen)
         {
-            PluginLog.Debug("got here");
             GetTimer.IsOpen = timerMoveMode && enabled;
         }
         if (GetTimer is { IsOpen: true } window)
