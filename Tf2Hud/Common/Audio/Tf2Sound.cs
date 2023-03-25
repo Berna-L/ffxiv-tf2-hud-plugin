@@ -46,15 +46,12 @@ public class Tf2Sound
 
     private static Audio? LoadSoundFile(IPackage package, string filePath)
     {
-        switch (Path.GetExtension(filePath).ToLower())
+        return Path.GetExtension(filePath).ToLower() switch
         {
-            case ".wav":
-                return LoadWavFile(package, filePath);
-            case ".mp3":
-                return LoadMp3File(package, filePath);
-        }
-
-        return null;
+            ".wav" => LoadWavFile(package, filePath),
+            ".mp3" => LoadMp3File(package, filePath),
+            _ => null
+        };
     }
 
     private static Audio LoadWavFile(IPackage package, string filePath)

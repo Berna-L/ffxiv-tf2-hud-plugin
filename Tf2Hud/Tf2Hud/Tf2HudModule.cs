@@ -108,18 +108,18 @@ public class Tf2HudModule : IDisposable
 
     private static string? FindTf2InstallFolder()
     {
-        switch (BernaUtil.GetOS())
+        switch (BernaUtil.GetOperatingSystem())
         {
-            case BernaUtil.OS.WINDOWS:
+            case BernaUtil.OperatingSystem.Windows:
                 var subkey = Registry.CurrentUser.OpenSubKey(@"Software\Valve\Steam");
                 var winSteamPath = subkey?.GetValue("SteamPath")?.ToString();
                 return winSteamPath is null ? null : ReadTf2nstallPathFromLibraryVdf(winSteamPath);
-            case BernaUtil.OS.MACOS:
+            case BernaUtil.OperatingSystem.Macos:
                 var macSteamPath = Directory.GetDirectories(@"Z:\Users\")
                                             .Select(p => Path.Combine(p, "Library", "Application Support", "Steam"))
                                             .FirstOrDefault(Directory.Exists);
                 return macSteamPath is null ? null : ReadTf2nstallPathFromLibraryVdf(macSteamPath);
-            case BernaUtil.OS.LINUX:
+            case BernaUtil.OperatingSystem.Linux:
                 var linuxSteamPath = Directory.GetDirectories(@"Z:\home\")
                                               .Select(p => Path.Combine(p, ".steam", "steam"))
                                               .FirstOrDefault(Directory.Exists);

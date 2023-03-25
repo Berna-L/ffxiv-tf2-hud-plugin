@@ -4,19 +4,16 @@ namespace Tf2Hud.Common;
 
 public class BernaUtil
 {
-    public enum OS
+    public enum OperatingSystem
     {
-        WINDOWS,
-        MACOS,
-        LINUX
+        Windows,
+        Macos,
+        Linux
     }
 
-    public static OS GetOS()
+    public static OperatingSystem GetOperatingSystem()
     {
-        if (!Dalamud.Utility.Util.IsLinux()) return OS.WINDOWS;
-
-        if (Path.Exists("Z:/Users/")) return OS.MACOS;
-
-        return OS.LINUX;
+        if (!Dalamud.Utility.Util.IsLinux()) return OperatingSystem.Windows;
+        return Path.Exists("Z:/Users/") ? OperatingSystem.Macos : OperatingSystem.Linux;
     }
 }

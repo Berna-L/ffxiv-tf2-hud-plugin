@@ -11,7 +11,7 @@ public class Audio
     public Audio(byte[] data, WaveFormatEncoding encoding, WaveFormat metadata)
     {
         Data = data;
-        // WaveFormat has type, but it doesn't seem to be that reliable.
+        // WaveFormat has type, but it doesn't seem to be that reliable (MP3 doesn't report MpegLayer3).
         Encoding = encoding;
         Metadata = metadata;
     }
