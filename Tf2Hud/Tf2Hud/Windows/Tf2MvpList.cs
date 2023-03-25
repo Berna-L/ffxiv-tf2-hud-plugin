@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Numerics;
 using Dalamud.Interface.GameFonts;
+using Dalamud.Interface.Raii;
 using Dalamud.Utility;
 using ImGuiNET;
 using KamiLib.Drawing;
@@ -18,7 +19,9 @@ public class Tf2MvpList : Tf2Window
     private readonly GameFontHandle playerNameFont;
     private static readonly Vector2 ClassJobIconSize = new(32, 32);
     private static readonly Vector2 DefaultPosition = new((ImGui.GetMainViewport().Size.X / 2) - ScorePanelWidth, ImGui.GetMainViewport().Size.Y - 500 + ScorePanelHeight);
-    
+    private ImRaii.Style frameRounding;
+    private ImRaii.Color windowBg; 
+
 
     public Tf2MvpList() : base("##Tf2MvpList", Team.Red)
     {
@@ -37,8 +40,8 @@ public class Tf2MvpList : Tf2Window
     {
         base.PreDraw();
         Service.Log($"Tf2MvpList - PostDraw");
-        ImGui.PushStyleVar(ImGuiStyleVar.FrameRounding, 0f);
-        ImGui.PushStyleColor(ImGuiCol.WindowBg, WinningTeam.BgColor);
+        frameRounding = ImRaii.PushStyle(ImGuiStyleVar.FrameRounding, 0f);
+        windowBg = ImRaii.PushColor(ImGuiCol.WindowBg, WinningTeam.BgColor);
     }
 
     public override void Draw()
@@ -105,6 +108,14 @@ public class Tf2MvpList : Tf2Window
         
     }
 
+    public override void PostDraw()
+    {
+        Service.Log($"Tf2MvpList - PostDraw");
+        windowBg.Dispose();
+        frameRounding.Dispose();
+        base.PostDraw();
+    }
+
     private nint? GetClassJobIcon(uint id)
     {
         var iconId = jobIconSets.GetJobIcon(JobIconSetName.Framed, id);
@@ -113,21 +124,16 @@ public class Tf2MvpList : Tf2Window
 
 
     private static int InnerFrameWidth => (ScorePanelWidth * 2) - 21;
+
     private static int InnerFrameHeight => MvpListHeight - 85;
+
     public List<Tf2MvpMember> PartyList { get; set; }
-    
+
     public NameDisplayKind NameDisplay { get; set; }
+
     public Team PlayerTeam { get; set; }
+
     public Team WinningTeam { get; set; }
-
-
-    public override void PostDraw()
-    {
-        Service.Log($"Tf2MvpList - PostDraw");
-        ImGui.PopStyleColor();
-        ImGui.PopStyleVar();
-        base.PostDraw();
-    }
 }
 
 static class Extension

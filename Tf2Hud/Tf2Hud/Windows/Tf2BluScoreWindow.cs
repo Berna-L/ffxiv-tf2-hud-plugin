@@ -1,4 +1,5 @@
 ﻿using System.Numerics;
+using Dalamud.Interface.Raii;
 using ImGuiNET;
 using Tf2Hud.Common.Windows;
 
@@ -14,9 +15,10 @@ public class Tf2BluScoreWindow : Tf2TeamScoreWindow
 
     public override void Draw()
     {
-        ImGui.PushFont(Tf2SecondaryFont);
-        ImGuiHelper.TextShadow(Team.Name);
-        ImGui.PopFont();
+        using (ImRaii.PushFont(Tf2SecondaryFont))
+        {
+            ImGuiHelper.TextShadow(Team.Name);
+        }
         var calcTextSize = ImGuiHelper.CalcTextSize(Tf2ScoreFont, Score.ToString());
         ImGuiHelper.ForegroundTextShadow(Tf2ScoreFont, Score.ToString(),
                                          ImGui.GetCursorScreenPos() + ImGui.GetContentRegionAvail() with { Y = -85 } -

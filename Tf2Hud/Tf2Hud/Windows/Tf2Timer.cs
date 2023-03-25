@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Numerics;
+using Dalamud.Interface.Raii;
 using ImGuiNET;
 using KamiLib.Drawing;
 using Tf2Hud.Common.Configuration;
@@ -8,7 +9,9 @@ namespace Tf2Hud.Tf2Hud.Windows;
 
 public class Tf2Timer : Tf2Window
 {
+    private const int CircleRadius = 25;
     private readonly ConfigZero configZero;
+    private static Vector2 CircleCenter => ImGui.GetWindowPos() + new Vector2(185, 35);
 
     public Tf2Timer(ConfigZero configZero) : base("##Tf2Timer", Team.Blu)
     {
@@ -67,32 +70,42 @@ public class Tf2Timer : Tf2Window
             MaxTime = TimeRemaining;
         }
         
-        var text = $"{TimeRemaining / 60}:{(TimeRemaining % 60).ToString()?.PadLeft(2, '0')}";
         Service.Log($"Tf2Timer - Everything OK to starting creating the window itself.");
-        ImGui.PushFont(Tf2Font);
-        var regionAvailable = ImGui.GetContentRegionAvail();
-        var timerSize = ImGui.CalcTextSize(text);
-        var circleCenter = ImGui.GetWindowPos() + new Vector2(185, 35);
-        const int circleRadius = 25;
-        ImGui.SetCursorPosX(((regionAvailable.X - (circleRadius * 2) - timerSize.X) / 2) + 10);
-        ImGui.SetCursorPosY(((regionAvailable.Y - timerSize.Y) / 2) + 10);
-        ImGui.Text(text);
-        ImGui.PopFont();
+
+        DrawTimerText();
         ImGui.SameLine();
+        DrawTimerCircle();
+    }
+
+    private void DrawTimerText()
+    {
+        using (ImRaii.PushFont(Tf2Font))
+        {
+            var text = $"{TimeRemaining / 60}:{(TimeRemaining % 60).ToString()?.PadLeft(2, '0')}";
+            var regionAvailable = ImGui.GetContentRegionAvail();
+            var timerSize = ImGui.CalcTextSize(text);
+            ImGui.SetCursorPosX(((regionAvailable.X - (CircleRadius * 2) - timerSize.X) / 2) + 10);
+            ImGui.SetCursorPosY(((regionAvailable.Y - timerSize.Y) / 2) + 10);
+            ImGui.Text(text);
+        }
+    }
+
+    private void DrawTimerCircle()
+    {
         ImGui.GetForegroundDrawList()
-             .AddCircleFilled(circleCenter, circleRadius, new Vector4(49 / 255f, 44 / 255f, 41 / 255f, 1f).ToU32());
+             .AddCircleFilled(CircleCenter, CircleRadius, new Vector4(49 / 255f, 44 / 255f, 41 / 255f, 1f).ToU32());
         var startAngle = GetAngleValue(0);
         var normalizedTimeRemaining = (float)((MaxTime - (MaxTime - TimeRemaining)) / (float)MaxTime);
         var color = (normalizedTimeRemaining > 0.1f ? Colors.White : Colors.Red).ToU32();
-        ImGui.GetForegroundDrawList().PathArcTo(circleCenter, circleRadius, startAngle,
+        ImGui.GetForegroundDrawList().PathArcTo(CircleCenter, CircleRadius, startAngle,
                                                 GetAngleValue(Math.Min(0.5f, normalizedTimeRemaining)));
-        ImGui.GetForegroundDrawList().PathLineTo(circleCenter);
+        ImGui.GetForegroundDrawList().PathLineTo(CircleCenter);
         ImGui.GetForegroundDrawList().PathFillConvex(color);
         if (normalizedTimeRemaining >= 0.5f)
         {
-            ImGui.GetForegroundDrawList().PathArcTo(circleCenter, circleRadius, GetAngleValue(0.5f),
+            ImGui.GetForegroundDrawList().PathArcTo(CircleCenter, CircleRadius, GetAngleValue(0.5f),
                                                     GetAngleValue(normalizedTimeRemaining));
-            ImGui.GetForegroundDrawList().PathLineTo(circleCenter);
+            ImGui.GetForegroundDrawList().PathLineTo(CircleCenter);
             ImGui.GetForegroundDrawList().PathFillConvex(color);
         }
     }

@@ -58,13 +58,10 @@ public class Tf2WinPanel : IDisposable
 
     private void OnUpdate(Framework framework)
     {
-        Service.Log("Tf2WinPanel - OnUpdate start");
         var openedFor = DateTimeOffset.UtcNow.ToUnixTimeSeconds() - timeOpened;
-        Service.Log($"Tf2WinPanel - Opened for {openedFor} seconds");
 
         if (IsOpen)
         {
-            Service.Log($"Tf2WinPanel - it's open!");
             BluScoreWindow.Position = configZero.WinPanel.GetPosition();
             RedScoreWindow.Position = configZero.WinPanel.GetPosition() + new Vector2(Tf2Window.ScorePanelWidth, 0);
             MvpListWindow.Position = configZero.WinPanel.GetPosition() + new Vector2(0, Tf2Window.ScorePanelHeight);
