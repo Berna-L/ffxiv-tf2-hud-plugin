@@ -1,5 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.IO;
+using System.Linq;
+using System.Numerics;
 using Dalamud.Interface;
 using Dalamud.Logging;
 using Dalamud.Utility;
@@ -7,7 +11,9 @@ using ImGuiNET;
 using KamiLib;
 using KamiLib.Configuration;
 using KamiLib.Drawing;
+using Lumina.Excel.GeneratedSheets;
 using Tf2Hud.Common.Configuration;
+using Tf2Hud.Common.Util;
 using Tf2Hud.Tf2Hud;
 using Tf2Hud.Tf2Hud.Model;
 
@@ -16,10 +22,18 @@ namespace Tf2Hud.Common.Windows;
 public class GeneralConfigPane: ConfigPane
 {
     private readonly byte[]?[] testSounds = {Tf2HudModule.VictorySound, Tf2HudModule.FailSound };
-    private static readonly string testSoundId = "TF2HUD+TestSound";
-
+    private const string TestSoundId = "TF2HUD+TestSound";
+    private readonly float longestJobNameLength;
+    
     public GeneralConfigPane(ConfigZero configZero): base(configZero)
     {
+        foreach (var s in Constants.CombatJobs.Values.Select(cj => cj.NameEnglish).Select(cj => cj.ToString()).OrderByDescending(n => ImGui.CalcTextSize(n).X))
+        {
+            PluginLog.LogDebug($"{s} | {ImGui.CalcTextSize(s)}");
+        }
+
+        longestJobNameLength = Constants.CombatJobs.Values.Select(cj => cj.NameEnglish).Select(cj => cj.ToString())
+                                        .Select(n => ImGui.CalcTextSize(n).X).OrderDescending().First();
     }
 
     
@@ -30,6 +44,17 @@ public class GeneralConfigPane: ConfigPane
 
     public override void Draw()
     {
+        DrawTeamSection();
+        
+        DrawClassSection();
+        
+        DrawVolumeSection();
+        
+        DrawInstallFolder();
+    }
+
+    private void DrawTeamSection()
+    {
         InfoBox.Instance
                .AddTitle("Team")
                .AddConfigRadio(Tf2Team.Blu.Name, configZero.TeamPreference, TeamPreferenceKind.Blu)
@@ -38,7 +63,52 @@ public class GeneralConfigPane: ConfigPane
                .SameLine()
                .AddConfigRadio("Randomize every instance", configZero.TeamPreference, TeamPreferenceKind.Random)
                .Draw();
-        
+    }
+
+    private void DrawClassSection()
+    {
+        var infoBox = InfoBox.Instance;
+        infoBox
+            .AddTitle("Your TF2 Class")
+            .AddString("Note: This will be used in the future...", Colors.Orange)
+            .AddConfigCheckbox("Set a TF2 Class per job", configZero.Class.UsePerJob,
+                               "Check to define a TF2 Class per Combat Job.\nUncheck to use the same TF2 Class for all jobs.")
+            .StartConditional(!configZero.Class.UsePerJob)
+            .AddString("Global Class")
+            .SameLine()
+            .AddConfigCombo(Enum.GetValues<Tf2Class>(), configZero.Class.GlobalClass, Enum.GetName, "##TF2HUD#General#GlobalClass", width: 100f)
+            .EndConditional()
+            .StartConditional(configZero.Class.UsePerJob)
+            .AddAction(DrawClassComboBoxes)
+            .EndConditional()
+            .Draw();
+    }
+
+    private void DrawClassComboBoxes()
+    {
+        var simpleDrawList = new SimpleDrawList();
+        foreach (var (classJob, tf2Class) in configZero.Class.ClassPerJob
+                                                       .Select(kv => new KeyValuePair<ClassJob, Setting<Tf2Class>>(Constants.CombatJobs[kv.Key], kv.Value))
+                                                       .OrderBy(kv => kv.Key.Role)
+                                                       .ThenBy(kv => kv.Key.NameEnglish.ToString()))
+        {
+            simpleDrawList.AddString(classJob.NameEnglish, GetJobColor(classJob))
+                          .SameLine(longestJobNameLength + 20)
+                          .AddConfigCombo(Enum.GetValues<Tf2Class>(), tf2Class, Enum.GetName, $"##TF2HUD#General#JobClass#{classJob.Abbreviation}", width: 100f);
+        }
+        simpleDrawList.Draw();
+    }
+    
+    private static Vector4 GetJobColor(ClassJob classJob) => classJob.Role switch
+    {
+        1 => Colors.Blue,
+        4 => Colors.HealerGreen,
+        _ => Colors.DPSRed
+    };
+
+
+    private void DrawVolumeSection()
+    {
         InfoBox.Instance
                .AddTitle("Volume")
                .AddConfigCheckbox("Affected by the game's sound effects volume", configZero.ApplySfxVolume,
@@ -54,7 +124,10 @@ public class GeneralConfigPane: ConfigPane
                .AddIconButton("##TF2GeneralVolumePlay", FontAwesomeIcon.Play, PlaySoundTest)
                .EndConditional()
                .Draw();
-        
+    }
+
+    private void DrawInstallFolder()
+    {
         InfoBox.Instance
                .AddTitle("Team Fortress 2 install folder")
                .AddInputString("##TF2InstallFolder", configZero.Tf2InstallPath, 512, ImGuiInputTextFlags.ReadOnly)
@@ -73,22 +146,20 @@ public class GeneralConfigPane: ConfigPane
 
     private void PlaySoundTest()
     {
-        var nextDouble = Random.Shared.NextDouble();
-        PluginLog.Debug($"{nextDouble.ToString()} | {nextDouble * testSounds.Length}");
-        var selectedSound = testSounds[(int)Math.Floor(nextDouble * testSounds.Length)];
+        var selectedSound = testSounds.Random();
         if (selectedSound is null) return;
-        if (SoundEngine.IsPlaying(testSoundId)) return;
-        SoundEngine.PlaySound(selectedSound, configZero.ApplySfxVolume, configZero.Volume.Value, id: testSoundId);
+        if (SoundEngine.IsPlaying(TestSoundId)) return;
+        SoundEngine.PlaySound(selectedSound, configZero.ApplySfxVolume, configZero.Volume.Value, id: TestSoundId);
     }
 
     private static void StopSoundTest()
     {
-        SoundEngine.StopSound(id: testSoundId);
+        SoundEngine.StopSound(id: TestSoundId);
     }
 
     private bool IsSoundTextPlaying()
     {
-        return SoundEngine.IsPlaying(testSoundId);
+        return SoundEngine.IsPlaying(TestSoundId);
     }
 
     private static void openFolderDialog(Setting<string> filePath)
