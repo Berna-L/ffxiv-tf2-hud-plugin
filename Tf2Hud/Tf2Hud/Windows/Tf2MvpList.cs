@@ -65,7 +65,7 @@ public class Tf2MvpList : Tf2Window
 
         using var alpha = ImRaii.PushStyle(ImGuiStyleVar.Alpha, 0.85f);
         using var frameBg = ImRaii.PushColor(ImGuiCol.FrameBg, Colors.Black.ToU32());
-        ImGui.BeginChildFrame((uint) Math.Abs(Random.Shared.Next()), new Vector2(InnerFrameWidth, InnerFrameHeight));
+        ImGui.BeginChildFrame(1, new Vector2(InnerFrameWidth, InnerFrameHeight));
         ImGui.Text($"{PlayerTeam.Name} team MVPs:");
         ImGui.SameLine();
         ImGui.SetCursorPosX(ImGui.GetCursorPosX() + ImGui.GetContentRegionAvail().X - ImGui.CalcTextSize(PointsThisRound).X);
