@@ -10,27 +10,32 @@ using KamiLib.Caching;
 using KamiLib.Drawing;
 using Pilz.Dalamud.Icons;
 using Tf2Hud.Common.Configuration;
+using Tf2Hud.Common.Model;
 using Tf2Hud.Common.Windows;
-using Tf2Hud.Tf2Hud.Model;
+using Tf2Hud.Tf2Hud.Configuration;
 
 namespace Tf2Hud.Tf2Hud.Windows;
 
 public class Tf2MvpList : Tf2Window
 {
     private const string PointsThisRound = "(everyone is an MVP :)";
+    private static readonly Vector2 ClassJobIconSize = new(32, 32);
+
+    private static readonly Vector2 DefaultPosition = new((ImGui.GetMainViewport().Size.X / 2) - ScorePanelWidth,
+                                                          ImGui.GetMainViewport().Size.Y - 500 + ScorePanelHeight);
+
     private readonly JobIconSets jobIconSets;
     private readonly GameFontHandle playerNameFont;
-    private static readonly Vector2 ClassJobIconSize = new(32, 32);
-    private static readonly Vector2 DefaultPosition = new((ImGui.GetMainViewport().Size.X / 2) - ScorePanelWidth, ImGui.GetMainViewport().Size.Y - 500 + ScorePanelHeight);
     private ImRaii.Style frameRounding;
-    private ImRaii.Color windowBg; 
+    private ImRaii.Color windowBg;
 
 
     public Tf2MvpList() : base("##Tf2MvpList", Tf2Team.Red)
     {
         Size = new Vector2(ScorePanelWidth * 2, MvpListHeight);
         jobIconSets = new JobIconSets();
-        playerNameFont = Service.PluginInterface.UiBuilder.GetGameFontHandle(new GameFontStyle(GameFontFamily.Axis, 18));
+        playerNameFont =
+            Service.PluginInterface.UiBuilder.GetGameFontHandle(new GameFontStyle(GameFontFamily.Axis, 18));
         Position = DefaultPosition;
         PartyList = new List<Tf2MvpMember>();
         PlayerTeam = Tf2Team.Red;
@@ -38,6 +43,19 @@ public class Tf2MvpList : Tf2Window
     }
 
     public string? LastEnemy { get; set; }
+
+
+    private static int InnerFrameWidth => (ScorePanelWidth * 2) - 21;
+
+    private static int InnerFrameHeight => MvpListHeight - 85;
+
+    public List<Tf2MvpMember> PartyList { get; set; }
+
+    public NameDisplayKind NameDisplay { get; set; }
+
+    public Tf2Team PlayerTeam { get; set; }
+
+    public Tf2Team WinningTeam { get; set; }
 
     public override void PreDraw()
     {
@@ -59,7 +77,7 @@ public class Tf2MvpList : Tf2Window
         var winConditionMessage = WinningTeam == PlayerTeam
                                       ? $"{WinningTeam.Name} defeated {enemyName} before the time ran out"
                                       : $"{WinningTeam.Name}, led by {enemyName}, wiped {WinningTeam.Enemy.Name}";
-        
+
         ImGui.SetCursorPosX((ImGui.GetContentRegionAvail().X - ImGui.CalcTextSize(winConditionMessage).X) / 2);
         ImGui.Text(winConditionMessage);
 
@@ -68,13 +86,15 @@ public class Tf2MvpList : Tf2Window
         ImGui.BeginChildFrame(1, new Vector2(InnerFrameWidth, InnerFrameHeight));
         ImGui.Text($"{PlayerTeam.Name} team MVPs:");
         ImGui.SameLine();
-        ImGui.SetCursorPosX(ImGui.GetCursorPosX() + ImGui.GetContentRegionAvail().X - ImGui.CalcTextSize(PointsThisRound).X);
+        ImGui.SetCursorPosX(ImGui.GetCursorPosX() + ImGui.GetContentRegionAvail().X -
+                            ImGui.CalcTextSize(PointsThisRound).X);
         ImGui.Text(PointsThisRound);
         ImGui.GetWindowDrawList().AddLine(ImGui.GetCursorScreenPos() + new Vector2(0, 0),
-                                          ImGui.GetCursorScreenPos() + new Vector2(InnerFrameWidth, 0), Colors.White.ToU32());
+                                          ImGui.GetCursorScreenPos() + new Vector2(InnerFrameWidth, 0),
+                                          Colors.White.ToU32());
         ImGui.SetCursorPosY(ImGui.GetCursorPosY() + 10);
         var middlePosX = ImGui.GetCursorPosX() + (ImGui.GetContentRegionAvail().X / 2);
-        
+
         using var playerFont = ImRaii.PushFont(playerNameFont.ImFont);
         for (var i = 0; i < PartyList.Count; i++)
         {
@@ -90,6 +110,7 @@ public class Tf2MvpList : Tf2Window
                 DrawPlayer(rightPartyMember);
             }
         }
+
         ImGui.EndChildFrame();
     }
 
@@ -102,9 +123,8 @@ public class Tf2MvpList : Tf2Window
             ImGui.SameLine();
         }
         else
-        {
             ImGui.SetCursorPosX(ImGui.GetCursorPosX() + ClassJobIconSize.X);
-        }
+
         ImGui.SetCursorPosY(ImGui.GetCursorPosY() + 6);
         ImGui.TextColored(WinningTeam.TextColor, member.Name.ToDesiredFormat(NameDisplay));
     }
@@ -128,22 +148,9 @@ public class Tf2MvpList : Tf2Window
             return null;
         }
     }
-
-
-    private static int InnerFrameWidth => (ScorePanelWidth * 2) - 21;
-
-    private static int InnerFrameHeight => MvpListHeight - 85;
-
-    public List<Tf2MvpMember> PartyList { get; set; }
-
-    public NameDisplayKind NameDisplay { get; set; }
-
-    public Tf2Team PlayerTeam { get; set; }
-
-    public Tf2Team WinningTeam { get; set; }
 }
 
-static class Extension
+internal static class Extension
 {
     public static string ToDesiredFormat(this string s, NameDisplayKind nameDisplay)
     {

@@ -1,12 +1,14 @@
 ﻿using ImGuiNET;
 using KamiLib.Drawing;
 using Tf2Hud.Common.Configuration;
+using Tf2Hud.Common.Windows;
 
-namespace Tf2Hud.Common.Windows;
+namespace Tf2Hud.Tf2Hud.Windows.Configuration;
 
-public class TimerConfigPane: ConfigPane
+public class TimerConfigPane : ConfigPane
 {
     public TimerConfigPane(ConfigZero configZero) : base(configZero) { }
+
     public override void DrawLabel()
     {
         ImGui.TextColored(configZero.Timer.Enabled ? Colors.Green : Colors.Red, "Duty Timer");

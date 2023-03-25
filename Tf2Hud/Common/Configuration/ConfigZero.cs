@@ -5,42 +5,69 @@ using System.Linq;
 using ImGuiNET;
 using KamiLib.Configuration;
 using Newtonsoft.Json;
+using Tf2Hud.Common.Model;
 using Tf2Hud.Common.Util;
-using Tf2Hud.Configuration;
-using Tf2Hud.Tf2Hud.Model;
+using Tf2Hud.Tf2Hud.Configuration;
 using Tf2Hud.Tf2Hud.Windows;
 
 namespace Tf2Hud.Common.Configuration;
 
 public class ConfigZero : BaseConfiguration
 {
+    public readonly ClassConfigZero Class = new();
+    public readonly TimerConfigZero Timer = new();
+    public readonly WinPanelConfigZero WinPanel = new();
+
+    [NonSerialized]
+    public bool Tf2InstallPathAutoDetected;
+
     public ConfigZero()
     {
         Version = 0;
     }
 
+    public Setting<string> Tf2InstallPath { get; set; } = new(string.Empty);
+
+    public Setting<TeamPreferenceKind> TeamPreference { get; set; } = new(TeamPreferenceKind.Random);
+
+    public Setting<int> Volume { get; set; } = new(50);
+    public Setting<bool> ApplySfxVolume { get; set; } = new(true);
+
+    public void Save()
+    {
+        PluginVersion = PluginVersion.Current;
+        File.WriteAllText(Service.PluginInterface.ConfigFile.FullName,
+                          JsonConvert.SerializeObject(this, Formatting.Indented));
+    }
+
     public class ClassConfigZero
     {
+        public readonly IDictionary<uint, Setting<Tf2Class>> ClassPerJob = InitializeClassDictionary();
         public readonly Setting<bool> UsePerJob = new(false);
         public Setting<Tf2Class> GlobalClass { get; set; } = new(Enum.GetValues<Tf2Class>().Random());
-        public readonly IDictionary<uint, Setting<Tf2Class>> ClassPerJob = InitializeClassDictionary();
 
-        private static IDictionary<uint,Setting<Tf2Class>> InitializeClassDictionary()
+        public int Version { get; set; } = 0;
+
+        private static IDictionary<uint, Setting<Tf2Class>> InitializeClassDictionary()
         {
             return Constants.CombatJobs.Select(
                                 c => new KeyValuePair<uint, Tf2Class>(
                                     c.Key, Tf2ClassHelper.GetTf2ClassFromXivCombatClass(c.Value)))
                             .ToDictionary(it => it.Key, it => new Setting<Tf2Class>(it.Value));
         }
-
-        public int Version { get; set; } = 0;
     }
 
     public class TimerConfigZero : WindowModuleConfiguration
     {
-        public override float GetPositionXDefault() => (ImGui.GetMainViewport().Size.X / 2) - 110;
+        public override float GetPositionXDefault()
+        {
+            return (ImGui.GetMainViewport().Size.X / 2) - 110;
+        }
 
-        public override float GetPositionYDefault() => 50;
+        public override float GetPositionYDefault()
+        {
+            return 50;
+        }
     }
 
     public class WinPanelConfigZero : WindowModuleConfiguration
@@ -54,33 +81,40 @@ public class ConfigZero : BaseConfiguration
         public Setting<int> TimeToClose { get; set; } = new(10);
 
         public Setting<NameDisplayKind> NameDisplay { get; set; } = new(NameDisplayKind.FullName);
-        
-        public override float GetPositionXDefault() => (ImGui.GetMainViewport().Size.X / 2) - Tf2Window.ScorePanelWidth;
 
-        public override float GetPositionYDefault() => ImGui.GetMainViewport().Size.Y - 500;
+        public override float GetPositionXDefault()
+        {
+            return (ImGui.GetMainViewport().Size.X / 2) - Tf2Window.ScorePanelWidth;
+        }
+
+        public override float GetPositionYDefault()
+        {
+            return ImGui.GetMainViewport().Size.Y - 500;
+        }
     }
-    
-    public class VoiceLineConfigZero: ModuleConfiguration
+
+    public class VoiceLineConfigZero : ModuleConfiguration
     {
-        public int Version { get; set; } = 0;
-        public Setting<bool> SurpriseMe { get; set; } = new(true);
+        public VoiceLineTrigger MannUpWhenStartingHighEndDuty = new("Mann Up when starting a High-End Duty",
+                                                                    "Plays a random Administrator voiceline" +
+                                                                    "from Mann Up mode when starting a duty" +
+                                                                    "classified as High-End in the Duty Finder.");
 
         public VoiceLineConfigZero()
         {
             Enabled = new Setting<bool>(false);
         }
 
-        public VoiceLineTrigger MannUpWhenStartingHighEndDuty = new("Mann Up when starting a High-End Duty",
-                                                                    "Plays a random Administrator voiceline" +
-                                                                    "from Mann Up mode when starting a duty" +
-                                                                    "classified as High-End in the Duty Finder.");
+        public int Version { get; set; } = 0;
+        public Setting<bool> SurpriseMe { get; set; } = new(true);
 
-        public class VoiceLineTrigger: ModuleConfiguration
+        public class VoiceLineTrigger : ModuleConfiguration
         {
             [NonSerialized]
-            public readonly string Name;
-            [NonSerialized]
             public readonly string Description;
+
+            [NonSerialized]
+            public readonly string Name;
 
             public VoiceLineTrigger(string name, string description)
             {
@@ -88,29 +122,8 @@ public class ConfigZero : BaseConfiguration
                 Description = description;
             }
 
-            public Setting<bool> Heard { get; set; }= new(false);
+            public Setting<bool> Heard { get; set; } = new(false);
             public VoiceLineTrigger[] SubTriggers { get; set; } = Array.Empty<VoiceLineTrigger>();
         }
-    }
-    
-    public Setting<string> Tf2InstallPath { get; set; } = new(string.Empty);
-
-    [NonSerialized]
-    public bool Tf2InstallPathAutoDetected;
-    
-    public Setting<TeamPreferenceKind> TeamPreference { get; set; } = new(TeamPreferenceKind.Random);
-    
-    public Setting<int> Volume { get; set; } = new(50);
-    public Setting<bool> ApplySfxVolume { get; set; } = new(true);
-
-    public readonly ClassConfigZero Class = new();
-    public readonly TimerConfigZero Timer = new();
-    public readonly WinPanelConfigZero WinPanel = new();
-
-    public void Save()
-    {
-        PluginVersion = PluginVersion.Current;
-        File.WriteAllText(Service.PluginInterface.ConfigFile.FullName,
-                          JsonConvert.SerializeObject(this, Formatting.Indented));
     }
 }

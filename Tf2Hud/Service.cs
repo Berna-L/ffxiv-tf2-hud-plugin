@@ -48,6 +48,4 @@ public class Service
     public static PartyList PartyList { get; private set; } = null!;
 }
 
-public static class LogExtension
-
-{ }
+public static class LogExtension { }

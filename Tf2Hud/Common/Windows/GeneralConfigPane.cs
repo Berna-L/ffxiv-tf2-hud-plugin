@@ -10,26 +10,29 @@ using KamiLib;
 using KamiLib.Configuration;
 using KamiLib.Drawing;
 using Lumina.Excel.GeneratedSheets;
+using Tf2Hud.Common.Audio;
 using Tf2Hud.Common.Configuration;
+using Tf2Hud.Common.Model;
 using Tf2Hud.Common.Util;
-using Tf2Hud.Tf2Hud;
-using Tf2Hud.Tf2Hud.Audio;
-using Tf2Hud.Tf2Hud.Model;
 
 namespace Tf2Hud.Common.Windows;
 
-public class GeneralConfigPane: ConfigPane
+public class GeneralConfigPane : ConfigPane
 {
-    private readonly Audio?[] testSounds =  {Tf2Sound.Instance.VictorySound, Tf2Sound.Instance.FailSound, Tf2Sound.Instance.RandomMannUpSound };
     private const string TestSoundId = "TF2HUD+TestSound";
-    private readonly Lazy<float> longestJobNameLength = new(() => Constants.CombatJobs.Values.Select(cj => cj.NameEnglish).Select(cj => cj.ToString())
-                                                                           .Select(n => ImGui.CalcTextSize(n).X).OrderDescending().First());
-    
-    public GeneralConfigPane(ConfigZero configZero): base(configZero)
-    {
-    }
 
-    
+    private readonly Lazy<float> longestJobNameLength = new(() => Constants
+                                                                  .CombatJobs.Values.Select(cj => cj.NameEnglish)
+                                                                  .Select(cj => cj.ToString())
+                                                                  .Select(n => ImGui.CalcTextSize(n).X)
+                                                                  .OrderDescending().First());
+
+    private readonly Audio.Audio?[] testSounds =
+        { Tf2Sound.Instance.VictorySound, Tf2Sound.Instance.FailSound, Tf2Sound.Instance.RandomMannUpSound };
+
+    public GeneralConfigPane(ConfigZero configZero) : base(configZero) { }
+
+
     public override void DrawLabel()
     {
         ImGui.Text("General");
@@ -39,13 +42,10 @@ public class GeneralConfigPane: ConfigPane
     {
         DrawTeamSection();
 
-        if (Service.PluginInterface.IsDev)
-        {
-            DrawClassSection();
-        }
+        if (Service.PluginInterface.IsDev) DrawClassSection();
 
         DrawVolumeSection();
-        
+
         DrawInstallFolder();
     }
 
@@ -72,7 +72,8 @@ public class GeneralConfigPane: ConfigPane
             .StartConditional(!configZero.Class.UsePerJob)
             .AddString("Global Class")
             .SameLine()
-            .AddConfigCombo(Enum.GetValues<Tf2Class>(), configZero.Class.GlobalClass, Enum.GetName, "##TF2HUD#General#GlobalClass", width: 100f)
+            .AddConfigCombo(Enum.GetValues<Tf2Class>(), configZero.Class.GlobalClass, Enum.GetName,
+                            "##TF2HUD#General#GlobalClass", 100f)
             .EndConditional()
             .StartConditional(configZero.Class.UsePerJob)
             .AddAction(DrawClassComboBoxes)
@@ -84,23 +85,26 @@ public class GeneralConfigPane: ConfigPane
     {
         var simpleDrawList = new SimpleDrawList();
         foreach (var (classJob, tf2Class) in configZero.Class.ClassPerJob
-                                                       .Select(kv => new KeyValuePair<ClassJob, Setting<Tf2Class>>(Constants.CombatJobs[kv.Key], kv.Value))
+                                                       .Select(kv => new KeyValuePair<ClassJob, Setting<Tf2Class>>(
+                                                                   Constants.CombatJobs[kv.Key], kv.Value))
                                                        .OrderBy(kv => kv.Key.Role)
                                                        .ThenBy(kv => kv.Key.NameEnglish.ToString()))
-        {
             simpleDrawList.AddString(classJob.NameEnglish, GetJobColor(classJob))
                           .SameLine(longestJobNameLength.Value + 20)
-                          .AddConfigCombo(Enum.GetValues<Tf2Class>(), tf2Class, Enum.GetName, $"##TF2HUD#General#JobClass#{classJob.Abbreviation}", width: 100f);
-        }
+                          .AddConfigCombo(Enum.GetValues<Tf2Class>(), tf2Class, Enum.GetName,
+                                          $"##TF2HUD#General#JobClass#{classJob.Abbreviation}", 100f);
         simpleDrawList.Draw();
     }
-    
-    private static Vector4 GetJobColor(ClassJob classJob) => classJob.Role switch
+
+    private static Vector4 GetJobColor(ClassJob classJob)
     {
-        1 => Colors.Blue,
-        4 => Colors.HealerGreen,
-        _ => Colors.DPSRed
-    };
+        return classJob.Role switch
+        {
+            1 => Colors.Blue,
+            4 => Colors.HealerGreen,
+            _ => Colors.DPSRed
+        };
+    }
 
 
     private void DrawVolumeSection()
@@ -145,12 +149,12 @@ public class GeneralConfigPane: ConfigPane
         var selectedSound = testSounds.Random();
         if (selectedSound is null) return;
         if (SoundEngine.IsPlaying(TestSoundId)) return;
-        SoundEngine.PlaySound(selectedSound, configZero.ApplySfxVolume, configZero.Volume.Value, id: TestSoundId);
+        SoundEngine.PlaySound(selectedSound, configZero.ApplySfxVolume, configZero.Volume.Value, TestSoundId);
     }
 
     private static void StopSoundTest()
     {
-        SoundEngine.StopSound(id: TestSoundId);
+        SoundEngine.StopSound(TestSoundId);
     }
 
     private bool IsSoundTextPlaying()
@@ -166,7 +170,7 @@ public class GeneralConfigPane: ConfigPane
                 ? Environment.ExpandEnvironmentVariables("%USERPROFILE%")
                 : Path.GetDirectoryName(filePath.Value));
     }
-    
+
     private static void UpdatePath(bool success, string path, Setting<string> savedPath)
     {
         if (success && path.IsNullOrWhitespace())
@@ -175,5 +179,4 @@ public class GeneralConfigPane: ConfigPane
             KamiCommon.SaveConfiguration();
         }
     }
-
 }

@@ -1,19 +1,22 @@
-﻿using System;
-using System.Numerics;
+﻿using System.Numerics;
 using Dalamud.Interface.Raii;
 using Dalamud.Interface.Windowing;
 using ImGuiNET;
-using Tf2Hud.Tf2Hud.Model;
+using Tf2Hud.Common.Model;
 
 namespace Tf2Hud.Tf2Hud.Windows;
 
 public abstract class Tf2Window : Window
 {
-    public Tf2Team Team { get; set; }
     public const int ScorePanelWidth = 270;
     public const int ScorePanelHeight = 65;
     protected const int MvpListHeight = 280;
     public static Vector4 TanLight = new(235 / 255f, 226 / 255f, 202 / 255f, 255 / 255f);
+    private ImRaii.Color? borderColor;
+    private ImRaii.Style? borderStyle;
+
+    private ImRaii.Color? windowBgColor;
+    private ImRaii.Style? windowRounding;
 
     protected Tf2Window(string name, Tf2Team team) : base(
         name,
@@ -25,15 +28,12 @@ public abstract class Tf2Window : Window
         BgAlpha = 0.8f;
     }
 
+    public Tf2Team Team { get; set; }
+
     protected static ImFontPtr Tf2Font { get; private set; }
     protected static ImFontPtr Tf2ScoreFont { get; private set; }
     protected static ImFontPtr Tf2SecondaryFont { get; private set; }
 
-    private ImRaii.Color? windowBgColor;
-    private ImRaii.Color? borderColor;
-    private ImRaii.Style? borderStyle;
-    private ImRaii.Style? windowRounding;
-    
     public override void PreDraw()
     {
         windowBgColor = ImRaii.PushColor(ImGuiCol.WindowBg, Team.BgColor);
@@ -49,12 +49,11 @@ public abstract class Tf2Window : Window
         borderColor?.Dispose();
         windowBgColor?.Dispose();
     }
-    
+
     public static void UpdateFontPointers(ImFontPtr tf2Font, ImFontPtr tf2ScoreFont, ImFontPtr tf2SecondaryFont)
     {
         Tf2Font = tf2Font;
         Tf2ScoreFont = tf2ScoreFont;
         Tf2SecondaryFont = tf2SecondaryFont;
     }
-
 }

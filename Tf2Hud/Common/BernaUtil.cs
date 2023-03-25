@@ -1,11 +1,9 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 
 namespace Tf2Hud.Common;
 
 public class BernaUtil
 {
-
     public enum OS
     {
         WINDOWS,
@@ -15,17 +13,10 @@ public class BernaUtil
 
     public static OS GetOS()
     {
-        if (!Dalamud.Utility.Util.IsLinux())
-        {
-            return OS.WINDOWS;
-        }
+        if (!Dalamud.Utility.Util.IsLinux()) return OS.WINDOWS;
 
-        if (Path.Exists("Z:/Users/"))
-        {
-            return OS.MACOS;
-        }
+        if (Path.Exists("Z:/Users/")) return OS.MACOS;
 
         return OS.LINUX;
     }
-    
 }

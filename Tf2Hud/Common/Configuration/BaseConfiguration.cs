@@ -1,5 +1,4 @@
 ﻿using Dalamud.Configuration;
-using Tf2Hud.Configuration;
 
 namespace Tf2Hud.Common.Configuration;
 

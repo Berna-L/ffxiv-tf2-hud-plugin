@@ -1,15 +1,14 @@
 ﻿using ImGuiNET;
 using KamiLib.Drawing;
 using Tf2Hud.Common.Configuration;
-using Tf2Hud.Tf2Hud;
+using Tf2Hud.Common.Windows;
+using Tf2Hud.Tf2Hud.Configuration;
 
-namespace Tf2Hud.Common.Windows;
+namespace Tf2Hud.Tf2Hud.Windows.Configuration;
 
-public class WinPanelConfigPane: ConfigPane
+public class WinPanelConfigPane : ConfigPane
 {
-    public WinPanelConfigPane(ConfigZero configZero): base(configZero)
-    {
-    }
+    public WinPanelConfigPane(ConfigZero configZero) : base(configZero) { }
 
     public override void DrawLabel()
     {
@@ -26,11 +25,13 @@ public class WinPanelConfigPane: ConfigPane
             .AddString("Position:")
             .SameLine()
             .BeginDisabled(!configZero.WinPanel.RepositionMode)
-            .AddDragFloat("##WinPanelXPosition", configZero.WinPanel.PositionX, 0, ImGui.GetMainViewport().Size.X, 100.0f)
+            .AddDragFloat("##WinPanelXPosition", configZero.WinPanel.PositionX, 0, ImGui.GetMainViewport().Size.X,
+                          100.0f)
             .SameLine()
             .AddString("x")
             .SameLine()
-            .AddDragFloat("##WinPanelYPosition", configZero.WinPanel.PositionY, 0, ImGui.GetMainViewport().Size.Y, 100.0f)
+            .AddDragFloat("##WinPanelYPosition", configZero.WinPanel.PositionY, 0, ImGui.GetMainViewport().Size.Y,
+                          100.0f)
             .SameLine()
             .AddButton("Default", () => configZero.WinPanel.RestoreDefaultPosition())
             .EndDisabled()
@@ -46,7 +47,7 @@ public class WinPanelConfigPane: ConfigPane
                                NameDisplayKind.ForenameAbbreviated)
                .AddConfigRadio("Initials", configZero.WinPanel.NameDisplay, NameDisplayKind.Initials)
                .Draw();
-        
+
         InfoBox.Instance
                .AddTitle("Scoring persistence")
                .AddConfigRadio("Reset scores when I enter an instance of a different duty than the last",
@@ -69,8 +70,5 @@ public class WinPanelConfigPane: ConfigPane
                .AddString("seconds after it appears.")
                .AddString($"You can also use {Tf2HudModule.CloseWinPanel} to close it manually.")
                .Draw();
-        
-        
     }
-
 }

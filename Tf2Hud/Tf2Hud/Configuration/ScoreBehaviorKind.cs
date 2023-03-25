@@ -1,4 +1,4 @@
-﻿namespace Tf2Hud.Common.Configuration;
+﻿namespace Tf2Hud.Tf2Hud.Configuration;
 
 public enum ScoreBehaviorKind
 {

@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace Tf2Hud.Common.Util;
+﻿namespace Tf2Hud.Common.Util;
 
 public static class IEnumerableExtensions
 {

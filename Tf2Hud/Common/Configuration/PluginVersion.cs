@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Reflection;
 
-namespace Tf2Hud.Configuration;
+namespace Tf2Hud.Common.Configuration;
 
 public class PluginVersion : IComparable<PluginVersion>
 {

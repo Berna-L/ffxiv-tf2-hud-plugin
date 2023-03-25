@@ -4,7 +4,7 @@ using Dalamud.Interface.Raii;
 using ImGuiNET;
 using KamiLib.Drawing;
 using Tf2Hud.Common.Configuration;
-using Tf2Hud.Tf2Hud.Model;
+using Tf2Hud.Common.Model;
 
 namespace Tf2Hud.Tf2Hud.Windows;
 
@@ -12,7 +12,6 @@ public class Tf2Timer : Tf2Window
 {
     private const int CircleRadius = 25;
     private readonly ConfigZero configZero;
-    private static Vector2 CircleCenter => ImGui.GetWindowPos() + new Vector2(185, 35);
 
     public Tf2Timer(ConfigZero configZero) : base("##Tf2Timer", Tf2Team.Blu)
     {
@@ -21,19 +20,18 @@ public class Tf2Timer : Tf2Window
         PositionCondition = ImGuiCond.Always;
     }
 
+    private static Vector2 CircleCenter => ImGui.GetWindowPos() + new Vector2(185, 35);
+
     public long? TimeRemaining { private get; set; }
     public long? MaxTime { private get; set; }
-    
+
     public override void Draw()
     {
         Position = configZero.Timer.GetPosition();
         if (TimeRemaining is null or 0)
         {
             MaxTime = null;
-            if (!configZero.Timer.RepositionMode)
-            {
-                return;
-            }
+            if (!configZero.Timer.RepositionMode) return;
         }
 
         if (TimeRemaining is null && configZero.Timer.RepositionMode)
@@ -43,24 +41,14 @@ public class Tf2Timer : Tf2Window
         }
 
         if (configZero.Timer.RepositionMode)
-        {
             Flags &= ~ImGuiWindowFlags.NoMove;
-        }
         else
-        {
             Flags |= ImGuiWindowFlags.NoMove;
-        }
 
 
         MaxTime ??= TimeRemaining;
-        if (MaxTime is null || TimeRemaining is null)
-        {
-            return;
-        }
-        if (MaxTime < TimeRemaining)
-        {
-            MaxTime = TimeRemaining;
-        }
+        if (MaxTime is null || TimeRemaining is null) return;
+        if (MaxTime < TimeRemaining) MaxTime = TimeRemaining;
 
         DrawTimerText();
         ImGui.SameLine();

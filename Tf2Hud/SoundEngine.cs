@@ -6,7 +6,7 @@ using System.Threading;
 using Dalamud.Logging;
 using NAudio.Wave;
 using Tf2Hud.Common;
-using Tf2Hud.Tf2Hud.Audio;
+using Tf2Hud.Common.Audio;
 
 namespace Tf2Hud;
 
@@ -71,7 +71,6 @@ public static class SoundEngine
     {
         if (audio.Encoding == WaveFormatEncoding.MpegLayer3) return new Mp3FileReader(new MemoryStream(audio.Data));
         return new RawSourceWaveStream(audio.Data, 0, audio.Data.Length, audio.Metadata);
-
     }
 
 

@@ -1,9 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using Lumina.Excel.GeneratedSheets;
+﻿using Lumina.Excel.GeneratedSheets;
 using Tf2Hud.Common.Util;
 
-namespace Tf2Hud.Tf2Hud.Model;
+namespace Tf2Hud.Common.Model;
 
 public enum Tf2Class
 {
@@ -20,7 +18,6 @@ public enum Tf2Class
 
 public static class Tf2ClassHelper
 {
-    
     public static Tf2Class GetTf2ClassFromXivCombatClass(ClassJob classJob)
     {
         switch (classJob.Role)
@@ -53,6 +50,7 @@ public static class Tf2ClassHelper
                     case "NIN":
                         return Tf2Class.Spy;
                 }
+
                 // He's just the default dude in TF2.
                 return Tf2Class.Soldier;
         }

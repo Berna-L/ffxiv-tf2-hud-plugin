@@ -9,13 +9,13 @@ using KamiLib.Drawing;
 using KamiLib.Interfaces;
 using KamiLib.Windows;
 using Tf2Hud.Common.Configuration;
+using Tf2Hud.Tf2Hud.Windows.Configuration;
 using static Tf2Hud.Plugin;
 
 namespace Tf2Hud.Common.Windows;
 
 public class ConfigWindow : SelectionWindow, IDisposable
 {
-    private readonly ConfigZero config;
     public const String Title = $"{PluginName} — Configuration";
     private static readonly string PluginVersion = GetVersionText();
 
@@ -23,6 +23,8 @@ public class ConfigWindow : SelectionWindow, IDisposable
     {
         AddedWindowFlags = ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoDocking
     };
+
+    private readonly ConfigZero config;
 
     private readonly GeneralConfigPane generalPane;
     private readonly TimerConfigPane timerPane;
@@ -39,9 +41,9 @@ public class ConfigWindow : SelectionWindow, IDisposable
     public ConfigWindow(ConfigZero config) : base(Title, 25.0f)
     {
         this.config = config;
-        this.generalPane = new GeneralConfigPane(config);
-        this.timerPane = new TimerConfigPane(config);
-        this.winPanelPane = new WinPanelConfigPane(config);
+        generalPane = new GeneralConfigPane(config);
+        timerPane = new TimerConfigPane(config);
+        winPanelPane = new WinPanelConfigPane(config);
         SizeConstraints = new WindowSizeConstraints
         {
             MinimumSize = new Vector2(846, 487),
@@ -54,7 +56,7 @@ public class ConfigWindow : SelectionWindow, IDisposable
     {
         DialogManager.Reset();
     }
-    
+
     public override void Draw()
     {
         base.Draw();

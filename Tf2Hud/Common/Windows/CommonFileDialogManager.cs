@@ -5,7 +5,7 @@ using ImGuiNET;
 
 namespace Tf2Hud.Common.Windows;
 
-public class CommonFileDialogManager
+public static class CommonFileDialogManager
 {
     public static readonly FileDialogManager DialogManager = new()
     {

@@ -9,6 +9,7 @@ using Newtonsoft.Json;
 using Tf2Hud.Common.Configuration;
 using Tf2Hud.Common.Windows;
 using Tf2Hud.Tf2Hud;
+using Tf2Hud.VoiceLines;
 using static Dalamud.Logging.PluginLog;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 
@@ -32,7 +33,7 @@ public sealed class Plugin : IDalamudPlugin
         KamiCommon.Initialize(Service.PluginInterface, Name, () => Configuration?.Save());
         Configuration = InitConfig();
         Configuration.Save();
-        
+
         tf2HudModule = new Tf2HudModule(Configuration);
         tf2VoiceLinesModule = new Tf2VoiceLinesModule(Configuration);
 
@@ -58,7 +59,8 @@ public sealed class Plugin : IDalamudPlugin
     public void Dispose()
     {
         KamiCommon.Dispose();
-        tf2VoiceLinesModule?.Dispose();;
+        tf2VoiceLinesModule?.Dispose();
+        ;
         tf2HudModule?.Dispose();
         WindowSystem.RemoveAllWindows();
         Service.CommandManager.RemoveHandler(CommandName);
@@ -86,11 +88,10 @@ public sealed class Plugin : IDalamudPlugin
             };
 
 
-            
             if (Service.PluginInterface.IsTesting || Service.PluginInterface.IsDev)
             {
                 Service.PluginInterface.ConfigFile.MoveTo(
-                    Service.PluginInterface.ConfigFile.FullName + $".{unixTimeSeconds}.old", true);    
+                    Service.PluginInterface.ConfigFile.FullName + $".{unixTimeSeconds}.old", true);
             }
 
             return config;
@@ -105,7 +106,7 @@ public sealed class Plugin : IDalamudPlugin
             return new ConfigZero();
         }
     }
-    
+
     private static void OnConfigCommand(string command, string args)
     {
         if (KamiCommon.WindowManager.GetWindowOfType<ConfigWindow>() is { } window) window.IsOpen = true;
