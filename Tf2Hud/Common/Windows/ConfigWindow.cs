@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Numerics;
 using System.Reflection;
 using Dalamud.Interface;
 using Dalamud.Interface.ImGuiFileDialog;
@@ -35,12 +36,17 @@ public class ConfigWindow : SelectionWindow, IDisposable
     }
 
 
-    public ConfigWindow(ConfigZero config) : base(Title, 55.0f)
+    public ConfigWindow(ConfigZero config) : base(Title, 25.0f)
     {
         this.config = config;
         this.generalPane = new GeneralConfigPane(config);
         this.timerPane = new TimerConfigPane(config);
         this.winPanelPane = new WinPanelConfigPane(config);
+        SizeConstraints = new WindowSizeConstraints
+        {
+            MinimumSize = new Vector2(846, 487),
+            MaximumSize = new Vector2(float.MaxValue, float.MaxValue)
+        };
     }
 
 
