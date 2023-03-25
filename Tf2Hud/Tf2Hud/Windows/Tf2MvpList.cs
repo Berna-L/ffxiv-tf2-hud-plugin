@@ -39,7 +39,7 @@ public class Tf2MvpList : Tf2Window
     public override void PreDraw()
     {
         base.PreDraw();
-        Service.Log($"Tf2MvpList - PostDraw");
+        this.Log($"PostDraw");
         frameRounding = ImRaii.PushStyle(ImGuiStyleVar.FrameRounding, 0f);
         windowBg = ImRaii.PushColor(ImGuiCol.WindowBg, WinningTeam.BgColor);
     }
@@ -47,14 +47,14 @@ public class Tf2MvpList : Tf2Window
     public override void Draw()
     {
 
-        Service.Log($"Tf2MvpList - Starting to draw");
+        this.Log($"Starting to draw");
         var teamWinMessage = $"{WinningTeam.Name} TEAM WINS!";
         ImGui.PushFont(Tf2SecondaryFont);
         ImGui.SetCursorPosX((ImGui.GetContentRegionAvail().X - ImGui.CalcTextSize(teamWinMessage).X) / 2);
         ImGuiHelper.TextShadow(teamWinMessage);
         ImGui.PopFont();
 
-        Service.Log($"Tf2MvpList - Adding what happened");
+        this.Log($"Adding what happened");
         var enemyName = LastEnemy.IsNullOrWhitespace() ? "an anonymous enemy" : LastEnemy;
         var winConditionMessage = WinningTeam == PlayerTeam
                                       ? $"{WinningTeam.Name} defeated {enemyName} before the time ran out"
@@ -62,7 +62,7 @@ public class Tf2MvpList : Tf2Window
         
         ImGui.SetCursorPosX((ImGui.GetContentRegionAvail().X - ImGui.CalcTextSize(winConditionMessage).X) / 2);
         ImGui.Text(winConditionMessage);
-        Service.Log($"Tf2MvpList - Creating player names' area");
+        this.Log($"Creating player names' area");
         ImGui.PushStyleVar(ImGuiStyleVar.Alpha, 0.85f);
         ImGui.PushStyleColor(ImGuiCol.FrameBg, Colors.Black.ToU32());
         ImGui.BeginChildFrame(12313, new Vector2(InnerFrameWidth, InnerFrameHeight));
@@ -80,7 +80,7 @@ public class Tf2MvpList : Tf2Window
         for (var i = 0; i < PartyList.Count; i++)
         {
             if (i >= PartyList.Count) break;
-            Service.Log($"Tf2MvpList - Adding player {i}");
+            this.Log($"Adding player {i}");
             var leftPartyMember = PartyList[i];
             ImGui.Image(GetClassJobIcon(leftPartyMember.ClassJobId)!.Value, ClassJobIconSize);
             ImGui.SameLine();
@@ -88,7 +88,7 @@ public class Tf2MvpList : Tf2Window
             ImGui.TextColored(WinningTeam.TextColor, leftPartyMember.Name.ToDesiredFormat(NameDisplay));
             if (PartyList.Count > 4 && PartyList.Count > i + 1)
             {
-                Service.Log($"Tf2MvpList - Adding player {i + 1}");
+                this.Log($"Adding player {i + 1}");
                 var rightPartyMember = PartyList[i + 1];
                 i++;
                 ImGui.SameLine();
@@ -110,7 +110,7 @@ public class Tf2MvpList : Tf2Window
 
     public override void PostDraw()
     {
-        Service.Log($"Tf2MvpList - PostDraw");
+        this.Log($"PostDraw");
         windowBg.Dispose();
         frameRounding.Dispose();
         base.PostDraw();

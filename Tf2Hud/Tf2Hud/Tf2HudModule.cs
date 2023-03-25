@@ -51,8 +51,8 @@ public class Tf2HudModule : IDisposable
 
     public Tf2HudModule(ConfigZero configZero)
     {
-        Service.Log("========================================");
-        Service.Log("Starting Team Fortress Fantasy...");
+        this.Log("========================================");
+        this.Log("Starting Team Fortress Fantasy...");
         this.configZero = configZero;
         tf2InstallFolder = FindTf2InstallFolder();
         if (tf2InstallFolder is not null)

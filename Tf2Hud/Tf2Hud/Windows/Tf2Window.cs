@@ -32,16 +32,16 @@ public abstract class Tf2Window : Window
     
     public override void PreDraw()
     {
-        Service.Log($"Tf2Window - PostDraw");
+        this.Log($"PreDraw Tf2Window");
         windowBgColor = ImRaii.PushColor(ImGuiCol.WindowBg, Team.BgColor);
         borderColor = ImRaii.PushColor(ImGuiCol.Border, new Vector4(255, 255, 255, 20));
     }
 
     public override void PostDraw()
     {
+        this.Log($"PostDraw Tf2Window");
         borderColor?.Dispose();
         windowBgColor?.Dispose();
-        Service.Log($"Tf2Window - PostDraw ${GetType()}");
     }
     
     public static void UpdateFontPointers(ImFontPtr tf2Font, ImFontPtr tf2ScoreFont, ImFontPtr tf2SecondaryFont)

@@ -25,35 +25,35 @@ public class Tf2Timer : Tf2Window
     
     public override void Draw()
     {
-        Service.Log($"Tf2Timer - Starting to Draw");
+        this.Log($"Starting to Draw");
         Position = configZero.Timer.GetPosition();
         if (TimeRemaining is null or 0)
         {
-            Service.Log($"Tf2Timer - TimeRemaining is null or 0");
+            this.Log($"TimeRemaining is null or 0");
 
             MaxTime = null;
             if (!configZero.Timer.RepositionMode)
             {
-                Service.Log($"Tf2Timer - and it's in reposition mode");
+                this.Log($"and it's in reposition mode");
                 return;
             }
         }
 
         if (TimeRemaining is null && configZero.Timer.RepositionMode)
         {
-            Service.Log($"Tf2Timer - TimeRemaining is null, but it's reposition mode: setting fake time");
+            this.Log($"TimeRemaining is null, but it's reposition mode: setting fake time");
             TimeRemaining = (33 * 60) + 30;
             MaxTime = (long)((float)TimeRemaining * 1.33f);
         }
 
         if (configZero.Timer.RepositionMode)
         {
-            Service.Log($"Tf2Timer - It's reposition mode!");
+            this.Log($"It's reposition mode!");
             Flags &= ~ImGuiWindowFlags.NoMove;
         }
         else
         {
-            Service.Log($"Tf2Timer - It's not reposition mode :(");
+            this.Log($"It's not reposition mode :(");
             Flags |= ImGuiWindowFlags.NoMove;
         }
 
@@ -61,16 +61,16 @@ public class Tf2Timer : Tf2Window
         MaxTime ??= TimeRemaining;
         if (MaxTime is null || TimeRemaining is null)
         {
-            Service.Log($"Tf2Timer - MaxTime is {MaxTime} and TimeRemaining is {TimeRemaining}. One of them is null, and thus it returneth.");
+            this.Log($"MaxTime is {MaxTime} and TimeRemaining is {TimeRemaining}. One of them is null, and thus it returneth.");
             return;
         }
         if (MaxTime < TimeRemaining)
         {
-            Service.Log($"Tf2Timer - MaxTime < TimeRemaining. Updating MaxTime.");
+            this.Log($"MaxTime < TimeRemaining. Updating MaxTime.");
             MaxTime = TimeRemaining;
         }
         
-        Service.Log($"Tf2Timer - Everything OK to starting creating the window itself.");
+        this.Log($"Everything OK to starting creating the window itself.");
 
         DrawTimerText();
         ImGui.SameLine();
