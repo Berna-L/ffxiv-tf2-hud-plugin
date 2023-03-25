@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.IO;
 using System.Threading;
 using Dalamud.Logging;
 using NAudio.Wave;
@@ -26,13 +27,13 @@ public static class SoundEngine
     // Copied from PeepingTom plugin, by ascclemens:
     // https://git.anna.lgbt/ascclemens/PeepingTom/src/commit/3749a6b42154a51397733abb2d3b06a47915bdcc/Peeping%20Tom/TargetWatcher.cs#L162
 
-    public static void PlaySound(WaveAudio? waveAudio, bool useGameSfxVolume, int volume = 100, string? id = null)
+    public static void PlaySound(Audio? waveAudio, bool useGameSfxVolume, int volume = 100, string? id = null)
     {
         if (waveAudio is null) return;
         var soundDevice = DirectSoundOut.DSDEVID_DefaultPlayback;
         new Thread(() =>
         {
-            var wave = new RawSourceWaveStream(waveAudio.Data, 0, waveAudio.Data.Length, waveAudio.Format);
+            var wave = GetReader(waveAudio);
             using var channel = new WaveChannel32(wave)
             {
                 Volume = GetVolume(volume, useGameSfxVolume),
@@ -64,6 +65,13 @@ public static class SoundEngine
                 }
             }
         }).Start();
+    }
+
+    private static WaveStream GetReader(Audio audio)
+    {
+        if (audio.Encoding == WaveFormatEncoding.MpegLayer3) return new Mp3FileReader(new MemoryStream(audio.Data));
+        return new RawSourceWaveStream(audio.Data, 0, audio.Data.Length, audio.Metadata);
+
     }
 
 

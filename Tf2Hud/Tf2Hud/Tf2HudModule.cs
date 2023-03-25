@@ -78,7 +78,7 @@ public class Tf2HudModule : IDisposable
         Service.DutyState.DutyWiped += OnWipe;
         Service.Framework.Update += OnUpdate;
 
-        Tf2Sound.Instance.Tf2InstallFolder = tf2InstallFolder;
+        Tf2Sound.Instance.Tf2InstallFolder = this.configZero.Tf2InstallPath;
         
         tf2WinPanel = new Tf2WinPanel(this.configZero, playerTeam, GetPartyList());
 
@@ -221,6 +221,10 @@ public class Tf2HudModule : IDisposable
 
     private void OnStart(object? sender, ushort e)
     {
+        if (IsHighEndDuty())
+        {
+            SoundEngine.PlaySound(Tf2Sound.Instance.RandomMannUpSound, configZero.ApplySfxVolume, configZero.Volume.Value);
+        }
         this.playerTeam = UpdatePlayerTeam();
         if (Timer is not null)
         {
@@ -246,6 +250,16 @@ public class Tf2HudModule : IDisposable
                 break;
         }
         lastDutyTerritory = Service.ClientState.TerritoryType;
+    }
+
+    private static unsafe bool IsHighEndDuty()
+    {
+        return Service.DataManager.GetExcelSheet<ContentFinderCondition>()?
+            .FirstOrDefault(cfc => cfc.Content == EventFramework
+                                       .Instance()
+                                       ->GetInstanceContentDirector()
+                                       ->ContentDirector.Director.ContentId)?
+            .HighEndDuty ?? false;
     }
 
     private void ClearScores()

@@ -20,7 +20,7 @@ namespace Tf2Hud.Common.Windows;
 
 public class GeneralConfigPane: ConfigPane
 {
-    private readonly WaveAudio?[] testSounds = {Tf2Sound.Instance.VictorySound, Tf2Sound.Instance.FailSound };
+    private readonly Audio?[] testSounds =  {Tf2Sound.Instance.VictorySound, Tf2Sound.Instance.FailSound, Tf2Sound.Instance.RandomMannUpSound };
     private const string TestSoundId = "TF2HUD+TestSound";
     private readonly Lazy<float> longestJobNameLength = new(() => Constants.CombatJobs.Values.Select(cj => cj.NameEnglish).Select(cj => cj.ToString())
                                                                            .Select(n => ImGui.CalcTextSize(n).X).OrderDescending().First());
