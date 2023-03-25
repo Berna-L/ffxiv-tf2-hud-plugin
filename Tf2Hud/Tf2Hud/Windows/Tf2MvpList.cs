@@ -13,6 +13,7 @@ namespace Tf2Hud.Tf2Hud.Windows;
 
 public class Tf2MvpList : Tf2Window
 {
+    private const string PointsThisRound = "(everyone is an MVP :)";
     private readonly JobIconSets jobIconSets;
     private readonly GameFontHandle playerNameFont;
     private static readonly Vector2 ClassJobIconSize = new(32, 32);
@@ -56,10 +57,8 @@ public class Tf2MvpList : Tf2Window
         ImGui.PopStyleVar();
         ImGui.Text($"{PlayerTeam.Name} team MVPs:");
         ImGui.SameLine();
-        var pointsThisRound = "(everyone is an MVP :)";
-        ImGui.SetCursorPosX(ImGui.GetCursorPosX() + ImGui.GetContentRegionAvail().X -
-                            ImGui.CalcTextSize(pointsThisRound).X);
-        ImGui.Text(pointsThisRound);
+        ImGui.SetCursorPosX(ImGui.GetCursorPosX() + ImGui.GetContentRegionAvail().X - ImGui.CalcTextSize(PointsThisRound).X);
+        ImGui.Text(PointsThisRound);
         ImGui.GetWindowDrawList().AddLine(ImGui.GetCursorScreenPos() + new Vector2(0, 0),
                                           ImGui.GetCursorScreenPos() + new Vector2(InnerFrameWidth, 0), Colors.White.ToU32());
         ImGui.SetCursorPosY(ImGui.GetCursorPosY() + 10);
@@ -67,7 +66,7 @@ public class Tf2MvpList : Tf2Window
         ImGui.PushFont(playerNameFont.ImFont);
         for (var i = 0; i < PartyList.Count; i++)
         {
-            if (PartyList.Count <= i) break; 
+            if (i > PartyList.Count) break; 
             var leftPartyMember = PartyList[i];
             if (leftPartyMember is null) break;
             ImGui.Image(GetClassJobIcon(leftPartyMember.ClassJobId)!.Value, ClassJobIconSize);

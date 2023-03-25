@@ -3,13 +3,11 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Dalamud.Game;
-using Dalamud.Game.ClientState;
 using Dalamud.Game.ClientState.Objects.Enums;
 using Dalamud.Game.ClientState.Objects.Types;
 using Dalamud.Game.Command;
 using Dalamud.Interface.GameFonts;
 using Dalamud.Logging;
-using Dalamud.Utility;
 using FFXIVClientStructs.FFXIV.Client.Game.Event;
 using FFXIVClientStructs.FFXIV.Client.Game.UI;
 using Gameloop.Vdf;
@@ -286,18 +284,18 @@ public class Tf2HudModule : IDisposable
 
     private void OnComplete(object? sender, ushort e)
     {
-        playerTeamScore += 1;
         tf2WinPanel.PlayerTeam = playerTeam;
-        tf2WinPanel.Show(playerTeamScore, enemyTeamScore, GetPartyList(), GetEnemyName(), playerTeam);
+        tf2WinPanel.Show(playerTeamScore, enemyTeamScore, playerTeamScore + 1, enemyTeamScore, GetPartyList(), GetEnemyName(), playerTeam);
+        playerTeamScore += 1;
         if (VictorySound is null) return;
         SoundEngine.PlaySound(VictorySound, configZero.ApplySfxVolume, configZero.Volume.Value);
     }
 
     private void OnWipe(object? sender, ushort e)
     {
-        enemyTeamScore += 1;
         tf2WinPanel.PlayerTeam = playerTeam;
-        tf2WinPanel.Show(playerTeamScore, enemyTeamScore, GetPartyList(), GetEnemyName(), playerTeam.Enemy);
+        tf2WinPanel.Show(playerTeamScore, enemyTeamScore, playerTeamScore, enemyTeamScore + 1, GetPartyList(), GetEnemyName(), playerTeam.Enemy);
+        enemyTeamScore += 1;
         if (FailSound is null) return;
         SoundEngine.PlaySound(FailSound, configZero.ApplySfxVolume, configZero.Volume.Value);
         lastEnemyTarget = null;
@@ -337,6 +335,7 @@ public class Tf2HudModule : IDisposable
                 }
             }.ToList();
         }
+        PluginLog.LogDebug($"{Service.PartyList.Length} people in the party");
         return Service.PartyList.OrderBy(pm => pm.ClassJob.GameData.Role).Select(pm => new Tf2MvpMember()
         {
             ClassJobId = pm.ClassJob.Id,

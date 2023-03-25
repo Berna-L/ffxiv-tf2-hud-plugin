@@ -14,11 +14,12 @@ public class Tf2WinPanel : IDisposable
 {
     private readonly ConfigZero configZero;
     private readonly byte[]? scoredSound;
-    private int newPlayerTeamScore;
-    private int newEnemyTeamScore;
+    private int playerTeamScoreToSet;
+    private int enemyTeamScoreToSet;
 
     private long timeOpened;
     private bool waitingForNewScore;
+    
     private static Tf2BluScoreWindow BluScoreWindow => KamiCommon.WindowManager.GetWindowOfType<Tf2BluScoreWindow>()!;
     private static Tf2RedScoreWindow RedScoreWindow => KamiCommon.WindowManager.GetWindowOfType<Tf2RedScoreWindow>()!;
     private static Tf2MvpList MvpListWindow => KamiCommon.WindowManager.GetWindowOfType<Tf2MvpList>()!;
@@ -48,7 +49,7 @@ public class Tf2WinPanel : IDisposable
     }
 
     public Team PlayerTeam { get; set; }
-    public Setting<bool> RepositionMode { get; set; }
+    public Setting<bool> RepositionMode { get; set; } = new(false);
 
     public void Dispose()
     {
@@ -57,14 +58,17 @@ public class Tf2WinPanel : IDisposable
 
     private void OnUpdate(Framework framework)
     {
-        BluScoreWindow.Position = configZero.WinPanel.GetPosition();
-        RedScoreWindow.Position = configZero.WinPanel.GetPosition() + new Vector2(Tf2Window.ScorePanelWidth, 0);
-        MvpListWindow.Position = configZero.WinPanel.GetPosition() + new Vector2(0, Tf2Window.ScorePanelHeight);
         var openedFor = DateTimeOffset.UtcNow.ToUnixTimeSeconds() - timeOpened;
+        if (IsOpen)
+        {
+            BluScoreWindow.Position = configZero.WinPanel.GetPosition();
+            RedScoreWindow.Position = configZero.WinPanel.GetPosition() + new Vector2(Tf2Window.ScorePanelWidth, 0);
+            MvpListWindow.Position = configZero.WinPanel.GetPosition() + new Vector2(0, Tf2Window.ScorePanelHeight);
+        }
         if (IsOpen && openedFor > 2 && waitingForNewScore)
         {
-            GetPlayerTeamScoreWindow().Score = newPlayerTeamScore;
-            GetEnemyTeamScoreWindow().Score = newEnemyTeamScore;
+            GetPlayerTeamScoreWindow().Score = playerTeamScoreToSet;
+            GetEnemyTeamScoreWindow().Score = enemyTeamScoreToSet;
             if (scoredSound is not null) SoundEngine.PlaySound(scoredSound, configZero.ApplySfxVolume, configZero.Volume.Value, 22050, 1);
 
             waitingForNewScore = false;
@@ -93,7 +97,7 @@ public class Tf2WinPanel : IDisposable
                    : RedScoreWindow!;
     }
 
-    public void Show(int playerTeamScore, int enemyTeamScore, List<Tf2MvpMember> partyList, string? lastEnemy, Team winningTeam)
+    public void Show(int oldPlayerTeamScore, int oldEnemyTeamScore, int newPlayerTeamScore, int newEnemyTeamScore, List<Tf2MvpMember> partyList, string? lastEnemy, Team winningTeam)
     {
         waitingForNewScore = true;
         timeOpened = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
@@ -102,10 +106,10 @@ public class Tf2WinPanel : IDisposable
         MvpListWindow.PartyList = partyList;
         MvpListWindow.NameDisplay = configZero.WinPanel.NameDisplay.Value;
         MvpListWindow.LastEnemy = lastEnemy;
-        GetPlayerTeamScoreWindow().Score = newPlayerTeamScore;
-        GetEnemyTeamScoreWindow().Score = newEnemyTeamScore;
-        newPlayerTeamScore = playerTeamScore;
-        newEnemyTeamScore = enemyTeamScore;
+        GetPlayerTeamScoreWindow().Score = oldPlayerTeamScore;
+        GetEnemyTeamScoreWindow().Score = oldEnemyTeamScore;
+        this.playerTeamScoreToSet = newPlayerTeamScore;
+        this.enemyTeamScoreToSet = newEnemyTeamScore;
         IsOpen = true;
     }
 

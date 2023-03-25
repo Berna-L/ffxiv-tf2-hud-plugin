@@ -21,6 +21,5 @@ public class Tf2BluScoreWindow : Tf2TeamScoreWindow
         ImGuiHelper.ForegroundTextShadow(Tf2ScoreFont, Score.ToString(),
                                          ImGui.GetCursorScreenPos() + ImGui.GetContentRegionAvail() with { Y = -85 } -
                                          calcTextSize with { Y = 0 });
-        ImGui.GetWindowDrawList();
     }
 }
