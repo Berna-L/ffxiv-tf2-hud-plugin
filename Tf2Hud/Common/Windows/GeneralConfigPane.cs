@@ -23,17 +23,11 @@ public class GeneralConfigPane: ConfigPane
 {
     private readonly byte[]?[] testSounds = {Tf2HudModule.VictorySound, Tf2HudModule.FailSound };
     private const string TestSoundId = "TF2HUD+TestSound";
-    private readonly float longestJobNameLength;
+    private readonly Lazy<float> longestJobNameLength = new(() => Constants.CombatJobs.Values.Select(cj => cj.NameEnglish).Select(cj => cj.ToString())
+                                                                           .Select(n => ImGui.CalcTextSize(n).X).OrderDescending().First());
     
     public GeneralConfigPane(ConfigZero configZero): base(configZero)
     {
-        foreach (var s in Constants.CombatJobs.Values.Select(cj => cj.NameEnglish).Select(cj => cj.ToString()).OrderByDescending(n => ImGui.CalcTextSize(n).X))
-        {
-            PluginLog.LogDebug($"{s} | {ImGui.CalcTextSize(s)}");
-        }
-
-        longestJobNameLength = Constants.CombatJobs.Values.Select(cj => cj.NameEnglish).Select(cj => cj.ToString())
-                                        .Select(n => ImGui.CalcTextSize(n).X).OrderDescending().First();
     }
 
     
@@ -93,7 +87,7 @@ public class GeneralConfigPane: ConfigPane
                                                        .ThenBy(kv => kv.Key.NameEnglish.ToString()))
         {
             simpleDrawList.AddString(classJob.NameEnglish, GetJobColor(classJob))
-                          .SameLine(longestJobNameLength + 20)
+                          .SameLine(longestJobNameLength.Value + 20)
                           .AddConfigCombo(Enum.GetValues<Tf2Class>(), tf2Class, Enum.GetName, $"##TF2HUD#General#JobClass#{classJob.Abbreviation}", width: 100f);
         }
         simpleDrawList.Draw();
