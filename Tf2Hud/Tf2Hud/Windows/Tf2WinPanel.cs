@@ -82,11 +82,9 @@ public class Tf2WinPanel : IDisposable
 
         if (IsOpen && openedFor > configZero.WinPanel.TimeToClose.Value)
         {
-            if (!configZero.WinPanel.RepositionMode) { }
 
-            {
+            if (!configZero.WinPanel.RepositionMode) { 
                 IsOpen = false;
-                
             }            
         } 
     }
