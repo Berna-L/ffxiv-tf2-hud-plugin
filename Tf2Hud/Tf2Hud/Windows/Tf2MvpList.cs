@@ -11,6 +11,7 @@ using Pilz.Dalamud.Icons;
 using Tf2Hud.Common.Caching;
 using Tf2Hud.Common.Configuration;
 using Tf2Hud.Common.Windows;
+using Tf2Hud.Tf2Hud.Model;
 
 namespace Tf2Hud.Tf2Hud.Windows;
 
@@ -25,15 +26,15 @@ public class Tf2MvpList : Tf2Window
     private ImRaii.Color windowBg; 
 
 
-    public Tf2MvpList() : base("##Tf2MvpList", Team.Red)
+    public Tf2MvpList() : base("##Tf2MvpList", Tf2Team.Red)
     {
         Size = new Vector2(ScorePanelWidth * 2, MvpListHeight);
         jobIconSets = new JobIconSets();
         playerNameFont = Service.PluginInterface.UiBuilder.GetGameFontHandle(new GameFontStyle(GameFontFamily.Axis, 18));
         Position = DefaultPosition;
         PartyList = new List<Tf2MvpMember>();
-        PlayerTeam = Team.Red;
-        WinningTeam = Team.Red;
+        PlayerTeam = Tf2Team.Red;
+        WinningTeam = Tf2Team.Red;
     }
 
     public string? LastEnemy { get; set; }
@@ -130,9 +131,9 @@ public class Tf2MvpList : Tf2Window
 
     public NameDisplayKind NameDisplay { get; set; }
 
-    public Team PlayerTeam { get; set; }
+    public Tf2Team PlayerTeam { get; set; }
 
-    public Team WinningTeam { get; set; }
+    public Tf2Team WinningTeam { get; set; }
 }
 
 static class Extension

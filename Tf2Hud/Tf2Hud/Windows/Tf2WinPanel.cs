@@ -7,6 +7,7 @@ using KamiLib;
 using KamiLib.Configuration;
 using Tf2Hud.Common.Configuration;
 using Tf2Hud.Common.Windows;
+using Tf2Hud.Tf2Hud.Model;
 
 namespace Tf2Hud.Tf2Hud.Windows;
 
@@ -25,7 +26,7 @@ public class Tf2WinPanel : IDisposable
     private static Tf2MvpList MvpListWindow => KamiCommon.WindowManager.GetWindowOfType<Tf2MvpList>()!;
 
 
-    public Tf2WinPanel(ConfigZero configZero, Team playerTeam, List<Tf2MvpMember> initialPartyList, byte[]? scoredSound)
+    public Tf2WinPanel(ConfigZero configZero, Tf2Team playerTeam, List<Tf2MvpMember> initialPartyList, byte[]? scoredSound)
     {
         this.configZero = configZero;
         this.scoredSound = scoredSound;
@@ -48,7 +49,7 @@ public class Tf2WinPanel : IDisposable
         }
     }
 
-    public Team PlayerTeam { get; set; }
+    public Tf2Team PlayerTeam { get; set; }
     public Setting<bool> RepositionMode { get; set; } = new(false);
 
     public void Dispose()
@@ -103,7 +104,7 @@ public class Tf2WinPanel : IDisposable
         return PlayerTeam.Enemy.IsBlu ? BluScoreWindow : RedScoreWindow!;
     }
 
-    public void Show(int oldPlayerTeamScore, int oldEnemyTeamScore, int newPlayerTeamScore, int newEnemyTeamScore, List<Tf2MvpMember> partyList, string? lastEnemy, Team winningTeam)
+    public void Show(int oldPlayerTeamScore, int oldEnemyTeamScore, int newPlayerTeamScore, int newEnemyTeamScore, List<Tf2MvpMember> partyList, string? lastEnemy, Tf2Team winningTeam)
     {
         waitingForNewScore = true;
         timeOpened = DateTimeOffset.UtcNow.ToUnixTimeSeconds();

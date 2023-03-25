@@ -19,6 +19,7 @@ using Microsoft.Win32;
 using Sledge.Formats.Packages;
 using Tf2Hud.Common;
 using Tf2Hud.Common.Configuration;
+using Tf2Hud.Tf2Hud.Model;
 using Tf2Hud.Tf2Hud.Windows;
 
 namespace Tf2Hud.Tf2Hud;
@@ -38,7 +39,7 @@ public class Tf2HudModule : IDisposable
     private ImFontPtr tf2ScoreFont;
     private ImFontPtr tf2SecondaryFont;
 
-    private Team playerTeam = Team.Red;
+    private Tf2Team playerTeam = Tf2Team.Red;
 
     private uint lastDutyTerritory;
 
@@ -301,16 +302,16 @@ public class Tf2HudModule : IDisposable
         lastEnemyTarget = null;
     }
 
-    private Team UpdatePlayerTeam()
+    private Tf2Team UpdatePlayerTeam()
     {
         switch (configZero.TeamPreference.Value)
         {
             case TeamPreferenceKind.Blu:
-                return Team.Blu;
+                return Tf2Team.Blu;
             case TeamPreferenceKind.Red:
-                return Team.Red;
+                return Tf2Team.Red;
             case TeamPreferenceKind.Random:
-                return Random.Shared.NextSingle() < 0.5 ? Team.Blu : Team.Red;
+                return Random.Shared.NextSingle() < 0.5 ? Tf2Team.Blu : Tf2Team.Red;
             default:
                 throw new ArgumentOutOfRangeException();
         }

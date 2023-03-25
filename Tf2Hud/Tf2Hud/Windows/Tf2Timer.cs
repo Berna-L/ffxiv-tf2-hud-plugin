@@ -4,6 +4,7 @@ using Dalamud.Interface.Raii;
 using ImGuiNET;
 using KamiLib.Drawing;
 using Tf2Hud.Common.Configuration;
+using Tf2Hud.Tf2Hud.Model;
 
 namespace Tf2Hud.Tf2Hud.Windows;
 
@@ -13,7 +14,7 @@ public class Tf2Timer : Tf2Window
     private readonly ConfigZero configZero;
     private static Vector2 CircleCenter => ImGui.GetWindowPos() + new Vector2(185, 35);
 
-    public Tf2Timer(ConfigZero configZero) : base("##Tf2Timer", Team.Blu)
+    public Tf2Timer(ConfigZero configZero) : base("##Tf2Timer", Tf2Team.Blu)
     {
         this.configZero = configZero;
         Size = new Vector2(220, 70);

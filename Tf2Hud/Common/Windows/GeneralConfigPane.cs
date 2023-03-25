@@ -9,6 +9,7 @@ using KamiLib.Configuration;
 using KamiLib.Drawing;
 using Tf2Hud.Common.Configuration;
 using Tf2Hud.Tf2Hud;
+using Tf2Hud.Tf2Hud.Model;
 
 namespace Tf2Hud.Common.Windows;
 
@@ -31,9 +32,9 @@ public class GeneralConfigPane: ConfigPane
     {
         InfoBox.Instance
                .AddTitle("Team")
-               .AddConfigRadio(Team.Blu.Name, configZero.TeamPreference, TeamPreferenceKind.Blu)
+               .AddConfigRadio(Tf2Team.Blu.Name, configZero.TeamPreference, TeamPreferenceKind.Blu)
                .SameLine()
-               .AddConfigRadio(Team.Red.Name, configZero.TeamPreference, TeamPreferenceKind.Red)
+               .AddConfigRadio(Tf2Team.Red.Name, configZero.TeamPreference, TeamPreferenceKind.Red)
                .SameLine()
                .AddConfigRadio("Randomize every instance", configZero.TeamPreference, TeamPreferenceKind.Random)
                .Draw();

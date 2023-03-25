@@ -2,13 +2,14 @@
 using Dalamud.Interface.Raii;
 using ImGuiNET;
 using Tf2Hud.Common.Windows;
+using Tf2Hud.Tf2Hud.Model;
 
 namespace Tf2Hud.Tf2Hud.Windows;
 
 public class Tf2BluScoreWindow : Tf2TeamScoreWindow
 {
 
-    public Tf2BluScoreWindow() : base("##Tf2BluScore", Team.Blu)
+    public Tf2BluScoreWindow() : base("##Tf2BluScore", Tf2Team.Blu)
     {
         Size = new Vector2(ScorePanelWidth, ScorePanelHeight);
     }
