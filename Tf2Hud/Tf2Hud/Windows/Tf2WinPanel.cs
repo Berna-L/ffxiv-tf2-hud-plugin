@@ -68,7 +68,6 @@ public class Tf2WinPanel : IDisposable
         }
         if (IsOpen && openedFor > 2 && waitingForNewScore)
         {
-            this.Log($"Going to ding the score");
             GetPlayerTeamScoreWindow().Score = playerTeamScoreToSet;
             GetEnemyTeamScoreWindow().Score = enemyTeamScoreToSet;
             if (scoredSound is not null) SoundEngine.PlaySound(scoredSound, configZero.ApplySfxVolume, configZero.Volume.Value, 22050, 1);
@@ -77,14 +76,13 @@ public class Tf2WinPanel : IDisposable
 
         if (RepositionMode)
         {
-            this.Log($"It's in reposition mode");
             IsOpen = true;
         }
 
         if (IsOpen && openedFor > configZero.WinPanel.TimeToClose.Value)
         {
-            this.Log($"Opened for long enough and it's not in reposition mode, closing!");
-            if (!configZero.WinPanel.RepositionMode)
+            if (!configZero.WinPanel.RepositionMode) { }
+
             {
                 IsOpen = false;
                 
@@ -107,7 +105,6 @@ public class Tf2WinPanel : IDisposable
 
     public void Show(int oldPlayerTeamScore, int oldEnemyTeamScore, int newPlayerTeamScore, int newEnemyTeamScore, List<Tf2MvpMember> partyList, string? lastEnemy, Team winningTeam)
     {
-        this.Log($"Show called!");
         waitingForNewScore = true;
         timeOpened = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
         MvpListWindow.WinningTeam = winningTeam;
@@ -115,12 +112,10 @@ public class Tf2WinPanel : IDisposable
         MvpListWindow.PartyList = partyList;
         MvpListWindow.NameDisplay = configZero.WinPanel.NameDisplay.Value;
         MvpListWindow.LastEnemy = lastEnemy;
-        this.Log($"Setting old scores");
         GetPlayerTeamScoreWindow().Score = oldPlayerTeamScore;
         GetEnemyTeamScoreWindow().Score = oldEnemyTeamScore;
         this.playerTeamScoreToSet = newPlayerTeamScore;
         this.enemyTeamScoreToSet = newEnemyTeamScore;
-        this.Log($"Opening!");
         IsOpen = true;
     }
 

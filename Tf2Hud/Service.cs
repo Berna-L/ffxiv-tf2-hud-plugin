@@ -1,6 +1,4 @@
-﻿using System;
-using System.IO;
-using Dalamud.Data;
+﻿using Dalamud.Data;
 using Dalamud.Game;
 using Dalamud.Game.ClientState;
 using Dalamud.Game.ClientState.Conditions;
@@ -26,7 +24,7 @@ public class Service
     public static FlyTextGui FlyTextGui { get; private set; } = null!;
 
     [PluginService]
-    public static DataManager? DataManager { get; private set; } = null;
+    public static DataManager DataManager { get; private set; } = null!;
 
     [PluginService]
     public static SigScanner SigScanner { get; private set; } = null!;
@@ -48,21 +46,8 @@ public class Service
 
     [PluginService]
     public static PartyList PartyList { get; private set; } = null!;
-
-    internal static readonly string FileName = DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss");
-    
 }
 
 public static class LogExtension
-{
-    public static void Log(this object obj, string log)
-    {
-        var time = DateTime.Now.ToString("yyyy-MM-ddTHH:mm:ss.fffffffK");
-        var logLocation = Path.Combine(Service.PluginInterface.GetPluginConfigDirectory(),
-                                       $"{Service.PluginInterface.InternalName}.{Service.FileName}.log");
-        using var streamWriter = File.AppendText(logLocation);
-        streamWriter.WriteLine($"[{time}] [{obj.GetType().Name}] {log}");
-        streamWriter.Close();
-    }
 
-}
+{ }

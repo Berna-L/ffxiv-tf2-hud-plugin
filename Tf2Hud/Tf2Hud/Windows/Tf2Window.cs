@@ -35,7 +35,6 @@ public abstract class Tf2Window : Window
     
     public override void PreDraw()
     {
-        this.Log($"PreDraw Tf2Window");
         windowBgColor = ImRaii.PushColor(ImGuiCol.WindowBg, Team.BgColor);
         borderColor = ImRaii.PushColor(ImGuiCol.Border, TanLight);
         borderStyle = ImRaii.PushStyle(ImGuiStyleVar.WindowBorderSize, 3);
@@ -44,7 +43,6 @@ public abstract class Tf2Window : Window
 
     public override void PostDraw()
     {
-        this.Log($"PostDraw Tf2Window");
         windowRounding?.Dispose();
         borderStyle?.Dispose();
         borderColor?.Dispose();

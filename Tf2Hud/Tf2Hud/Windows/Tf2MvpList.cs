@@ -5,8 +5,10 @@ using Dalamud.Interface.GameFonts;
 using Dalamud.Interface.Raii;
 using Dalamud.Utility;
 using ImGuiNET;
+using ImGuiScene;
 using KamiLib.Drawing;
 using Pilz.Dalamud.Icons;
+using Tf2Hud.Common.Caching;
 using Tf2Hud.Common.Configuration;
 using Tf2Hud.Common.Windows;
 
@@ -39,22 +41,19 @@ public class Tf2MvpList : Tf2Window
     public override void PreDraw()
     {
         base.PreDraw();
-        this.Log($"PostDraw");
         frameRounding = ImRaii.PushStyle(ImGuiStyleVar.FrameRounding, 0f);
         windowBg = ImRaii.PushColor(ImGuiCol.WindowBg, WinningTeam.BgColor);
     }
 
     public override void Draw()
     {
-        this.Log($"Starting to draw");
         var teamWinMessage = $"{WinningTeam.Name} TEAM WINS!";
         using (ImRaii.PushFont(Tf2SecondaryFont))
         {
             ImGui.SetCursorPosX((ImGui.GetContentRegionAvail().X - ImGui.CalcTextSize(teamWinMessage).X) / 2);
             ImGuiHelper.TextShadow(teamWinMessage);
         }
-        
-        this.Log($"Adding what happened");
+
         var enemyName = LastEnemy.IsNullOrWhitespace() ? "an anonymous enemy" : LastEnemy;
         var winConditionMessage = WinningTeam == PlayerTeam
                                       ? $"{WinningTeam.Name} defeated {enemyName} before the time ran out"
@@ -62,7 +61,6 @@ public class Tf2MvpList : Tf2Window
         
         ImGui.SetCursorPosX((ImGui.GetContentRegionAvail().X - ImGui.CalcTextSize(winConditionMessage).X) / 2);
         ImGui.Text(winConditionMessage);
-        this.Log($"Creating player names' area");
 
         using var alpha = ImRaii.PushStyle(ImGuiStyleVar.Alpha, 0.85f);
         using var frameBg = ImRaii.PushColor(ImGuiCol.FrameBg, Colors.Black.ToU32());
@@ -75,49 +73,52 @@ public class Tf2MvpList : Tf2Window
                                           ImGui.GetCursorScreenPos() + new Vector2(InnerFrameWidth, 0), Colors.White.ToU32());
         ImGui.SetCursorPosY(ImGui.GetCursorPosY() + 10);
         var middlePosX = ImGui.GetCursorPosX() + (ImGui.GetContentRegionAvail().X / 2);
-
+        
         using var playerFont = ImRaii.PushFont(playerNameFont.ImFont);
         for (var i = 0; i < PartyList.Count; i++)
         {
             if (i >= PartyList.Count) break;
-            this.Log($"Adding player {i}");
             var leftPartyMember = PartyList[i];
-            ImGui.Image(GetClassJobIcon(leftPartyMember.ClassJobId)!.Value, ClassJobIconSize);
-            ImGui.SameLine();
-            ImGui.SetCursorPosY(ImGui.GetCursorPosY() + 6);
-            ImGui.TextColored(WinningTeam.TextColor, leftPartyMember.Name.ToDesiredFormat(NameDisplay));
+            DrawPlayer(leftPartyMember);
             if (PartyList.Count > 4 && PartyList.Count > i + 1)
             {
-                this.Log($"Adding player {i + 1}");
                 var rightPartyMember = PartyList[i + 1];
                 i++;
-                ImGui.SameLine();
                 ImGui.SetCursorPosX(middlePosX);
-                var classJobIcon = GetClassJobIcon(rightPartyMember.ClassJobId);
-                if (classJobIcon is not null)
-                {
-                    ImGui.Image(classJobIcon!.Value, ClassJobIconSize);
-                    ImGui.SameLine();
-                    ImGui.SetCursorPosY(ImGui.GetCursorPosY() + 6);
-                    ImGui.TextColored(WinningTeam.TextColor, rightPartyMember.Name.ToDesiredFormat(NameDisplay));
-                }
+                ImGui.SameLine();
+                DrawPlayer(rightPartyMember);
             }
         }
         ImGui.EndChildFrame();
     }
 
+    private void DrawPlayer(Tf2MvpMember member)
+    {
+        var classJobIcon = GetClassJobIcon(member.ClassJobId);
+        if (classJobIcon is not null)
+        {
+            ImGui.Image(classJobIcon.ImGuiHandle, ClassJobIconSize);
+            ImGui.SameLine();
+        }
+        else
+        {
+            ImGui.SetCursorPosX(ImGui.GetCursorPosX() + ClassJobIconSize.X);
+        }
+        ImGui.SetCursorPosY(ImGui.GetCursorPosY() + 6);
+        ImGui.TextColored(WinningTeam.TextColor, member.Name.ToDesiredFormat(NameDisplay));
+    }
+
     public override void PostDraw()
     {
-        this.Log($"PostDraw");
         windowBg.Dispose();
         frameRounding.Dispose();
         base.PostDraw();
     }
 
-    private nint? GetClassJobIcon(uint id)
+    private TextureWrap? GetClassJobIcon(uint id)
     {
         var iconId = jobIconSets.GetJobIcon(JobIconSetName.Framed, id);
-        return Service.DataManager?.GetImGuiTextureIcon((uint)iconId)?.ImGuiHandle;
+        return IconCache.Instance.GetIcon((uint)iconId);
     }
 
 
