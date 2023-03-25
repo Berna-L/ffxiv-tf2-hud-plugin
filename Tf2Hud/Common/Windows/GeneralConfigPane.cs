@@ -39,9 +39,12 @@ public class GeneralConfigPane: ConfigPane
     public override void Draw()
     {
         DrawTeamSection();
-        
-        DrawClassSection();
-        
+
+        if (Service.PluginInterface.IsDev)
+        {
+            DrawClassSection();
+        }
+
         DrawVolumeSection();
         
         DrawInstallFolder();
