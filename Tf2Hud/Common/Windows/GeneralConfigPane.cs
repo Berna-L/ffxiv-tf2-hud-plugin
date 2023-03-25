@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.IO;
 using System.Linq;
 using System.Numerics;
 using Dalamud.Interface;
-using Dalamud.Logging;
 using Dalamud.Utility;
 using ImGuiNET;
 using KamiLib;
@@ -15,13 +13,14 @@ using Lumina.Excel.GeneratedSheets;
 using Tf2Hud.Common.Configuration;
 using Tf2Hud.Common.Util;
 using Tf2Hud.Tf2Hud;
+using Tf2Hud.Tf2Hud.Audio;
 using Tf2Hud.Tf2Hud.Model;
 
 namespace Tf2Hud.Common.Windows;
 
 public class GeneralConfigPane: ConfigPane
 {
-    private readonly byte[]?[] testSounds = {Tf2HudModule.VictorySound, Tf2HudModule.FailSound };
+    private readonly WaveAudio?[] testSounds = {Tf2Sound.Instance.VictorySound, Tf2Sound.Instance.FailSound };
     private const string TestSoundId = "TF2HUD+TestSound";
     private readonly Lazy<float> longestJobNameLength = new(() => Constants.CombatJobs.Values.Select(cj => cj.NameEnglish).Select(cj => cj.ToString())
                                                                            .Select(n => ImGui.CalcTextSize(n).X).OrderDescending().First());

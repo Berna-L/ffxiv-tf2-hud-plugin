@@ -15,10 +15,11 @@ using Gameloop.Vdf.Linq;
 using ImGuiNET;
 using KamiLib;
 using KamiLib.Configuration;
+using Lumina.Excel.GeneratedSheets;
 using Microsoft.Win32;
-using Sledge.Formats.Packages;
 using Tf2Hud.Common;
 using Tf2Hud.Common.Configuration;
+using Tf2Hud.Tf2Hud.Audio;
 using Tf2Hud.Tf2Hud.Model;
 using Tf2Hud.Tf2Hud.Windows;
 
@@ -30,11 +31,7 @@ public class Tf2HudModule : IDisposable
     
     private readonly Tf2WinPanel tf2WinPanel;
     private BattleNpc? lastEnemyTarget;
-
-    public static byte[]? VictorySound;
-    public static byte[]? FailSound;
-    public static byte[]? ScoreDingSound;
-
+    
     private ImFontPtr tf2Font;
     private ImFontPtr tf2ScoreFont;
     private ImFontPtr tf2SecondaryFont;
@@ -69,20 +66,21 @@ public class Tf2HudModule : IDisposable
             HelpMessage = "Closes the win panel immediately if needed."
         });
         
-        Service.DutyState.DutyStarted += OnStart;
-        Service.DutyState.DutyCompleted += OnComplete;
-        Service.DutyState.DutyWiped += OnWipe;
-        Service.Framework.Update += OnUpdate;
         Service.PluginInterface.UiBuilder.BuildFonts += LoadTf2Fonts;
-        
-        LoadTf2SoundFiles();
 
         KamiCommon.WindowManager.AddWindow(new Tf2BluScoreWindow());
         KamiCommon.WindowManager.AddWindow(new Tf2RedScoreWindow());
         KamiCommon.WindowManager.AddWindow(new Tf2MvpList());
         KamiCommon.WindowManager.AddWindow(new Tf2Timer(this.configZero));
+
+        Service.DutyState.DutyStarted += OnStart;
+        Service.DutyState.DutyCompleted += OnComplete;
+        Service.DutyState.DutyWiped += OnWipe;
+        Service.Framework.Update += OnUpdate;
+
+        Tf2Sound.Instance.Tf2InstallFolder = tf2InstallFolder;
         
-        tf2WinPanel = new Tf2WinPanel(this.configZero, playerTeam, GetPartyList(), ScoreDingSound);
+        tf2WinPanel = new Tf2WinPanel(this.configZero, playerTeam, GetPartyList());
 
 
     }
@@ -174,32 +172,7 @@ public class Tf2HudModule : IDisposable
 
         Service.CommandManager.RemoveHandler(CloseWinPanel);
     }
-
-    private void LoadTf2SoundFiles()
-    {
-        if (tf2InstallFolder is null) return;
-        var tf2VpkPath = Path.Combine(tf2InstallFolder, "tf", "tf2_sound_misc_dir.vpk");
-        if (!Path.Exists(tf2VpkPath)) return;
-        using var package = new VpkPackage(tf2VpkPath);
-
-        VictorySound = LoadSoundFile(package, "sound/misc/your_team_won.wav");
-        FailSound = LoadSoundFile(package, "sound/misc/your_team_lost.wav");
-        ScoreDingSound = LoadSoundFile(package, "sound/ui/scored.wav");
-        
-        package.Dispose();
-        
-    }
-
-    private static byte[] LoadSoundFile(IPackage package, string filePath)
-    {
-        var file = package.Entries.First(e => e.Path == filePath);
-        using var fileStream = package.Open(file);
-        var result = new byte[fileStream.Length];
-        fileStream.Read(result, 0, result.Length);
-        fileStream.Dispose();
-        return result;
-    }
-
+    
     private void OnUpdate(Framework? framework)
     {
         UpdatePointers();
@@ -213,7 +186,6 @@ public class Tf2HudModule : IDisposable
         if (tf2InstallFolder != configZero.Tf2InstallPath.Value)
         {
             LoadTf2Fonts();
-            LoadTf2SoundFiles();
         }
     }
 
@@ -288,8 +260,7 @@ public class Tf2HudModule : IDisposable
         tf2WinPanel.PlayerTeam = playerTeam;
         tf2WinPanel.Show(playerTeamScore, enemyTeamScore, playerTeamScore + 1, enemyTeamScore, GetPartyList(), GetEnemyName(), playerTeam);
         playerTeamScore += 1;
-        if (VictorySound is null) return;
-        SoundEngine.PlaySound(VictorySound, configZero.ApplySfxVolume, configZero.Volume.Value);
+        SoundEngine.PlaySound(Tf2Sound.Instance.VictorySound, configZero.ApplySfxVolume, configZero.Volume.Value);
     }
 
     private void OnWipe(object? sender, ushort e)
@@ -297,8 +268,7 @@ public class Tf2HudModule : IDisposable
         tf2WinPanel.PlayerTeam = playerTeam;
         tf2WinPanel.Show(playerTeamScore, enemyTeamScore, playerTeamScore, enemyTeamScore + 1, GetPartyList(), GetEnemyName(), playerTeam.Enemy);
         enemyTeamScore += 1;
-        if (FailSound is null) return;
-        SoundEngine.PlaySound(FailSound, configZero.ApplySfxVolume, configZero.Volume.Value);
+        SoundEngine.PlaySound(Tf2Sound.Instance.FailSound, configZero.ApplySfxVolume, configZero.Volume.Value);
         lastEnemyTarget = null;
     }
 

@@ -2,11 +2,10 @@
 using System.Collections.Generic;
 using System.Numerics;
 using Dalamud.Game;
-using ImGuiNET;
 using KamiLib;
 using KamiLib.Configuration;
 using Tf2Hud.Common.Configuration;
-using Tf2Hud.Common.Windows;
+using Tf2Hud.Tf2Hud.Audio;
 using Tf2Hud.Tf2Hud.Model;
 
 namespace Tf2Hud.Tf2Hud.Windows;
@@ -14,7 +13,6 @@ namespace Tf2Hud.Tf2Hud.Windows;
 public class Tf2WinPanel : IDisposable
 {
     private readonly ConfigZero configZero;
-    private readonly byte[]? scoredSound;
     private int playerTeamScoreToSet;
     private int enemyTeamScoreToSet;
 
@@ -26,10 +24,9 @@ public class Tf2WinPanel : IDisposable
     private static Tf2MvpList MvpListWindow => KamiCommon.WindowManager.GetWindowOfType<Tf2MvpList>()!;
 
 
-    public Tf2WinPanel(ConfigZero configZero, Tf2Team playerTeam, List<Tf2MvpMember> initialPartyList, byte[]? scoredSound)
+    public Tf2WinPanel(ConfigZero configZero, Tf2Team playerTeam, List<Tf2MvpMember> initialPartyList)
     {
         this.configZero = configZero;
-        this.scoredSound = scoredSound;
         PlayerTeam = playerTeam;
         MvpListWindow.PlayerTeam = PlayerTeam;
         MvpListWindow.WinningTeam = PlayerTeam;
@@ -71,7 +68,7 @@ public class Tf2WinPanel : IDisposable
         {
             GetPlayerTeamScoreWindow().Score = playerTeamScoreToSet;
             GetEnemyTeamScoreWindow().Score = enemyTeamScoreToSet;
-            if (scoredSound is not null) SoundEngine.PlaySound(scoredSound, configZero.ApplySfxVolume, configZero.Volume.Value, 22050, 1);
+            SoundEngine.PlaySound(Tf2Sound.Instance.ScoredSound, configZero.ApplySfxVolume, configZero.Volume.Value);
             waitingForNewScore = false;
         }
 
