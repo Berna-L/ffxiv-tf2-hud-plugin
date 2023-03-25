@@ -36,14 +36,14 @@ public class ConfigZero : BaseConfiguration
         public int Version { get; set; } = 0;
     }
 
-    public class TimerConfigZero : ModuleConfiguration
+    public class TimerConfigZero : WindowModuleConfiguration
     {
         public override float GetPositionXDefault() => (ImGui.GetMainViewport().Size.X / 2) - 110;
 
         public override float GetPositionYDefault() => 50;
     }
 
-    public class WinPanelConfigZero : ModuleConfiguration
+    public class WinPanelConfigZero : WindowModuleConfiguration
     {
         public WinPanelConfigZero()
         {
@@ -58,6 +58,39 @@ public class ConfigZero : BaseConfiguration
         public override float GetPositionXDefault() => (ImGui.GetMainViewport().Size.X / 2) - Tf2Window.ScorePanelWidth;
 
         public override float GetPositionYDefault() => ImGui.GetMainViewport().Size.Y - 500;
+    }
+    
+    public class VoiceLineConfigZero: ModuleConfiguration
+    {
+        public int Version { get; set; } = 0;
+        public Setting<bool> SurpriseMe { get; set; } = new(true);
+
+        public VoiceLineConfigZero()
+        {
+            Enabled = new Setting<bool>(false);
+        }
+
+        public VoiceLineTrigger MannUpWhenStartingHighEndDuty = new("Mann Up when starting a High-End Duty",
+                                                                    "Plays a random Administrator voiceline" +
+                                                                    "from Mann Up mode when starting a duty" +
+                                                                    "classified as High-End in the Duty Finder.");
+
+        public class VoiceLineTrigger: ModuleConfiguration
+        {
+            [NonSerialized]
+            public readonly string Name;
+            [NonSerialized]
+            public readonly string Description;
+
+            public VoiceLineTrigger(string name, string description)
+            {
+                Name = name;
+                Description = description;
+            }
+
+            public Setting<bool> Heard { get; set; }= new(false);
+            public VoiceLineTrigger[] SubTriggers { get; set; } = Array.Empty<VoiceLineTrigger>();
+        }
     }
     
     public Setting<string> Tf2InstallPath { get; set; } = new(string.Empty);

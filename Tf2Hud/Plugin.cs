@@ -20,6 +20,7 @@ public sealed class Plugin : IDalamudPlugin
     private const string CommandName = "/tfconfig";
 
     private readonly Tf2HudModule? tf2HudModule;
+    private readonly Tf2VoiceLinesModule? tf2VoiceLinesModule;
 
 
     public readonly WindowSystem WindowSystem = new("TeamFortressFantasy");
@@ -31,7 +32,9 @@ public sealed class Plugin : IDalamudPlugin
         KamiCommon.Initialize(Service.PluginInterface, Name, () => Configuration?.Save());
         Configuration = InitConfig();
         Configuration.Save();
+        
         tf2HudModule = new Tf2HudModule(Configuration);
+        tf2VoiceLinesModule = new Tf2VoiceLinesModule(Configuration);
 
 
         KamiCommon.WindowManager.AddWindow(new ConfigWindow(Configuration));
@@ -55,6 +58,7 @@ public sealed class Plugin : IDalamudPlugin
     public void Dispose()
     {
         KamiCommon.Dispose();
+        tf2VoiceLinesModule?.Dispose();;
         tf2HudModule?.Dispose();
         WindowSystem.RemoveAllWindows();
         Service.CommandManager.RemoveHandler(CommandName);

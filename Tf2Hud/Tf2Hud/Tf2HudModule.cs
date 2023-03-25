@@ -15,7 +15,6 @@ using Gameloop.Vdf.Linq;
 using ImGuiNET;
 using KamiLib;
 using KamiLib.Configuration;
-using Lumina.Excel.GeneratedSheets;
 using Microsoft.Win32;
 using Tf2Hud.Common;
 using Tf2Hud.Common.Configuration;
@@ -221,18 +220,12 @@ public class Tf2HudModule : IDisposable
 
     private void OnStart(object? sender, ushort e)
     {
-        if (IsHighEndDuty())
-        {
-            SoundEngine.PlaySound(Tf2Sound.Instance.RandomMannUpSound, configZero.ApplySfxVolume, configZero.Volume.Value);
-        }
         this.playerTeam = UpdatePlayerTeam();
         if (Timer is not null)
         {
             Timer.Team = playerTeam;
             Timer.IsOpen = true;
         }
-
-        
         
         switch (configZero.WinPanel.ScoreBehavior.Value)
         {
@@ -251,17 +244,7 @@ public class Tf2HudModule : IDisposable
         }
         lastDutyTerritory = Service.ClientState.TerritoryType;
     }
-
-    private static unsafe bool IsHighEndDuty()
-    {
-        return Service.DataManager.GetExcelSheet<ContentFinderCondition>()?
-            .FirstOrDefault(cfc => cfc.Content == EventFramework
-                                       .Instance()
-                                       ->GetInstanceContentDirector()
-                                       ->ContentDirector.Director.ContentId)?
-            .HighEndDuty ?? false;
-    }
-
+    
     private void ClearScores()
     {
         playerTeamScore = 0;
