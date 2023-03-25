@@ -49,10 +49,15 @@ public class Service
     [PluginService]
     public static PartyList PartyList { get; private set; } = null!;
 
+    private static readonly string FileName = DateTime.Now.ToString("yyyy-MM-ddTHH:mm:ss");
+    
     public static void Log(string log)
     {
-        var time = DateTime.Now.ToString("yyyy’-‘MM’-‘dd’T’HH’:’mm’:’ss.fffffffK");
-        var logLocation = Path.Combine(PluginInterface.GetPluginConfigDirectory(), PluginInterface.InternalName + ".log");
-        File.AppendText(logLocation).WriteLine($"[{time}] {log}");
+        var time = DateTime.Now.ToString("yyyy-MM-ddTHH:mm:ss.fffffffK");
+        var logLocation = Path.Combine(PluginInterface.GetPluginConfigDirectory(),
+                                       $"{PluginInterface.InternalName}.{FileName}.log");
+        using var streamWriter = File.AppendText(logLocation);
+        streamWriter.WriteLine($"[{time}] {log}");
+        streamWriter.Close();
     }
 }
