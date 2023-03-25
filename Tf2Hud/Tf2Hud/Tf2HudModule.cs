@@ -329,11 +329,10 @@ public class Tf2HudModule : IDisposable
             if (Service.ClientState.LocalPlayer is null) return new List<Tf2MvpMember>();
             return new[]
             {
-                new Tf2MvpMember()
-                {
-                    Name = Service.ClientState.LocalPlayer.Name.TextValue,
-                    ClassJobId = Service.ClientState.LocalPlayer.ClassJob.Id
-                }
+                LocalTf2MvpMember,
+                LocalTf2MvpMember,
+                LocalTf2MvpMember,
+                LocalTf2MvpMember
             }.ToList();
         }
         PluginLog.LogDebug($"{Service.PartyList.Length} people in the party");
@@ -343,6 +342,13 @@ public class Tf2HudModule : IDisposable
             Name = pm.Name.TextValue
         }).ToList();
     }
+
+    private static Tf2MvpMember LocalTf2MvpMember =>
+        new()
+        {
+            Name = Service.ClientState.LocalPlayer.Name.TextValue,
+            ClassJobId = Service.ClientState.LocalPlayer.ClassJob.Id
+        };
 
     private unsafe void UpdateTarget()
     {

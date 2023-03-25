@@ -85,8 +85,8 @@ public class Tf2MvpList : Tf2Window
             {
                 var rightPartyMember = PartyList[i + 1];
                 i++;
-                ImGui.SetCursorPosX(middlePosX);
                 ImGui.SameLine();
+                ImGui.SetCursorPosX(middlePosX);
                 DrawPlayer(rightPartyMember);
             }
         }
