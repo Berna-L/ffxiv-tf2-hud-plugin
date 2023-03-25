@@ -46,14 +46,14 @@ public class Tf2MvpList : Tf2Window
 
     public override void Draw()
     {
-
         this.Log($"Starting to draw");
         var teamWinMessage = $"{WinningTeam.Name} TEAM WINS!";
-        ImGui.PushFont(Tf2SecondaryFont);
-        ImGui.SetCursorPosX((ImGui.GetContentRegionAvail().X - ImGui.CalcTextSize(teamWinMessage).X) / 2);
-        ImGuiHelper.TextShadow(teamWinMessage);
-        ImGui.PopFont();
-
+        using (ImRaii.PushFont(Tf2SecondaryFont))
+        {
+            ImGui.SetCursorPosX((ImGui.GetContentRegionAvail().X - ImGui.CalcTextSize(teamWinMessage).X) / 2);
+            ImGuiHelper.TextShadow(teamWinMessage);
+        }
+        
         this.Log($"Adding what happened");
         var enemyName = LastEnemy.IsNullOrWhitespace() ? "an anonymous enemy" : LastEnemy;
         var winConditionMessage = WinningTeam == PlayerTeam
@@ -63,11 +63,10 @@ public class Tf2MvpList : Tf2Window
         ImGui.SetCursorPosX((ImGui.GetContentRegionAvail().X - ImGui.CalcTextSize(winConditionMessage).X) / 2);
         ImGui.Text(winConditionMessage);
         this.Log($"Creating player names' area");
-        ImGui.PushStyleVar(ImGuiStyleVar.Alpha, 0.85f);
-        ImGui.PushStyleColor(ImGuiCol.FrameBg, Colors.Black.ToU32());
-        ImGui.BeginChildFrame(12313, new Vector2(InnerFrameWidth, InnerFrameHeight));
-        ImGui.PopStyleColor();
-        ImGui.PopStyleVar();
+
+        using var alpha = ImRaii.PushStyle(ImGuiStyleVar.Alpha, 0.85f);
+        using var frameBg = ImRaii.PushColor(ImGuiCol.FrameBg, Colors.Black.ToU32());
+        ImGui.BeginChildFrame((uint) Math.Abs(Random.Shared.Next()), new Vector2(InnerFrameWidth, InnerFrameHeight));
         ImGui.Text($"{PlayerTeam.Name} team MVPs:");
         ImGui.SameLine();
         ImGui.SetCursorPosX(ImGui.GetCursorPosX() + ImGui.GetContentRegionAvail().X - ImGui.CalcTextSize(PointsThisRound).X);
@@ -76,7 +75,8 @@ public class Tf2MvpList : Tf2Window
                                           ImGui.GetCursorScreenPos() + new Vector2(InnerFrameWidth, 0), Colors.White.ToU32());
         ImGui.SetCursorPosY(ImGui.GetCursorPosY() + 10);
         var middlePosX = ImGui.GetCursorPosX() + (ImGui.GetContentRegionAvail().X / 2);
-        ImGui.PushFont(playerNameFont.ImFont);
+
+        using var playerFont = ImRaii.PushFont(playerNameFont.ImFont);
         for (var i = 0; i < PartyList.Count; i++)
         {
             if (i >= PartyList.Count) break;
@@ -103,9 +103,7 @@ public class Tf2MvpList : Tf2Window
                 }
             }
         }
-        ImGui.PopFont();
         ImGui.EndChildFrame();
-        
     }
 
     public override void PostDraw()

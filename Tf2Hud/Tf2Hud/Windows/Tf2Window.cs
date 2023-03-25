@@ -12,6 +12,7 @@ public abstract class Tf2Window : Window
     public const int ScorePanelWidth = 270;
     public const int ScorePanelHeight = 65;
     protected const int MvpListHeight = 280;
+    public static Vector4 TanLight = new(235 / 255f, 226 / 255f, 202 / 255f, 255 / 255f);
 
     protected Tf2Window(string name, Team team) : base(
         name,
@@ -29,17 +30,23 @@ public abstract class Tf2Window : Window
 
     private ImRaii.Color? windowBgColor;
     private ImRaii.Color? borderColor;
+    private ImRaii.Style? borderStyle;
+    private ImRaii.Style? windowRounding;
     
     public override void PreDraw()
     {
         this.Log($"PreDraw Tf2Window");
         windowBgColor = ImRaii.PushColor(ImGuiCol.WindowBg, Team.BgColor);
-        borderColor = ImRaii.PushColor(ImGuiCol.Border, new Vector4(255, 255, 255, 20));
+        borderColor = ImRaii.PushColor(ImGuiCol.Border, TanLight);
+        borderStyle = ImRaii.PushStyle(ImGuiStyleVar.WindowBorderSize, 3);
+        windowRounding = ImRaii.PushStyle(ImGuiStyleVar.WindowRounding, 5);
     }
 
     public override void PostDraw()
     {
         this.Log($"PostDraw Tf2Window");
+        windowRounding?.Dispose();
+        borderStyle?.Dispose();
         borderColor?.Dispose();
         windowBgColor?.Dispose();
     }
