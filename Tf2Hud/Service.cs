@@ -1,4 +1,6 @@
-﻿using Dalamud.Data;
+﻿using System;
+using System.IO;
+using Dalamud.Data;
 using Dalamud.Game;
 using Dalamud.Game.ClientState;
 using Dalamud.Game.ClientState.Conditions;
@@ -7,7 +9,6 @@ using Dalamud.Game.ClientState.Party;
 using Dalamud.Game.Command;
 using Dalamud.Game.DutyState;
 using Dalamud.Game.Gui.FlyText;
-using Dalamud.Interface.ImGuiFileDialog;
 using Dalamud.IoC;
 using Dalamud.Plugin;
 
@@ -47,6 +48,11 @@ public class Service
 
     [PluginService]
     public static PartyList PartyList { get; private set; } = null!;
-    
-    public static FileDialogManager DialogManager = new();
+
+    public static void Log(string log)
+    {
+        var time = DateTime.Now.ToString("yyyy’-‘MM’-‘dd’T’HH’:’mm’:’ss.fffffffK");
+        var logLocation = Path.Combine(PluginInterface.GetPluginConfigDirectory(), PluginInterface.InternalName + ".log");
+        File.AppendText(logLocation).WriteLine($"[{time}] {log}");
+    }
 }

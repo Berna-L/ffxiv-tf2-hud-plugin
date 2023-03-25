@@ -29,6 +29,7 @@ public abstract class Tf2Window : Window
     
     public override void PreDraw()
     {
+        Service.Log($"Tf2Window - PostDraw");
         ImGui.PushStyleColor(ImGuiCol.WindowBg, Team.BgColor);
         ImGui.PushStyleColor(ImGuiCol.Border, new Vector4(255, 255, 255, 20));
     }
@@ -37,6 +38,7 @@ public abstract class Tf2Window : Window
     {
         ImGui.PopStyleColor();
         ImGui.PopStyleColor();
+        Service.Log($"Tf2Window - PostDraw");
     }
     
     public static void UpdateFontPointers(ImFontPtr tf2Font, ImFontPtr tf2ScoreFont, ImFontPtr tf2SecondaryFont)

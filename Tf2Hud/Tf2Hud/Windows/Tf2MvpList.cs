@@ -26,6 +26,9 @@ public class Tf2MvpList : Tf2Window
         jobIconSets = new JobIconSets();
         playerNameFont = Service.PluginInterface.UiBuilder.GetGameFontHandle(new GameFontStyle(GameFontFamily.Axis, 18));
         Position = DefaultPosition;
+        PartyList = new List<Tf2MvpMember>();
+        PlayerTeam = Team.Red;
+        WinningTeam = Team.Red;
     }
 
     public string? LastEnemy { get; set; }
@@ -33,23 +36,30 @@ public class Tf2MvpList : Tf2Window
     public override void PreDraw()
     {
         base.PreDraw();
+        Service.Log($"Tf2MvpList - PostDraw");
         ImGui.PushStyleVar(ImGuiStyleVar.FrameRounding, 0f);
         ImGui.PushStyleColor(ImGuiCol.WindowBg, WinningTeam.BgColor);
     }
 
     public override void Draw()
     {
-        var enemyName = LastEnemy.IsNullOrWhitespace() ? "an anonymous enemy" : LastEnemy;
+
+        Service.Log($"Tf2MvpList - Starting to draw");
         var teamWinMessage = $"{WinningTeam.Name} TEAM WINS!";
         ImGui.PushFont(Tf2SecondaryFont);
         ImGui.SetCursorPosX((ImGui.GetContentRegionAvail().X - ImGui.CalcTextSize(teamWinMessage).X) / 2);
         ImGuiHelper.TextShadow(teamWinMessage);
         ImGui.PopFont();
+
+        Service.Log($"Tf2MvpList - Adding what happened");
+        var enemyName = LastEnemy.IsNullOrWhitespace() ? "an anonymous enemy" : LastEnemy;
         var winConditionMessage = WinningTeam == PlayerTeam
                                       ? $"{WinningTeam.Name} defeated {enemyName} before the time ran out"
                                       : $"{WinningTeam.Name}, led by {enemyName}, wiped {WinningTeam.Enemy.Name}";
+        
         ImGui.SetCursorPosX((ImGui.GetContentRegionAvail().X - ImGui.CalcTextSize(winConditionMessage).X) / 2);
         ImGui.Text(winConditionMessage);
+        Service.Log($"Tf2MvpList - Creating player names' area");
         ImGui.PushStyleVar(ImGuiStyleVar.Alpha, 0.85f);
         ImGui.PushStyleColor(ImGuiCol.FrameBg, Colors.Black.ToU32());
         ImGui.BeginChildFrame(12313, new Vector2(InnerFrameWidth, InnerFrameHeight));
@@ -66,24 +76,28 @@ public class Tf2MvpList : Tf2Window
         ImGui.PushFont(playerNameFont.ImFont);
         for (var i = 0; i < PartyList.Count; i++)
         {
-            if (i > PartyList.Count) break; 
+            if (i >= PartyList.Count) break;
+            Service.Log($"Tf2MvpList - Adding player {i}");
             var leftPartyMember = PartyList[i];
-            if (leftPartyMember is null) break;
             ImGui.Image(GetClassJobIcon(leftPartyMember.ClassJobId)!.Value, ClassJobIconSize);
             ImGui.SameLine();
             ImGui.SetCursorPosY(ImGui.GetCursorPosY() + 6);
             ImGui.TextColored(WinningTeam.TextColor, leftPartyMember.Name.ToDesiredFormat(NameDisplay));
             if (PartyList.Count > 4 && PartyList.Count > i + 1)
             {
+                Service.Log($"Tf2MvpList - Adding player {i + 1}");
                 var rightPartyMember = PartyList[i + 1];
-                if (rightPartyMember is null) continue;
                 i++;
                 ImGui.SameLine();
                 ImGui.SetCursorPosX(middlePosX);
-                ImGui.Image(GetClassJobIcon(rightPartyMember.ClassJobId)!.Value, ClassJobIconSize);
-                ImGui.SameLine();
-                ImGui.SetCursorPosY(ImGui.GetCursorPosY() + 6);
-                ImGui.TextColored(WinningTeam.TextColor, rightPartyMember.Name.ToDesiredFormat(NameDisplay));
+                var classJobIcon = GetClassJobIcon(rightPartyMember.ClassJobId);
+                if (classJobIcon is not null)
+                {
+                    ImGui.Image(classJobIcon!.Value, ClassJobIconSize);
+                    ImGui.SameLine();
+                    ImGui.SetCursorPosY(ImGui.GetCursorPosY() + 6);
+                    ImGui.TextColored(WinningTeam.TextColor, rightPartyMember.Name.ToDesiredFormat(NameDisplay));
+                }
             }
         }
         ImGui.PopFont();
@@ -109,6 +123,7 @@ public class Tf2MvpList : Tf2Window
 
     public override void PostDraw()
     {
+        Service.Log($"Tf2MvpList - PostDraw");
         ImGui.PopStyleColor();
         ImGui.PopStyleVar();
         base.PostDraw();

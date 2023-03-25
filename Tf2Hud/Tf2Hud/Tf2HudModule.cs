@@ -45,12 +45,14 @@ public class Tf2HudModule : IDisposable
     private int playerTeamScore;
     private int enemyTeamScore;
     private readonly string? tf2InstallFolder;
-    private static Tf2Timer? GetTimer => KamiCommon.WindowManager.GetWindowOfType<Tf2Timer>();
+    private static Tf2Timer? Timer => KamiCommon.WindowManager.GetWindowOfType<Tf2Timer>();
     private readonly ConfigZero configZero;
 
 
     public Tf2HudModule(ConfigZero configZero)
     {
+        Service.Log("========================================");
+        Service.Log("Starting Team Fortress Fantasy...");
         this.configZero = configZero;
         tf2InstallFolder = FindTf2InstallFolder();
         if (tf2InstallFolder is not null)
@@ -218,21 +220,21 @@ public class Tf2HudModule : IDisposable
 
     private unsafe void UpdateTimer()
     {
-        if (GetTimer is null) return;
+        if (Timer is null) return;
         var enabled = configZero.Timer.Enabled;
         var timerMoveMode = configZero.Timer.RepositionMode;
         var contentDirector = EventFramework.Instance()->GetInstanceContentDirector();
         if (Service.DutyState.IsDutyStarted)
         {
-            GetTimer.Team = playerTeam;
-            GetTimer.IsOpen = enabled;
+            Timer.Team = playerTeam;
+            Timer.IsOpen = enabled;
         }
 
-        if (!GetTimer.IsOpen)
+        if (!Timer.IsOpen)
         {
-            GetTimer.IsOpen = timerMoveMode && enabled;
+            Timer.IsOpen = timerMoveMode && enabled;
         }
-        if (GetTimer is { IsOpen: true } window)
+        if (Timer is { IsOpen: true } window)
         {
             if (contentDirector is null)
             {
@@ -249,10 +251,10 @@ public class Tf2HudModule : IDisposable
     private void OnStart(object? sender, ushort e)
     {
         this.playerTeam = UpdatePlayerTeam();
-        if (GetTimer is not null)
+        if (Timer is not null)
         {
-            GetTimer.Team = playerTeam;
-            GetTimer.IsOpen = true;
+            Timer.Team = playerTeam;
+            Timer.IsOpen = true;
         }
 
         
@@ -336,7 +338,7 @@ public class Tf2HudModule : IDisposable
             }.ToList();
         }
         PluginLog.LogDebug($"{Service.PartyList.Length} people in the party");
-        return Service.PartyList.OrderBy(pm => pm.ClassJob.GameData.Role).Select(pm => new Tf2MvpMember()
+        return Service.PartyList.OrderBy(pm => pm.ClassJob.GameData?.Role ?? int.MaxValue).Select(pm => new Tf2MvpMember
         {
             ClassJobId = pm.ClassJob.Id,
             Name = pm.Name.TextValue

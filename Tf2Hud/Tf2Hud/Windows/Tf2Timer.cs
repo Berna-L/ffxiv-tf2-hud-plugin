@@ -22,34 +22,53 @@ public class Tf2Timer : Tf2Window
     
     public override void Draw()
     {
+        Service.Log($"Tf2Timer - Starting to Draw");
         Position = configZero.Timer.GetPosition();
         if (TimeRemaining is null or 0)
         {
+            Service.Log($"Tf2Timer - TimeRemaining is null or 0");
+
             MaxTime = null;
             if (!configZero.Timer.RepositionMode)
             {
+                Service.Log($"Tf2Timer - and it's in reposition mode");
                 return;
             }
         }
 
         if (TimeRemaining is null && configZero.Timer.RepositionMode)
         {
+            Service.Log($"Tf2Timer - TimeRemaining is null, but it's reposition mode: setting fake time");
             TimeRemaining = (33 * 60) + 30;
             MaxTime = (long)((float)TimeRemaining * 1.33f);
         }
 
         if (configZero.Timer.RepositionMode)
         {
+            Service.Log($"Tf2Timer - It's reposition mode!");
             Flags &= ~ImGuiWindowFlags.NoMove;
         }
         else
         {
+            Service.Log($"Tf2Timer - It's not reposition mode :(");
             Flags |= ImGuiWindowFlags.NoMove;
         }
 
+
         MaxTime ??= TimeRemaining;
-        if (MaxTime < TimeRemaining) MaxTime = TimeRemaining;
-        var text = $"{TimeRemaining / 60}:{(TimeRemaining % 60).ToString().PadLeft(2, '0')}";
+        if (MaxTime is null || TimeRemaining is null)
+        {
+            Service.Log($"Tf2Timer - MaxTime is {MaxTime} and TimeRemaining is {TimeRemaining}. One of them is null, and thus it returneth.");
+            return;
+        }
+        if (MaxTime < TimeRemaining)
+        {
+            Service.Log($"Tf2Timer - MaxTime < TimeRemaining. Updating MaxTime.");
+            MaxTime = TimeRemaining;
+        }
+        
+        var text = $"{TimeRemaining / 60}:{(TimeRemaining % 60).ToString()?.PadLeft(2, '0')}";
+        Service.Log($"Tf2Timer - Everything OK to starting creating the window itself.");
         ImGui.PushFont(Tf2Font);
         var regionAvailable = ImGui.GetContentRegionAvail();
         var timerSize = ImGui.CalcTextSize(text);
@@ -62,24 +81,24 @@ public class Tf2Timer : Tf2Window
         ImGui.SameLine();
         ImGui.GetForegroundDrawList()
              .AddCircleFilled(circleCenter, circleRadius, new Vector4(49 / 255f, 44 / 255f, 41 / 255f, 1f).ToU32());
-        var startAngle = getAngleValue(0);
+        var startAngle = GetAngleValue(0);
         var normalizedTimeRemaining = (float)((MaxTime - (MaxTime - TimeRemaining)) / (float)MaxTime);
         var color = (normalizedTimeRemaining > 0.1f ? Colors.White : Colors.Red).ToU32();
         ImGui.GetForegroundDrawList().PathArcTo(circleCenter, circleRadius, startAngle,
-                                                getAngleValue(Math.Min(0.5f, normalizedTimeRemaining)));
+                                                GetAngleValue(Math.Min(0.5f, normalizedTimeRemaining)));
         ImGui.GetForegroundDrawList().PathLineTo(circleCenter);
         ImGui.GetForegroundDrawList().PathFillConvex(color);
         if (normalizedTimeRemaining >= 0.5f)
         {
-            ImGui.GetForegroundDrawList().PathArcTo(circleCenter, circleRadius, getAngleValue(0.5f),
-                                                    getAngleValue(normalizedTimeRemaining));
+            ImGui.GetForegroundDrawList().PathArcTo(circleCenter, circleRadius, GetAngleValue(0.5f),
+                                                    GetAngleValue(normalizedTimeRemaining));
             ImGui.GetForegroundDrawList().PathLineTo(circleCenter);
             ImGui.GetForegroundDrawList().PathFillConvex(color);
         }
     }
 
 
-    private static float getAngleValue(float point)
+    private static float GetAngleValue(float point)
     {
         return (float)(Math.PI * ((point * 360) - 90) / 180.0f);
     }
