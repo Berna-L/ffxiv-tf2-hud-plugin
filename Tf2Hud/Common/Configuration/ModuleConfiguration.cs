@@ -5,6 +5,6 @@ namespace Tf2Hud.Common.Configuration;
 
 public abstract class ModuleConfiguration : IPluginConfiguration
 {
-    public Setting<bool> Enabled { get; set; } = new(true);
+    public Setting<bool> Enabled { get; protected init; } = new(true);
     public int Version { get; set; }
 }

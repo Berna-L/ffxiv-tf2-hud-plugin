@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using ImGuiNET;
@@ -9,35 +10,62 @@ using Tf2Hud.Common.Model;
 using Tf2Hud.Common.Util;
 using Tf2Hud.Tf2Hud.Configuration;
 using Tf2Hud.Tf2Hud.Windows;
+using Tf2Hud.VoiceLines.Model;
 
 namespace Tf2Hud.Common.Configuration;
 
 public class ConfigZero : BaseConfiguration
 {
-    public readonly ClassConfigZero Class = new();
-    public readonly TimerConfigZero Timer = new();
-    public readonly WinPanelConfigZero WinPanel = new();
+    public readonly GeneralConfigZero General = new();
 
     [NonSerialized]
-    public bool Tf2InstallPathAutoDetected;
-
+    public readonly ClassConfigZero Class = new(); 
+    public readonly TimerConfigZero Timer = new();
+    public readonly WinPanelConfigZero WinPanel = new();
+    public readonly VoiceLinesConfigZero VoiceLines = new();
+    
     public ConfigZero()
     {
         Version = 0;
     }
 
-    public Setting<string> Tf2InstallPath { get; set; } = new(string.Empty);
+    public Setting<string> Tf2InstallPath { private get; set; } = new(string.Empty);
 
-    public Setting<TeamPreferenceKind> TeamPreference { get; set; } = new(TeamPreferenceKind.Random);
+    public Setting<TeamPreferenceKind> TeamPreference { private get; set; } = new(TeamPreferenceKind.Random);
 
-    public Setting<int> Volume { get; set; } = new(50);
-    public Setting<bool> ApplySfxVolume { get; set; } = new(true);
+    public Setting<int> Volume { private get; set; } = new(50);
+    public Setting<bool> ApplySfxVolume { private get; set; } = new(true);
 
     public void Save()
     {
         PluginVersion = PluginVersion.Current;
         File.WriteAllText(Service.PluginInterface.ConfigFile.FullName,
                           JsonConvert.SerializeObject(this, Formatting.Indented));
+    }
+
+    public class GeneralConfigZero: ModuleConfiguration
+    {
+        [NonSerialized]
+        public bool Tf2InstallPathAutoDetected;
+
+        public Setting<string> Tf2InstallPath { get; set; } = new(string.Empty);
+
+        public ClassConfigZero Class = new();
+
+        public Setting<TeamPreferenceKind> TeamPreference { get; set; } = new(TeamPreferenceKind.Random);
+
+        public Setting<int> Volume { get; set; } = new(50);
+        
+        public Setting<bool> ApplySfxVolume { get; set; } = new(true);
+
+        public void UpdateFromOldVersion(ConfigZero configZero)
+        {
+            Tf2InstallPath = configZero.Tf2InstallPath;
+            Class = configZero.Class;
+            TeamPreference = configZero.TeamPreference;
+            Volume = configZero.Volume;
+            ApplySfxVolume = configZero.ApplySfxVolume;
+        }
     }
 
     public class ClassConfigZero
@@ -93,23 +121,28 @@ public class ConfigZero : BaseConfiguration
         }
     }
 
-    public class VoiceLineConfigZero : ModuleConfiguration
+    public class VoiceLinesConfigZero : ModuleConfiguration
     {
-        public VoiceLineTrigger MannUpWhenStartingHighEndDuty = new("Mann Up when starting a High-End Duty",
-                                                                    "Plays a random Administrator voiceline" +
-                                                                    "from Mann Up mode when starting a duty" +
-                                                                    "classified as High-End in the Duty Finder.");
+        public readonly IDictionary<VoiceLineTriggerType, VoiceLineTrigger> Triggers = new[]
+        {
+            new KeyValuePair<VoiceLineTriggerType, VoiceLineTrigger>(VoiceLineTriggerType.MannUpWhenStartingHighEndDuty,
+                                                                     new VoiceLineTrigger(
+                                                                         "Mann Up when starting a High-End Duty",
+                                                                         "Plays a random Administrator voiceline " +
+                                                                         "from Mann Up mode when starting a duty " +
+                                                                         "classified as High-End in the Duty Finder."))
+        }.ToImmutableDictionary();
 
-        public VoiceLineConfigZero()
+        public VoiceLinesConfigZero()
         {
             Enabled = new Setting<bool>(false);
         }
 
-        public int Version { get; set; } = 0;
         public Setting<bool> SurpriseMe { get; set; } = new(true);
 
         public class VoiceLineTrigger : ModuleConfiguration
         {
+
             [NonSerialized]
             public readonly string Description;
 
@@ -118,6 +151,7 @@ public class ConfigZero : BaseConfiguration
 
             public VoiceLineTrigger(string name, string description)
             {
+                Version = 0;
                 Name = name;
                 Description = description;
             }

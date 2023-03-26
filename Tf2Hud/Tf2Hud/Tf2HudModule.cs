@@ -52,11 +52,11 @@ public class Tf2HudModule : IDisposable
         tf2InstallFolder = FindTf2InstallFolder();
         if (tf2InstallFolder is not null)
         {
-            this.configZero.Tf2InstallPathAutoDetected = true;
-            this.configZero.Tf2InstallPath = new Setting<string>(tf2InstallFolder);
+            this.configZero.General.Tf2InstallPathAutoDetected = true;
+            this.configZero.General.Tf2InstallPath = new Setting<string>(tf2InstallFolder);
         }
         else
-            tf2InstallFolder = this.configZero.Tf2InstallPath.Value;
+            tf2InstallFolder = this.configZero.General.Tf2InstallPath.Value;
 
         Service.CommandManager.AddHandler(CloseWinPanel, new CommandInfo(OnCloseWinPanelCommand)
         {
@@ -75,9 +75,9 @@ public class Tf2HudModule : IDisposable
         Service.DutyState.DutyWiped += OnWipe;
         Service.Framework.Update += OnUpdate;
 
-        Tf2Sound.Instance.Tf2InstallFolder = this.configZero.Tf2InstallPath;
+        Tf2Sound.Instance.Tf2InstallFolder = this.configZero.General.Tf2InstallPath;
 
-        tf2WinPanel = new Tf2WinPanel(this.configZero, playerTeam, GetPartyList());
+        tf2WinPanel = new Tf2WinPanel(this.configZero.General, this.configZero.WinPanel, playerTeam, GetPartyList());
     }
 
     private static Tf2Timer? Timer => KamiCommon.WindowManager.GetWindowOfType<Tf2Timer>();
@@ -186,7 +186,7 @@ public class Tf2HudModule : IDisposable
 
     private void UpdatePointers()
     {
-        if (tf2InstallFolder != configZero.Tf2InstallPath.Value) LoadTf2Fonts();
+        if (tf2InstallFolder != configZero.General.Tf2InstallPath.Value) LoadTf2Fonts();
     }
 
     private unsafe void UpdateTimer()
@@ -252,7 +252,7 @@ public class Tf2HudModule : IDisposable
         tf2WinPanel.Show(playerTeamScore, enemyTeamScore, playerTeamScore + 1, enemyTeamScore, GetPartyList(),
                          GetEnemyName(), playerTeam);
         playerTeamScore += 1;
-        SoundEngine.PlaySound(Tf2Sound.Instance.VictorySound, configZero.ApplySfxVolume, configZero.Volume.Value);
+        SoundEngine.PlaySound(Tf2Sound.Instance.VictorySound, configZero.General.ApplySfxVolume, configZero.General.Volume.Value);
     }
 
     private void OnWipe(object? sender, ushort e)
@@ -261,23 +261,19 @@ public class Tf2HudModule : IDisposable
         tf2WinPanel.Show(playerTeamScore, enemyTeamScore, playerTeamScore, enemyTeamScore + 1, GetPartyList(),
                          GetEnemyName(), playerTeam.Enemy);
         enemyTeamScore += 1;
-        SoundEngine.PlaySound(Tf2Sound.Instance.FailSound, configZero.ApplySfxVolume, configZero.Volume.Value);
+        SoundEngine.PlaySound(Tf2Sound.Instance.FailSound, configZero.General.ApplySfxVolume, configZero.General.Volume.Value);
         lastEnemyTarget = null;
     }
 
     private Tf2Team UpdatePlayerTeam()
     {
-        switch (configZero.TeamPreference.Value)
+        return configZero.General.TeamPreference.Value switch
         {
-            case TeamPreferenceKind.Blu:
-                return Tf2Team.Blu;
-            case TeamPreferenceKind.Red:
-                return Tf2Team.Red;
-            case TeamPreferenceKind.Random:
-                return Random.Shared.NextSingle() < 0.5 ? Tf2Team.Blu : Tf2Team.Red;
-            default:
-                throw new ArgumentOutOfRangeException();
-        }
+            TeamPreferenceKind.Blu => Tf2Team.Blu,
+            TeamPreferenceKind.Red => Tf2Team.Red,
+            TeamPreferenceKind.Random => Random.Shared.NextSingle() < 0.5 ? Tf2Team.Blu : Tf2Team.Red,
+            _ => throw new ArgumentOutOfRangeException()
+        };
     }
 
     private string? GetEnemyName()

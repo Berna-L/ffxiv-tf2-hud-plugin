@@ -17,7 +17,7 @@ using Tf2Hud.Common.Util;
 
 namespace Tf2Hud.Common.Windows;
 
-public class GeneralConfigPane : ConfigPane
+public class GeneralConfigPane : ConfigPane<ConfigZero.GeneralConfigZero>
 {
     private const string TestSoundId = "TF2HUD+TestSound";
 
@@ -30,7 +30,7 @@ public class GeneralConfigPane : ConfigPane
     private readonly Audio.Audio?[] testSounds =
         { Tf2Sound.Instance.VictorySound, Tf2Sound.Instance.FailSound, Tf2Sound.Instance.RandomMannUpSound };
 
-    public GeneralConfigPane(ConfigZero configZero) : base(configZero) { }
+    public GeneralConfigPane(ConfigZero.GeneralConfigZero config) : base(config) { }
 
 
     public override void DrawLabel()
@@ -53,11 +53,11 @@ public class GeneralConfigPane : ConfigPane
     {
         InfoBox.Instance
                .AddTitle("Team")
-               .AddConfigRadio(Tf2Team.Blu.Name, configZero.TeamPreference, TeamPreferenceKind.Blu)
+               .AddConfigRadio(Tf2Team.Blu.Name, Config.TeamPreference, TeamPreferenceKind.Blu)
                .SameLine()
-               .AddConfigRadio(Tf2Team.Red.Name, configZero.TeamPreference, TeamPreferenceKind.Red)
+               .AddConfigRadio(Tf2Team.Red.Name, Config.TeamPreference, TeamPreferenceKind.Red)
                .SameLine()
-               .AddConfigRadio("Randomize every instance", configZero.TeamPreference, TeamPreferenceKind.Random)
+               .AddConfigRadio("Randomize every instance", Config.TeamPreference, TeamPreferenceKind.Random)
                .Draw();
     }
 
@@ -67,15 +67,15 @@ public class GeneralConfigPane : ConfigPane
         infoBox
             .AddTitle("Your TF2 Class")
             .AddString("Note: This will be used in the future...", Colors.Orange)
-            .AddConfigCheckbox("Set a TF2 Class per job", configZero.Class.UsePerJob,
+            .AddConfigCheckbox("Set a TF2 Class per job", Config.Class.UsePerJob,
                                "Check to define a TF2 Class per Combat Job.\nUncheck to use the same TF2 Class for all jobs.")
-            .StartConditional(!configZero.Class.UsePerJob)
+            .StartConditional(!Config.Class.UsePerJob)
             .AddString("Global Class")
             .SameLine()
-            .AddConfigCombo(Enum.GetValues<Tf2Class>(), configZero.Class.GlobalClass, Enum.GetName,
+            .AddConfigCombo(Enum.GetValues<Tf2Class>(), Config.Class.GlobalClass, Enum.GetName,
                             "##TF2HUD#General#GlobalClass", 100f)
             .EndConditional()
-            .StartConditional(configZero.Class.UsePerJob)
+            .StartConditional(Config.Class.UsePerJob)
             .AddAction(DrawClassComboBoxes)
             .EndConditional()
             .Draw();
@@ -84,7 +84,7 @@ public class GeneralConfigPane : ConfigPane
     private void DrawClassComboBoxes()
     {
         var simpleDrawList = new SimpleDrawList();
-        foreach (var (classJob, tf2Class) in configZero.Class.ClassPerJob
+        foreach (var (classJob, tf2Class) in Config.Class.ClassPerJob
                                                        .Select(kv => new KeyValuePair<ClassJob, Setting<Tf2Class>>(
                                                                    Constants.CombatJobs[kv.Key], kv.Value))
                                                        .OrderBy(kv => kv.Key.Role)
@@ -111,11 +111,11 @@ public class GeneralConfigPane : ConfigPane
     {
         InfoBox.Instance
                .AddTitle("Volume")
-               .AddConfigCheckbox("Affected by the game's sound effects volume", configZero.ApplySfxVolume,
+               .AddConfigCheckbox("Affected by the game's sound effects volume", Config.ApplySfxVolume,
                                   "If enabled, consider the volume set here to be in relation to the game's other SFX," +
                                   "\nsince the effective volume will also vary with your Master and Sound Effects volume." +
                                   "\nIf disabled, It'll always play at the set volume, even if the game is muted internally.")
-               .AddSliderInt("Volume##TF2GeneralVolume", configZero.Volume, 0, 100)
+               .AddSliderInt("Volume##TF2GeneralVolume", Config.Volume, 0, 100)
                .SameLine()
                .StartConditional(IsSoundTextPlaying())
                .AddIconButton("##TF2GeneralVolumeStop", FontAwesomeIcon.Stop, StopSoundTest)
@@ -130,14 +130,14 @@ public class GeneralConfigPane : ConfigPane
     {
         InfoBox.Instance
                .AddTitle("Team Fortress 2 install folder")
-               .AddInputString("##TF2InstallFolder", configZero.Tf2InstallPath, 512, ImGuiInputTextFlags.ReadOnly)
-               .StartConditional(configZero.Tf2InstallPathAutoDetected)
+               .AddInputString("##TF2InstallFolder", Config.Tf2InstallPath, 512, ImGuiInputTextFlags.ReadOnly)
+               .StartConditional(Config.Tf2InstallPathAutoDetected)
                .AddString("Your Team Fortress 2 install path was detected automatically!")
                .EndConditional()
-               .StartConditional(!configZero.Tf2InstallPathAutoDetected)
+               .StartConditional(!Config.Tf2InstallPathAutoDetected)
                .SameLine()
                .AddIconButton("##TF2InstallFolderButton", FontAwesomeIcon.Folder,
-                              () => openFolderDialog(configZero.Tf2InstallPath))
+                              () => openFolderDialog(Config.Tf2InstallPath))
                .AddString("Press the folder button above to set the Team Fortress 2 install folder.\\n" +
                           "The path should end with ...steamapps\\common\\Team Fortress 2.")
                .EndConditional()
@@ -149,7 +149,7 @@ public class GeneralConfigPane : ConfigPane
         var selectedSound = testSounds.Random();
         if (selectedSound is null) return;
         if (SoundEngine.IsPlaying(TestSoundId)) return;
-        SoundEngine.PlaySound(selectedSound, configZero.ApplySfxVolume, configZero.Volume.Value, TestSoundId);
+        SoundEngine.PlaySound(selectedSound, Config.ApplySfxVolume, Config.Volume.Value, TestSoundId);
     }
 
     private static void StopSoundTest()

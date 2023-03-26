@@ -30,15 +30,19 @@ public sealed class Plugin : IDalamudPlugin
     public Plugin(DalamudPluginInterface pluginInterface)
     {
         pluginInterface.Create<Service>();
-        KamiCommon.Initialize(Service.PluginInterface, Name, () => Configuration?.Save());
-        Configuration = InitConfig();
-        Configuration.Save();
+        KamiCommon.Initialize(Service.PluginInterface, Name, () => Config?.Save());
+        Config = InitConfig();
+        Config.Save();
 
-        tf2HudModule = new Tf2HudModule(Configuration);
-        tf2VoiceLinesModule = new Tf2VoiceLinesModule(Configuration);
+        tf2HudModule = new Tf2HudModule(Config);
+        tf2VoiceLinesModule = new Tf2VoiceLinesModule(Config.General, Config.VoiceLines);
 
+        // if (Config.PluginVersion.Before(0, 1, 0))
+        // {
+        //     Config.General.UpdateFromOldVersion(Config);
+        // }
 
-        KamiCommon.WindowManager.AddWindow(new ConfigWindow(Configuration));
+        KamiCommon.WindowManager.AddWindow(new ConfigWindow(Config));
 
         Service.PluginInterface.UiBuilder.RebuildFonts();
 
@@ -53,7 +57,7 @@ public sealed class Plugin : IDalamudPlugin
         Service.PluginInterface.UiBuilder.OpenConfigUi += DrawConfigWindow;
     }
 
-    public ConfigZero Configuration { get; init; }
+    public ConfigZero Config { get; init; }
     public string Name => PluginName;
 
     public void Dispose()

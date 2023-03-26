@@ -10,6 +10,7 @@ using KamiLib.Interfaces;
 using KamiLib.Windows;
 using Tf2Hud.Common.Configuration;
 using Tf2Hud.Tf2Hud.Windows.Configuration;
+using Tf2Hud.VoiceLines.Windows;
 using static Tf2Hud.Plugin;
 
 namespace Tf2Hud.Common.Windows;
@@ -29,6 +30,7 @@ public class ConfigWindow : SelectionWindow, IDisposable
     private readonly GeneralConfigPane generalPane;
     private readonly TimerConfigPane timerPane;
     private readonly WinPanelConfigPane winPanelPane;
+    private readonly VoiceLineConfigPane voiceLinePane;
 
     static ConfigWindow()
     {
@@ -41,9 +43,10 @@ public class ConfigWindow : SelectionWindow, IDisposable
     public ConfigWindow(ConfigZero config) : base(Title, 25.0f)
     {
         this.config = config;
-        generalPane = new GeneralConfigPane(config);
-        timerPane = new TimerConfigPane(config);
-        winPanelPane = new WinPanelConfigPane(config);
+        generalPane = new GeneralConfigPane(config.General);
+        timerPane = new TimerConfigPane(config.Timer);
+        winPanelPane = new WinPanelConfigPane(config.WinPanel);
+        voiceLinePane = new VoiceLineConfigPane(config.VoiceLines);
         SizeConstraints = new WindowSizeConstraints
         {
             MinimumSize = new Vector2(846, 487),
@@ -66,7 +69,7 @@ public class ConfigWindow : SelectionWindow, IDisposable
 
     protected override IEnumerable<ISelectable> GetSelectables()
     {
-        return new ConfigPane[] { generalPane, timerPane, winPanelPane };
+        return new ConfigPane[] { generalPane, timerPane, winPanelPane, voiceLinePane };
     }
 
 
