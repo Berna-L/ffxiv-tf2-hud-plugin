@@ -32,6 +32,7 @@ public sealed class Plugin : IDalamudPlugin
         pluginInterface.Create<Service>();
         KamiCommon.Initialize(Service.PluginInterface, Name, () => Config?.Save());
         Config = InitConfig();
+
         Config.Save();
 
         tf2HudModule = new Tf2HudModule(Config);
@@ -83,8 +84,10 @@ public sealed class Plugin : IDalamudPlugin
         {
             var versionCheck = JsonSerializer.Deserialize<BaseConfiguration>(configText);
             if (versionCheck is null) return new ConfigZero();
+            LogDebug("read base");
 
             var version = versionCheck.Version;
+            Debug($"Version {version.ToString()}");
             var config = version switch
             {
                 0 => JsonConvert.DeserializeObject<ConfigZero>(configText) ?? new ConfigZero(),

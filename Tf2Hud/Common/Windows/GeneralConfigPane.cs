@@ -28,7 +28,10 @@ public class GeneralConfigPane : ConfigPane<ConfigZero.GeneralConfigZero>
                                                                   .OrderDescending().First());
 
     private readonly Audio.Audio?[] testSounds =
-        { Tf2Sound.Instance.VictorySound, Tf2Sound.Instance.FailSound, Tf2Sound.Instance.RandomMannUpSound };
+    {
+        Tf2Sound.Instance.VictorySound, Tf2Sound.Instance.FailSound, Tf2Sound.Instance.RandomMannUpSound,
+        Tf2Sound.Instance.RandomCountdownSound(10)
+    };
 
     public GeneralConfigPane(ConfigZero.GeneralConfigZero config) : base(config) { }
 
@@ -85,10 +88,10 @@ public class GeneralConfigPane : ConfigPane<ConfigZero.GeneralConfigZero>
     {
         var simpleDrawList = new SimpleDrawList();
         foreach (var (classJob, tf2Class) in Config.Class.ClassPerJob
-                                                       .Select(kv => new KeyValuePair<ClassJob, Setting<Tf2Class>>(
-                                                                   Constants.CombatJobs[kv.Key], kv.Value))
-                                                       .OrderBy(kv => kv.Key.Role)
-                                                       .ThenBy(kv => kv.Key.NameEnglish.ToString()))
+                                                   .Select(kv => new KeyValuePair<ClassJob, Setting<Tf2Class>>(
+                                                               Constants.CombatJobs[kv.Key], kv.Value))
+                                                   .OrderBy(kv => kv.Key.Role)
+                                                   .ThenBy(kv => kv.Key.NameEnglish.ToString()))
             simpleDrawList.AddString(classJob.NameEnglish, GetJobColor(classJob))
                           .SameLine(longestJobNameLength.Value + 20)
                           .AddConfigCombo(Enum.GetValues<Tf2Class>(), tf2Class, Enum.GetName,

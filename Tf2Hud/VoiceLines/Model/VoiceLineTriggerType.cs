@@ -2,5 +2,6 @@
 
 public enum VoiceLineTriggerType
 {
-    MannUpWhenStartingHighEndDuty
+    MannUpWhenStartingHighEndDuty,
+    Countdown
 }

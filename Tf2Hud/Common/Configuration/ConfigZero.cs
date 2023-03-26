@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using ImGuiNET;
@@ -10,20 +9,19 @@ using Tf2Hud.Common.Model;
 using Tf2Hud.Common.Util;
 using Tf2Hud.Tf2Hud.Configuration;
 using Tf2Hud.Tf2Hud.Windows;
-using Tf2Hud.VoiceLines.Model;
 
 namespace Tf2Hud.Common.Configuration;
 
 public class ConfigZero : BaseConfiguration
 {
-    public readonly GeneralConfigZero General = new();
-
     [NonSerialized]
-    public readonly ClassConfigZero Class = new(); 
+    public readonly ClassConfigZero Class = new();
+
+    public readonly GeneralConfigZero General = new();
     public readonly TimerConfigZero Timer = new();
-    public readonly WinPanelConfigZero WinPanel = new();
     public readonly VoiceLinesConfigZero VoiceLines = new();
-    
+    public readonly WinPanelConfigZero WinPanel = new();
+
     public ConfigZero()
     {
         Version = 0;
@@ -43,19 +41,19 @@ public class ConfigZero : BaseConfiguration
                           JsonConvert.SerializeObject(this, Formatting.Indented));
     }
 
-    public class GeneralConfigZero: ModuleConfiguration
+    public class GeneralConfigZero : ModuleConfiguration
     {
+        public ClassConfigZero Class = new();
+
         [NonSerialized]
         public bool Tf2InstallPathAutoDetected;
 
         public Setting<string> Tf2InstallPath { get; set; } = new(string.Empty);
 
-        public ClassConfigZero Class = new();
-
         public Setting<TeamPreferenceKind> TeamPreference { get; set; } = new(TeamPreferenceKind.Random);
 
         public Setting<int> Volume { get; set; } = new(50);
-        
+
         public Setting<bool> ApplySfxVolume { get; set; } = new(true);
 
         public void UpdateFromOldVersion(ConfigZero configZero)
@@ -123,15 +121,14 @@ public class ConfigZero : BaseConfiguration
 
     public class VoiceLinesConfigZero : ModuleConfiguration
     {
-        public readonly IDictionary<VoiceLineTriggerType, VoiceLineTrigger> Triggers = new[]
-        {
-            new KeyValuePair<VoiceLineTriggerType, VoiceLineTrigger>(VoiceLineTriggerType.MannUpWhenStartingHighEndDuty,
-                                                                     new VoiceLineTrigger(
-                                                                         "Mann Up when starting a High-End Duty",
-                                                                         "Plays a random Administrator voiceline " +
-                                                                         "from Mann Up mode when starting a duty " +
-                                                                         "classified as High-End in the Duty Finder."))
-        }.ToImmutableDictionary();
+        public readonly VoiceLineTrigger AdministratorCountdown = new("Administrator Countdown",
+                                                                      "Makes the Administrator countdown with a countdown. Wow!" +
+                                                                      "\nHas rare chance of being extra spicy if you have friends with you.");
+
+        public readonly VoiceLineTrigger MannUp = new("Mann Up when starting a High-End Duty",
+                                                      "Plays a random Administrator voiceline from Mann Up mode " +
+                                                      "when starting a duty classified as High-End in the Duty Finder.");
+
 
         public VoiceLinesConfigZero()
         {
@@ -142,7 +139,6 @@ public class ConfigZero : BaseConfiguration
 
         public class VoiceLineTrigger : ModuleConfiguration
         {
-
             [NonSerialized]
             public readonly string Description;
 

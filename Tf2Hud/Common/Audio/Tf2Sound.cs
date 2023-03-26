@@ -1,4 +1,6 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.IO;
 using System.Linq;
 using Dalamud.Utility;
 using KamiLib.Configuration;
@@ -24,6 +26,36 @@ public class Tf2Sound
                                                       .Select(i => i.ToString().PadLeft(2, '0'))
                                                       .Select(i => $"sound/vo/mvm_mann_up_mode{i}.mp3")
                                                       .ToArray();
+
+    public Audio? RandomGoSound => ReadVoiceTf2SoundFile(GoSounds.Random());
+
+    private static IDictionary<int, string[]> CountdownSounds => new[]
+    {
+        new KeyValuePair<int, string[]>(1, new[] { "sound/vo/compmode/cm_admin_compbegins01.mp3" }),
+        new KeyValuePair<int, string[]>(2, new[] { "sound/vo/compmode/cm_admin_compbegins02.mp3" }),
+        new KeyValuePair<int, string[]>(3, new[] { "sound/vo/compmode/cm_admin_compbegins03.mp3" }),
+        new KeyValuePair<int, string[]>(4, new[] { "sound/vo/compmode/cm_admin_compbegins04.mp3" }),
+        new KeyValuePair<int, string[]>(5, new[] { "sound/vo/compmode/cm_admin_compbegins05.mp3" }),
+        new KeyValuePair<int, string[]>(10, new[]
+        {
+            "sound/vo/compmode/cm_admin_compbegins10_01.mp3",
+            "sound/vo/compmode/cm_admin_compbegins10_02.mp3",
+            "sound/vo/compmode/cm_admin_compbegins10_rare_01.mp3",
+            "sound/vo/compmode/cm_admin_compbegins10_rare_02.mp3",
+            "sound/vo/compmode/cm_admin_compbegins10_rare_03.mp3",
+            "sound/vo/announcer_dec_missionbegins10s01.mp3"
+        })
+    }.ToImmutableDictionary();
+
+    private static string[] GoSounds => Enumerable.Range(1, 7)
+                                                  .Select(i => i.ToString().PadLeft(2, '0'))
+                                                  .Select(i => $"sound/vo/compmode/cm_admin_compbeginsstart_{i}.mp3")
+                                                  .ToArray();
+
+    public Audio? RandomCountdownSound(int i)
+    {
+        return !CountdownSounds.ContainsKey(i) ? null : ReadVoiceTf2SoundFile(CountdownSounds[i].Random());
+    }
 
     private Audio? ReadVoiceTf2SoundFile(string soundFilePath)
     {

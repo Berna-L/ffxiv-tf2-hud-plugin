@@ -1,37 +1,47 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using KamiLib.Drawing;
 using Tf2Hud.Common.Configuration;
 using Tf2Hud.Common.Windows;
+using static Tf2Hud.Common.Configuration.ConfigZero.VoiceLinesConfigZero;
 
 namespace Tf2Hud.VoiceLines.Windows;
 
-public class VoiceLineConfigPane: ModuleConfigPane<ConfigZero.VoiceLinesConfigZero>
+public class VoiceLineConfigPane : ModuleConfigPane<ConfigZero.VoiceLinesConfigZero>
 {
     public VoiceLineConfigPane(ConfigZero.VoiceLinesConfigZero configZero) : base("Voice Lines", configZero) { }
+
+    private IEnumerable<VoiceLineTrigger> Triggers => new[]
+    {
+        Config.MannUp, Config.AdministratorCountdown
+    };
+
     public override void Draw()
     {
         new SimpleDrawList()
             .AddConfigCheckbox("Enabled", Config.Enabled)
             .StartConditional(Config.Enabled)
             .AddConfigCheckbox("Surprise Me!", Config.SurpriseMe,
-                               "With this enabled, you won't know what can trigger a category of TF2 voice lines until you the trigger is, well, triggered." +
+                               "With this enabled, you won't know what can trigger a category of" +
+                               "\nTF2 voice lines until you the trigger is, well, triggered." +
                                "\n\nCheck the text at the end to know how many triggers are left to find!" +
                                "\nOr disable this checkbox if surprises aren't your thing (no judgement!)")
             .EndConditional()
             .Draw();
-        
-        foreach (var heardTrigger in Config.Triggers.Values.Where(ShowConfig))
-        {
+
+        foreach (var heardTrigger in Triggers.Where(ShowConfig))
             InfoBox.Instance
                    .AddTitle(heardTrigger.Name)
                    .AddString(heardTrigger.Description)
                    .AddConfigCheckbox("Enabled", heardTrigger.Enabled, additionalID: heardTrigger.Name)
                    .BeginDisabled(true)
                    .AddString(GetTriggeredText(heardTrigger))
+                   .SameLine()
                    .EndDisabled()
+                   .AddButton(GetHeardSwapText(heardTrigger),
+                              () => heardTrigger.Heard.Value = !heardTrigger.Heard.Value)
                    .Draw();
-        }
-        
+
         new SimpleDrawList()
             .StartConditional(Config.Enabled && Config.SurpriseMe)
             .AddStringCentered(GetRemainingText())
@@ -39,14 +49,14 @@ public class VoiceLineConfigPane: ModuleConfigPane<ConfigZero.VoiceLinesConfigZe
             .Draw();
     }
 
-    private bool ShowConfig(ConfigZero.VoiceLinesConfigZero.VoiceLineTrigger trigger)
+    private bool ShowConfig(VoiceLineTrigger trigger)
     {
-        return  Config.Enabled && (!Config.SurpriseMe || trigger.Heard);
+        return Config.Enabled && (!Config.SurpriseMe || trigger.Heard);
     }
 
     private string GetRemainingText()
     {
-        var count = Config.Triggers.Values.Count(t => !t.Heard);
+        var count = Triggers.Count(t => !t.Heard);
         return count switch
         {
             0 => "You found them all!",
@@ -55,8 +65,13 @@ public class VoiceLineConfigPane: ModuleConfigPane<ConfigZero.VoiceLinesConfigZe
         };
     }
 
-    private string GetTriggeredText(ConfigZero.VoiceLinesConfigZero.VoiceLineTrigger heardTrigger)
+    private string GetTriggeredText(VoiceLineTrigger heardTrigger)
     {
         return heardTrigger.Heard ? "You have triggered this in the past." : "You have yet to hear this :)";
+    }
+
+    private string GetHeardSwapText(VoiceLineTrigger heardTrigger)
+    {
+        return heardTrigger.Heard ? "No I haven't" : "I heard it though";
     }
 }
