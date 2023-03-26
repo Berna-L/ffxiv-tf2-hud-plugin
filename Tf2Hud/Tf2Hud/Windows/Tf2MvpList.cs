@@ -118,8 +118,15 @@ public class Tf2MvpList : Tf2Window
 
     private TextureWrap? GetClassJobIcon(uint id)
     {
-        var iconId = jobIconSets.GetJobIcon(JobIconSetName.Framed, id);
-        return IconCache.Instance.GetIcon((uint)iconId);
+        try
+        {
+            var iconId = jobIconSets.GetJobIcon(JobIconSetName.Framed, id);
+            return IconCache.Instance.GetIcon((uint)iconId);
+        }
+        catch (Exception e)
+        {
+            return null;
+        }
     }
 
 
