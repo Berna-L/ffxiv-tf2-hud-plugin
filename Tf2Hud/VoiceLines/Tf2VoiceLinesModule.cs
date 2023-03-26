@@ -7,6 +7,7 @@ using KamiLib;
 using Lumina.Excel.GeneratedSheets;
 using Tf2Hud.Common.Audio;
 using Tf2Hud.Common.Configuration;
+using Tf2Hud.Common.Windows;
 using Tf2Hud.VoiceLines.Game;
 using Tf2Hud.VoiceLines.Model;
 using static Tf2Hud.Common.Configuration.ConfigZero.VoiceLinesConfigZero;
@@ -15,35 +16,39 @@ namespace Tf2Hud.VoiceLines;
 
 public class Tf2VoiceLinesModule : IDisposable
 {
-    private static IDictionary<int, Func<Audio?>> SoundsPerSecond = new Dictionary<int, Func<Audio?>>();
-    private readonly CountdownHook countdownHook;
-    private readonly HashSet<int> CountdownPlayedFor = new();
-    private readonly CountdownState CountdownState;
     private readonly ConfigZero.GeneralConfigZero generalConfig;
     private readonly ConfigZero.VoiceLinesConfigZero voiceLinesConfig;
 
+    private readonly CountdownHook countdownHook;
+    private readonly HashSet<int> countdownPlayedFor = new();
+    private readonly CountdownState countdownState;
+
+    private bool playedForFiveMinutesLeft = false;
+    
     public Tf2VoiceLinesModule(
         ConfigZero.GeneralConfigZero generalConfig, ConfigZero.VoiceLinesConfigZero voiceLinesConfig)
     {
         this.generalConfig = generalConfig;
         this.voiceLinesConfig = voiceLinesConfig;
-        CountdownState = CountdownState.Instance();
-        countdownHook = new CountdownHook(CountdownState, Service.Condition);
+        countdownState = CountdownState.Instance();
+        countdownHook = new CountdownHook(countdownState, Service.Condition);
 
         Service.Framework.Update += OnUpdate;
 
         Service.DutyState.DutyStarted += OnStart;
 
-        CountdownState.StartCountingDown += OnStartCountingDown;
-        CountdownState.StopCountingDown += OnStopCountingDown;
+        countdownState.StartCountingDown += OnStartCountingDown;
+        countdownState.StopCountingDown += OnStopCountingDown;
     }
 
 
     public void Dispose()
     {
-        CountdownState.StopCountingDown -= OnStopCountingDown;
-        CountdownState.StartCountingDown -= OnStartCountingDown;
+        countdownState.StopCountingDown -= OnStopCountingDown;
+        countdownState.StartCountingDown -= OnStartCountingDown;
+        
         Service.DutyState.DutyStarted -= OnStart;
+        
         Service.Framework.Update -= OnUpdate;
         countdownHook.Dispose();
     }
@@ -52,23 +57,36 @@ public class Tf2VoiceLinesModule : IDisposable
     {
         countdownHook.Update();
         UpdateCountdown();
+        UpdateTimeLeft();
+    }
+
+    private unsafe void UpdateTimeLeft()
+    {
+        if (!playedForFiveMinutesLeft &&
+            EventFramework.Instance()->GetInstanceContentDirector()->ContentDirector.ContentTimeLeft < 5 * 60)
+        {
+            playedForFiveMinutesLeft = true;
+            SoundEngine.PlaySound(Tf2Sound.Instance.FiveMinutesLeftSound, generalConfig.ApplySfxVolume, generalConfig.Volume.Value);
+            voiceLinesConfig.FiveMinutesLeft.Heard.Value = true;
+            KamiCommon.SaveConfiguration();
+        }
     }
 
     private void UpdateCountdown()
     {
-        if (!CountdownState.CountingDown) return;
+        if (!countdownState.CountingDown) return;
         AdministratorCountdownOngoing();
     }
 
     private void AdministratorCountdownOngoing()
     {
         if (!voiceLinesConfig.AdministratorCountdown.Enabled) return;
-        var ceil = (int)Math.Ceiling(CountdownState.CountDownValue);
-        if (CountdownPlayedFor.Contains(ceil))
+        var ceil = (int)Math.Ceiling(countdownState.CountDownValue);
+        if (countdownPlayedFor.Contains(ceil))
         {
-            if (CountdownState.CountDownValue < 0.01f && !CountdownPlayedFor.Contains(0))
+            if (countdownState.CountDownValue < 0.01f && !countdownPlayedFor.Contains(0))
             {
-                CountdownPlayedFor.Add(0);
+                countdownPlayedFor.Add(0);
                 var sound = Tf2Sound.Instance.RandomGoSound;
                 if (sound is null) return;
                 SoundEngine.PlaySound(sound, generalConfig.ApplySfxVolume, generalConfig.Volume.Value);
@@ -78,7 +96,7 @@ public class Tf2VoiceLinesModule : IDisposable
         }
         else
         {
-            CountdownPlayedFor.Add(ceil);
+            countdownPlayedFor.Add(ceil);
             var sound = Tf2Sound.Instance.RandomCountdownSound(ceil);
             if (sound is null) return;
             SoundEngine.PlaySound(sound, generalConfig.ApplySfxVolume, generalConfig.Volume.Value);
@@ -87,7 +105,7 @@ public class Tf2VoiceLinesModule : IDisposable
 
     private void OnStartCountingDown(object? sender, EventArgs e)
     {
-        CountdownPlayedFor.Clear();
+        countdownPlayedFor.Clear();
         UpdateCountdown();
     }
 
@@ -99,9 +117,9 @@ public class Tf2VoiceLinesModule : IDisposable
     private void AdministratorCountdownZero()
     {
         if (!voiceLinesConfig.MannUp.Enabled) return;
-        if (!CountdownState.countdownCancelled && !CountdownPlayedFor.Contains(0))
+        if (!countdownState.countdownCancelled && !countdownPlayedFor.Contains(0))
         {
-            CountdownPlayedFor.Add(0);
+            countdownPlayedFor.Add(0);
             var sound = Tf2Sound.Instance.RandomGoSound;
             if (sound is null) return;
             SoundEngine.PlaySound(sound, generalConfig.ApplySfxVolume, generalConfig.Volume.Value);

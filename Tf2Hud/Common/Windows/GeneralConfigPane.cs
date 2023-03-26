@@ -30,7 +30,8 @@ public class GeneralConfigPane : ConfigPane<ConfigZero.GeneralConfigZero>
     private readonly Audio.Audio?[] testSounds =
     {
         Tf2Sound.Instance.VictorySound, Tf2Sound.Instance.FailSound, Tf2Sound.Instance.RandomMannUpSound,
-        Tf2Sound.Instance.RandomCountdownSound(10)
+        Tf2Sound.Instance.RandomCountdownSound(10), Tf2Sound.Instance.RandomGoSound,
+        Tf2Sound.Instance.FiveMinutesLeftSound
     };
 
     public GeneralConfigPane(ConfigZero.GeneralConfigZero config) : base(config) { }

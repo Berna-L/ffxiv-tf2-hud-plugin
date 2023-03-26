@@ -126,8 +126,11 @@ public class ConfigZero : BaseConfiguration
                                                                       "\nHas rare chance of being extra spicy if you have friends with you.");
 
         public readonly VoiceLineTrigger MannUp = new("Mann Up when starting a High-End Duty",
-                                                      "Plays a random Administrator voiceline from Mann Up mode " +
-                                                      "when starting a duty classified as High-End in the Duty Finder.");
+                                                      "Plays a random Administrator voiceline from Mann Up mode" +
+                                                      "\nwhen starting a duty classified as High-End in the Duty Finder.");
+
+        public readonly VoiceLineTrigger FiveMinutesLeft = new("Five minutes left",
+                                                               "Reminds you when it's five minutes left in the so-called \"Mission\".");
 
 
         public VoiceLinesConfigZero()

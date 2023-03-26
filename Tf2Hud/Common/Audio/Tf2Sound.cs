@@ -57,6 +57,9 @@ public class Tf2Sound
         return !CountdownSounds.ContainsKey(i) ? null : ReadVoiceTf2SoundFile(CountdownSounds[i].Random());
     }
 
+    public Audio? FiveMinutesLeftSound => ReadVoiceTf2SoundFile("sound/vo/announcer_ends_5min.mp3");
+    
+
     private Audio? ReadVoiceTf2SoundFile(string soundFilePath)
     {
         return ReadTf2SoundFile("tf2_sound_vo_english_dir.vpk", soundFilePath);

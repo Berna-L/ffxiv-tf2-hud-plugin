@@ -13,8 +13,8 @@ public class VoiceLineConfigPane : ModuleConfigPane<ConfigZero.VoiceLinesConfigZ
 
     private IEnumerable<VoiceLineTrigger> Triggers => new[]
     {
-        Config.MannUp, Config.AdministratorCountdown
-    };
+        Config.MannUp, Config.AdministratorCountdown, Config.FiveMinutesLeft
+    }.OrderBy(t => t.Name);
 
     public override void Draw()
     {
@@ -22,8 +22,8 @@ public class VoiceLineConfigPane : ModuleConfigPane<ConfigZero.VoiceLinesConfigZ
             .AddConfigCheckbox("Enabled", Config.Enabled)
             .StartConditional(Config.Enabled)
             .AddConfigCheckbox("Surprise Me!", Config.SurpriseMe,
-                               "With this enabled, you won't know what can trigger a category of" +
-                               "\nTF2 voice lines until you the trigger is, well, triggered." +
+                               "With this enabled, you won't know what can trigger a category" +
+                               "\nof TF2 voice lines until it happens." +
                                "\n\nCheck the text at the end to know how many triggers are left to find!" +
                                "\nOr disable this checkbox if surprises aren't your thing (no judgement!)")
             .EndConditional()
