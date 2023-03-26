@@ -21,6 +21,9 @@
         <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
         <!-- adds dependencies (in this case, NAudio) to the output folder-->
         <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+        <!-- NAudio hates multiplatform -->
+        <!-- Copied from https://github.com/Arrenton/AudibleCharacterStatus/commit/fe832355745ec451cfe2d901aac9e1530416cdc1#diff-85ecdcf90d50e0d19964f58d9ce3b2d925d6684554b2a8b40d9b536ec92f27c5R8 -->
+        <EnableWindowsTargeting>true</EnableWindowsTargeting>
     </PropertyGroup>
 
     <!-- Copied from NoTankYou -->
@@ -92,7 +95,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\KamiLib\KamiLib.csproj"/>
+        <ProjectReference Include="..\KamiLib\KamiLib.csproj" />
     </ItemGroup>
 
 
