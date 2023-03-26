@@ -8,7 +8,6 @@ using Dalamud.Game.ClientState.Objects.Types;
 using Dalamud.Game.Command;
 using Dalamud.Interface.GameFonts;
 using Dalamud.Logging;
-using FFXIVClientStructs.FFXIV.Client.Game.Event;
 using FFXIVClientStructs.FFXIV.Client.Game.UI;
 using Gameloop.Vdf;
 using Gameloop.Vdf.Linq;
@@ -82,12 +81,19 @@ public class Tf2HudModule : IDisposable
 
     private static Tf2Timer? Timer => KamiCommon.WindowManager.GetWindowOfType<Tf2Timer>();
 
-    private static Tf2MvpMember LocalTf2MvpMember =>
-        new()
+    private static Tf2MvpMember LocalTf2MvpMember
+    {
+        get
         {
-            Name = Service.ClientState.LocalPlayer.Name.TextValue,
-            ClassJobId = Service.ClientState.LocalPlayer.ClassJob.Id
-        };
+            var localPlayer = Service.ClientState.LocalPlayer;
+            if (localPlayer is null) return new Tf2MvpMember();
+            return new Tf2MvpMember
+            {
+                Name = localPlayer.Name.TextValue,
+                ClassJobId = localPlayer.ClassJob.Id
+            };
+        }
+    }
 
 
     public void Dispose()
@@ -139,7 +145,11 @@ public class Tf2HudModule : IDisposable
             if (installedApps is null) continue;
             foreach (var installedApp in installedApps.Children().OfType<VProperty>())
                 if (installedApp.Key == "440")
-                    return Path.Combine(libraryFolder["path"].ToString(), "steamapps", "common", "Team Fortress 2");
+                {
+                    var path = libraryFolder["path"];
+                    if (path is null) continue;
+                    return Path.Combine(path.ToString(), "steamapps", "common", "Team Fortress 2");
+                }
         }
 
         return null;
@@ -189,12 +199,12 @@ public class Tf2HudModule : IDisposable
         if (tf2InstallFolder != configZero.General.Tf2InstallPath.Value) LoadTf2Fonts();
     }
 
-    private unsafe void UpdateTimer()
+    private void UpdateTimer()
     {
         if (Timer is null) return;
         var enabled = configZero.Timer.Enabled;
         var timerMoveMode = configZero.Timer.RepositionMode;
-        var contentDirector = EventFramework.Instance()->GetInstanceContentDirector();
+        var contentDirector = Service.ContentDirector;
         if (Service.DutyState.IsDutyStarted)
         {
             Timer.Team = playerTeam;
@@ -210,7 +220,7 @@ public class Tf2HudModule : IDisposable
                 window.IsOpen = timerMoveMode && enabled;
             }
             else
-                window.TimeRemaining = (long)Math.Floor(contentDirector->ContentDirector.ContentTimeLeft);
+                window.TimeRemaining = (long)Math.Floor(contentDirector.Value.ContentTimeLeft);
         }
     }
 
@@ -252,7 +262,8 @@ public class Tf2HudModule : IDisposable
         tf2WinPanel.Show(playerTeamScore, enemyTeamScore, playerTeamScore + 1, enemyTeamScore, GetPartyList(),
                          GetEnemyName(), playerTeam);
         playerTeamScore += 1;
-        SoundEngine.PlaySound(Tf2Sound.Instance.VictorySound, configZero.General.ApplySfxVolume, configZero.General.Volume.Value);
+        SoundEngine.PlaySoundAsync(Tf2Sound.Instance.VictorySound, configZero.General.ApplySfxVolume,
+                                   configZero.General.Volume.Value);
     }
 
     private void OnWipe(object? sender, ushort e)
@@ -261,7 +272,8 @@ public class Tf2HudModule : IDisposable
         tf2WinPanel.Show(playerTeamScore, enemyTeamScore, playerTeamScore, enemyTeamScore + 1, GetPartyList(),
                          GetEnemyName(), playerTeam.Enemy);
         enemyTeamScore += 1;
-        SoundEngine.PlaySound(Tf2Sound.Instance.FailSound, configZero.General.ApplySfxVolume, configZero.General.Volume.Value);
+        SoundEngine.PlaySoundAsync(Tf2Sound.Instance.FailSound, configZero.General.ApplySfxVolume,
+                                   configZero.General.Volume.Value);
         lastEnemyTarget = null;
     }
 
@@ -288,9 +300,6 @@ public class Tf2HudModule : IDisposable
             if (Service.ClientState.LocalPlayer is null) return new List<Tf2MvpMember>();
             return new[]
             {
-                LocalTf2MvpMember,
-                LocalTf2MvpMember,
-                LocalTf2MvpMember,
                 LocalTf2MvpMember
             }.ToList();
         }

@@ -38,11 +38,6 @@ public sealed class Plugin : IDalamudPlugin
         tf2HudModule = new Tf2HudModule(Config);
         tf2VoiceLinesModule = new Tf2VoiceLinesModule(Config.General, Config.VoiceLines);
 
-        // if (Config.PluginVersion.Before(0, 1, 0))
-        // {
-        //     Config.General.UpdateFromOldVersion(Config);
-        // }
-
         KamiCommon.WindowManager.AddWindow(new ConfigWindow(Config));
 
         Service.PluginInterface.UiBuilder.RebuildFonts();

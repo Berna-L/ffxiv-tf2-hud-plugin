@@ -21,7 +21,9 @@ public class Tf2WinPanel : IDisposable
     private bool waitingForNewScore;
 
 
-    public Tf2WinPanel(ConfigZero.GeneralConfigZero generalConfig, ConfigZero.WinPanelConfigZero winPanelConfig, Tf2Team playerTeam, List<Tf2MvpMember> initialPartyList)
+    public Tf2WinPanel(
+        ConfigZero.GeneralConfigZero generalConfig, ConfigZero.WinPanelConfigZero winPanelConfig, Tf2Team playerTeam,
+        List<Tf2MvpMember> initialPartyList)
     {
         this.generalConfig = generalConfig;
         this.winPanelConfig = winPanelConfig;
@@ -71,15 +73,18 @@ public class Tf2WinPanel : IDisposable
         {
             GetPlayerTeamScoreWindow().Score = playerTeamScoreToSet;
             GetEnemyTeamScoreWindow().Score = enemyTeamScoreToSet;
-            SoundEngine.PlaySound(Tf2Sound.Instance.ScoredSound, generalConfig.ApplySfxVolume, generalConfig.Volume.Value);
+            SoundEngine.PlaySoundAsync(Tf2Sound.Instance.ScoredSound, generalConfig.ApplySfxVolume,
+                                       generalConfig.Volume.Value);
             waitingForNewScore = false;
         }
 
         if (RepositionMode) IsOpen = true;
 
         if (IsOpen && openedFor > winPanelConfig.TimeToClose.Value)
+        {
             if (!winPanelConfig.RepositionMode)
                 IsOpen = false;
+        }
     }
 
 

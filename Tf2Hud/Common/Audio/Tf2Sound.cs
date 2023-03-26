@@ -2,6 +2,7 @@
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using Dalamud.Utility;
 using KamiLib.Configuration;
 using NAudio.Wave;
@@ -16,18 +17,18 @@ public class Tf2Sound
 
     public Setting<string> Tf2InstallFolder { private get; set; } = new("");
 
-    public Audio? VictorySound => ReadMiscTf2SoundFile("sound/misc/your_team_won.wav");
-    public Audio? FailSound => ReadMiscTf2SoundFile("sound/misc/your_team_lost.wav");
-    public Audio? ScoredSound => ReadMiscTf2SoundFile("sound/ui/scored.wav");
+    public Task<Audio?> VictorySound => ReadMiscTf2SoundFile("sound/misc/your_team_won.wav");
+    public Task<Audio?> FailSound => ReadMiscTf2SoundFile("sound/misc/your_team_lost.wav");
+    public Task<Audio?> ScoredSound => ReadMiscTf2SoundFile("sound/ui/scored.wav");
 
-    public Audio? RandomMannUpSound => ReadVoiceTf2SoundFile(MannUpSounds.Random());
+    public Task<Audio?> RandomMannUpSound => ReadVoiceTf2SoundFile(MannUpSounds.Random());
 
     private static string[] MannUpSounds => Enumerable.Range(1, 15)
                                                       .Select(i => i.ToString().PadLeft(2, '0'))
                                                       .Select(i => $"sound/vo/mvm_mann_up_mode{i}.mp3")
                                                       .ToArray();
 
-    public Audio? RandomGoSound => ReadVoiceTf2SoundFile(GoSounds.Random());
+    public Task<Audio?> RandomGoSound => ReadVoiceTf2SoundFile(GoSounds.Random());
 
     private static IDictionary<int, string[]> CountdownSounds => new[]
     {
@@ -52,31 +53,36 @@ public class Tf2Sound
                                                   .Select(i => $"sound/vo/compmode/cm_admin_compbeginsstart_{i}.mp3")
                                                   .ToArray();
 
-    public Audio? RandomCountdownSound(int i)
+    public Task<Audio?> FiveMinutesLeftSound => ReadVoiceTf2SoundFile("sound/vo/announcer_ends_5min.mp3");
+
+    public Task<Audio?> RandomCountdownSound(int i)
     {
-        return !CountdownSounds.ContainsKey(i) ? null : ReadVoiceTf2SoundFile(CountdownSounds[i].Random());
+        return Task.Run(() => !CountdownSounds.ContainsKey(i)
+                                  ? null
+                                  : ReadVoiceTf2SoundFile(CountdownSounds[i].Random()));
     }
 
-    public Audio? FiveMinutesLeftSound => ReadVoiceTf2SoundFile("sound/vo/announcer_ends_5min.mp3");
-    
 
-    private Audio? ReadVoiceTf2SoundFile(string soundFilePath)
+    private Task<Audio?> ReadVoiceTf2SoundFile(string soundFilePath)
     {
         return ReadTf2SoundFile("tf2_sound_vo_english_dir.vpk", soundFilePath);
     }
 
-    private Audio? ReadMiscTf2SoundFile(string soundFilePath)
+    private Task<Audio?> ReadMiscTf2SoundFile(string soundFilePath)
     {
         return ReadTf2SoundFile("tf2_sound_misc_dir.vpk", soundFilePath);
     }
 
-    private Audio? ReadTf2SoundFile(string packagePath, string soundFilePath)
+    private Task<Audio?> ReadTf2SoundFile(string packagePath, string soundFilePath)
     {
-        if (Tf2InstallFolder.Value.IsNullOrWhitespace()) return null;
-        var tf2VpkPath = Path.Combine(Tf2InstallFolder.Value, "tf", packagePath);
-        if (!Path.Exists(tf2VpkPath)) return null;
-        using var package = new VpkPackage(tf2VpkPath);
-        return LoadSoundFile(package, soundFilePath);
+        return Task.Run(() =>
+        {
+            if (Tf2InstallFolder.Value.IsNullOrWhitespace()) return null;
+            var tf2VpkPath = Path.Combine(Tf2InstallFolder.Value, "tf", packagePath);
+            if (!Path.Exists(tf2VpkPath)) return null;
+            using var package = new VpkPackage(tf2VpkPath);
+            return LoadSoundFile(package, soundFilePath);
+        });
     }
 
     private static Audio? LoadSoundFile(IPackage package, string filePath)

@@ -2,12 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using Dalamud.Game;
-using FFXIVClientStructs.FFXIV.Client.Game.Event;
 using KamiLib;
 using Lumina.Excel.GeneratedSheets;
 using Tf2Hud.Common.Audio;
 using Tf2Hud.Common.Configuration;
-using Tf2Hud.Common.Windows;
 using Tf2Hud.VoiceLines.Game;
 using Tf2Hud.VoiceLines.Model;
 using static Tf2Hud.Common.Configuration.ConfigZero.VoiceLinesConfigZero;
@@ -16,15 +14,14 @@ namespace Tf2Hud.VoiceLines;
 
 public class Tf2VoiceLinesModule : IDisposable
 {
-    private readonly ConfigZero.GeneralConfigZero generalConfig;
-    private readonly ConfigZero.VoiceLinesConfigZero voiceLinesConfig;
-
     private readonly CountdownHook countdownHook;
     private readonly HashSet<int> countdownPlayedFor = new();
     private readonly CountdownState countdownState;
+    private readonly ConfigZero.GeneralConfigZero generalConfig;
+    private readonly ConfigZero.VoiceLinesConfigZero voiceLinesConfig;
 
-    private bool playedForFiveMinutesLeft = false;
-    
+    private bool playedForFiveMinutesLeft;
+
     public Tf2VoiceLinesModule(
         ConfigZero.GeneralConfigZero generalConfig, ConfigZero.VoiceLinesConfigZero voiceLinesConfig)
     {
@@ -46,9 +43,9 @@ public class Tf2VoiceLinesModule : IDisposable
     {
         countdownState.StopCountingDown -= OnStopCountingDown;
         countdownState.StartCountingDown -= OnStartCountingDown;
-        
+
         Service.DutyState.DutyStarted -= OnStart;
-        
+
         Service.Framework.Update -= OnUpdate;
         countdownHook.Dispose();
     }
@@ -57,16 +54,19 @@ public class Tf2VoiceLinesModule : IDisposable
     {
         countdownHook.Update();
         UpdateCountdown();
-        UpdateTimeLeft();
+        UpdateFiveMinutes();
     }
 
-    private unsafe void UpdateTimeLeft()
+    private void UpdateFiveMinutes()
     {
-        if (!playedForFiveMinutesLeft &&
-            EventFramework.Instance()->GetInstanceContentDirector()->ContentDirector.ContentTimeLeft < 5 * 60)
+        if (voiceLinesConfig.FiveMinutesLeft.Enabled &&
+            Service.DutyState.IsDutyStarted &&
+            !playedForFiveMinutesLeft &&
+            (Service.ContentDirector?.ContentTimeLeft ?? int.MaxValue) < 5 * 60)
         {
             playedForFiveMinutesLeft = true;
-            SoundEngine.PlaySound(Tf2Sound.Instance.FiveMinutesLeftSound, generalConfig.ApplySfxVolume, generalConfig.Volume.Value);
+            SoundEngine.PlaySoundAsync(Tf2Sound.Instance.FiveMinutesLeftSound, generalConfig.ApplySfxVolume,
+                                       generalConfig.Volume.Value);
             voiceLinesConfig.FiveMinutesLeft.Heard.Value = true;
             KamiCommon.SaveConfiguration();
         }
@@ -88,8 +88,7 @@ public class Tf2VoiceLinesModule : IDisposable
             {
                 countdownPlayedFor.Add(0);
                 var sound = Tf2Sound.Instance.RandomGoSound;
-                if (sound is null) return;
-                SoundEngine.PlaySound(sound, generalConfig.ApplySfxVolume, generalConfig.Volume.Value);
+                SoundEngine.PlaySoundAsync(sound, generalConfig.ApplySfxVolume, generalConfig.Volume.Value);
                 voiceLinesConfig.AdministratorCountdown.Heard.Value = true;
                 KamiCommon.SaveConfiguration();
             }
@@ -98,8 +97,7 @@ public class Tf2VoiceLinesModule : IDisposable
         {
             countdownPlayedFor.Add(ceil);
             var sound = Tf2Sound.Instance.RandomCountdownSound(ceil);
-            if (sound is null) return;
-            SoundEngine.PlaySound(sound, generalConfig.ApplySfxVolume, generalConfig.Volume.Value);
+            SoundEngine.PlaySoundAsync(sound, generalConfig.ApplySfxVolume, generalConfig.Volume.Value);
         }
     }
 
@@ -121,8 +119,7 @@ public class Tf2VoiceLinesModule : IDisposable
         {
             countdownPlayedFor.Add(0);
             var sound = Tf2Sound.Instance.RandomGoSound;
-            if (sound is null) return;
-            SoundEngine.PlaySound(sound, generalConfig.ApplySfxVolume, generalConfig.Volume.Value);
+            SoundEngine.PlaySoundAsync(sound, generalConfig.ApplySfxVolume, generalConfig.Volume.Value);
             voiceLinesConfig.AdministratorCountdown.Heard.Value = true;
             KamiCommon.SaveConfiguration();
         }
@@ -132,8 +129,8 @@ public class Tf2VoiceLinesModule : IDisposable
     {
         if (IsHighEndDuty() && ShouldPlay(voiceLinesConfig.MannUp))
         {
-            SoundEngine.PlaySound(Tf2Sound.Instance.RandomMannUpSound, generalConfig.ApplySfxVolume,
-                                  generalConfig.Volume.Value);
+            SoundEngine.PlaySoundAsync(Tf2Sound.Instance.RandomMannUpSound, generalConfig.ApplySfxVolume,
+                                       generalConfig.Volume.Value);
             voiceLinesConfig.MannUp.Heard.Value = true;
             KamiCommon.SaveConfiguration();
         }
@@ -144,13 +141,12 @@ public class Tf2VoiceLinesModule : IDisposable
         return voiceLinesConfig.Enabled && trigger.Enabled;
     }
 
-    private static unsafe bool IsHighEndDuty()
+    private static bool IsHighEndDuty()
     {
+        var contentDirector = Service.ContentDirector;
+        if (contentDirector is null) return false;
         return Service.DataManager.GetExcelSheet<ContentFinderCondition>()?
-                   .FirstOrDefault(cfc => cfc.Content == EventFramework
-                                                      .Instance()
-                                                  ->GetInstanceContentDirector()
-                                              ->ContentDirector.Director.ContentId)?
+                   .FirstOrDefault(cfc => cfc.Content == contentDirector.Value.Director.ContentId)?
                    .HighEndDuty ?? false;
     }
 }

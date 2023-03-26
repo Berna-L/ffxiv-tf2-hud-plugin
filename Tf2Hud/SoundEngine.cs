@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
+using System.Threading.Tasks;
 using Dalamud.Logging;
 using NAudio.Wave;
 using Tf2Hud.Common;
@@ -24,9 +25,17 @@ public static class SoundEngine
         SoundState.Remove(id);
     }
 
+    public static void PlaySoundAsync(
+        Task<Audio?> audioTask, bool useGameSfxVolume, int volume = 100, string? id = null)
+    {
+        audioTask.ContinueWith(past =>
+        {
+            if (past.IsCompletedSuccessfully) PlaySound(past.Result, useGameSfxVolume, volume, id);
+        });
+    }
+
     // Copied from PeepingTom plugin, by ascclemens:
     // https://git.anna.lgbt/ascclemens/PeepingTom/src/commit/3749a6b42154a51397733abb2d3b06a47915bdcc/Peeping%20Tom/TargetWatcher.cs#L162
-
     public static void PlaySound(Audio? waveAudio, bool useGameSfxVolume, int volume = 100, string? id = null)
     {
         if (waveAudio is null) return;

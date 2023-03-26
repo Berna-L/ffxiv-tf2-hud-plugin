@@ -9,6 +9,8 @@ using Dalamud.Game.DutyState;
 using Dalamud.Game.Gui.FlyText;
 using Dalamud.IoC;
 using Dalamud.Plugin;
+using FFXIVClientStructs.FFXIV.Client.Game.Event;
+using FFXIVClientStructs.FFXIV.Client.Game.InstanceContent;
 
 namespace Tf2Hud;
 
@@ -46,6 +48,17 @@ public class Service
 
     [PluginService]
     public static PartyList PartyList { get; private set; } = null!;
-}
 
-public static class LogExtension { }
+    public static ContentDirector? ContentDirector
+    {
+        get
+        {
+            unsafe
+            {
+                var d = EventFramework.Instance()->GetInstanceContentDirector();
+                if (d is null) return null;
+                return d->ContentDirector;
+            }
+        }
+    }
+}

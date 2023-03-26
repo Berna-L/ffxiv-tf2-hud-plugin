@@ -29,8 +29,8 @@ public class ConfigWindow : SelectionWindow, IDisposable
 
     private readonly GeneralConfigPane generalPane;
     private readonly TimerConfigPane timerPane;
-    private readonly WinPanelConfigPane winPanelPane;
     private readonly VoiceLineConfigPane voiceLinePane;
+    private readonly WinPanelConfigPane winPanelPane;
 
     static ConfigWindow()
     {

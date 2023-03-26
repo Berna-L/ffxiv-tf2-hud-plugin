@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Numerics;
+using System.Threading.Tasks;
 using Dalamud.Interface;
 using Dalamud.Utility;
 using ImGuiNET;
@@ -27,7 +28,7 @@ public class GeneralConfigPane : ConfigPane<ConfigZero.GeneralConfigZero>
                                                                   .Select(n => ImGui.CalcTextSize(n).X)
                                                                   .OrderDescending().First());
 
-    private readonly Audio.Audio?[] testSounds =
+    private readonly Task<Audio.Audio?>[] testSounds =
     {
         Tf2Sound.Instance.VictorySound, Tf2Sound.Instance.FailSound, Tf2Sound.Instance.RandomMannUpSound,
         Tf2Sound.Instance.RandomCountdownSound(10), Tf2Sound.Instance.RandomGoSound,
@@ -76,7 +77,7 @@ public class GeneralConfigPane : ConfigPane<ConfigZero.GeneralConfigZero>
             .StartConditional(!Config.Class.UsePerJob)
             .AddString("Global Class")
             .SameLine()
-            .AddConfigCombo(Enum.GetValues<Tf2Class>(), Config.Class.GlobalClass, Enum.GetName,
+            .AddConfigCombo(Enum.GetValues<Tf2Class>(), Config.Class.GlobalClass, e => Enum.GetName(e) ?? string.Empty,
                             "##TF2HUD#General#GlobalClass", 100f)
             .EndConditional()
             .StartConditional(Config.Class.UsePerJob)
@@ -95,7 +96,7 @@ public class GeneralConfigPane : ConfigPane<ConfigZero.GeneralConfigZero>
                                                    .ThenBy(kv => kv.Key.NameEnglish.ToString()))
             simpleDrawList.AddString(classJob.NameEnglish, GetJobColor(classJob))
                           .SameLine(longestJobNameLength.Value + 20)
-                          .AddConfigCombo(Enum.GetValues<Tf2Class>(), tf2Class, Enum.GetName,
+                          .AddConfigCombo(Enum.GetValues<Tf2Class>(), tf2Class, e => Enum.GetName(e) ?? string.Empty,
                                           $"##TF2HUD#General#JobClass#{classJob.Abbreviation}", 100f);
         simpleDrawList.Draw();
     }
@@ -151,9 +152,8 @@ public class GeneralConfigPane : ConfigPane<ConfigZero.GeneralConfigZero>
     private void PlaySoundTest()
     {
         var selectedSound = testSounds.Random();
-        if (selectedSound is null) return;
         if (SoundEngine.IsPlaying(TestSoundId)) return;
-        SoundEngine.PlaySound(selectedSound, Config.ApplySfxVolume, Config.Volume.Value, TestSoundId);
+        SoundEngine.PlaySoundAsync(selectedSound, Config.ApplySfxVolume, Config.Volume.Value, TestSoundId);
     }
 
     private static void StopSoundTest()

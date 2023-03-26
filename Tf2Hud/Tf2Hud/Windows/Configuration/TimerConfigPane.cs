@@ -8,7 +8,7 @@ namespace Tf2Hud.Tf2Hud.Windows.Configuration;
 public class TimerConfigPane : ModuleConfigPane<ConfigZero.TimerConfigZero>
 {
     public TimerConfigPane(ConfigZero.TimerConfigZero config) : base("Duty Timer", config) { }
-    
+
     public override void Draw()
     {
         new SimpleDrawList()

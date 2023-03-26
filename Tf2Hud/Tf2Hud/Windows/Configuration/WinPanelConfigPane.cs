@@ -9,7 +9,7 @@ namespace Tf2Hud.Tf2Hud.Windows.Configuration;
 public class WinPanelConfigPane : ModuleConfigPane<ConfigZero.WinPanelConfigZero>
 {
     public WinPanelConfigPane(ConfigZero.WinPanelConfigZero configZero) : base("Win Panel", configZero) { }
-    
+
     public override void Draw()
     {
         new SimpleDrawList()

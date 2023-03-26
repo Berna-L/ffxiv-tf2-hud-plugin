@@ -9,7 +9,6 @@ using ImGuiScene;
 using KamiLib.Caching;
 using KamiLib.Drawing;
 using Pilz.Dalamud.Icons;
-using Tf2Hud.Common.Configuration;
 using Tf2Hud.Common.Model;
 using Tf2Hud.Common.Windows;
 using Tf2Hud.Tf2Hud.Configuration;
@@ -26,8 +25,8 @@ public class Tf2MvpList : Tf2Window
 
     private readonly JobIconSets jobIconSets;
     private readonly GameFontHandle playerNameFont;
-    private ImRaii.Style frameRounding;
-    private ImRaii.Color windowBg;
+    private ImRaii.Style? frameRounding;
+    private ImRaii.Color? windowBg;
 
 
     public Tf2MvpList() : base("##Tf2MvpList", Tf2Team.Red)
@@ -131,8 +130,8 @@ public class Tf2MvpList : Tf2Window
 
     public override void PostDraw()
     {
-        windowBg.Dispose();
-        frameRounding.Dispose();
+        windowBg?.Dispose();
+        frameRounding?.Dispose();
         base.PostDraw();
     }
 
@@ -143,7 +142,7 @@ public class Tf2MvpList : Tf2Window
             var iconId = jobIconSets.GetJobIcon(JobIconSetName.Framed, id);
             return IconCache.Instance.GetIcon((uint)iconId);
         }
-        catch (Exception e)
+        catch (Exception)
         {
             return null;
         }

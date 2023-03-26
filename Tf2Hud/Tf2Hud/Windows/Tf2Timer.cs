@@ -70,6 +70,7 @@ public class Tf2Timer : Tf2Window
 
     private void DrawTimerCircle()
     {
+        if (MaxTime is null || TimeRemaining is null) return;
         ImGui.GetForegroundDrawList()
              .AddCircleFilled(CircleCenter, CircleRadius, new Vector4(49 / 255f, 44 / 255f, 41 / 255f, 1f).ToU32());
         var startAngle = GetAngleValue(0);

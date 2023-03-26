@@ -132,7 +132,7 @@ public static unsafe class GameConfig
             }
         }
 
-        public bool TryGetEntry(string name, out EntryWrapper result, StringComparison? nameComparison = null)
+        public bool TryGetEntry(string name, out EntryWrapper? result, StringComparison? nameComparison = null)
         {
             result = null;
             if (!TryGetIndex(name, out var i, nameComparison)) return false;
