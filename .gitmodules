@@ -1,3 +1,9 @@
 [submodule "KamiLib"]
 	path = KamiLib
 	url = https://github.com/Berna-L/KamiLib
+[submodule "CriticalCommonLib"]
+	path = CriticalCommonLib
+	url = https://github.com/Critical-Impact/CriticalCommonLib
+[submodule "LuminaSupplemental"]
+	path = LuminaSupplemental
+	url = https://github.com/Critical-Impact/LuminaSupplemental

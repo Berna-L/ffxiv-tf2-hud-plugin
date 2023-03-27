@@ -13,7 +13,7 @@ public class VoiceLineConfigPane : ModuleConfigPane<ConfigZero.VoiceLinesConfigZ
 
     private IEnumerable<VoiceLineTrigger> Triggers => new[]
     {
-        Config.MannUp, Config.AdministratorCountdown, Config.FiveMinutesLeft
+        Config.MannUp, Config.AdministratorCountdown, Config.FiveMinutesLeft, Config.AugmentationToken
     }.OrderBy(t => t.Name);
 
     public override void Draw()

@@ -95,7 +95,8 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\KamiLib\KamiLib.csproj" />
+        <ProjectReference Include="..\CriticalCommonLib\CriticalCommonLib.csproj"/>
+        <ProjectReference Include="..\KamiLib\KamiLib.csproj"/>
     </ItemGroup>
 
 

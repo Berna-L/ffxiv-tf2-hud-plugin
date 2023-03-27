@@ -28,14 +28,14 @@ public class GeneralConfigPane : ConfigPane<ConfigZero.GeneralConfigZero>
                                                                   .Select(n => ImGui.CalcTextSize(n).X)
                                                                   .OrderDescending().First());
 
-    private readonly Task<Audio.Audio?>[] testSounds =
+    public GeneralConfigPane(ConfigZero.GeneralConfigZero config) : base(config) { }
+
+    private static Task<Audio.Audio?>[] TestSounds => new[]
     {
         Tf2Sound.Instance.VictorySound, Tf2Sound.Instance.FailSound, Tf2Sound.Instance.RandomMannUpSound,
         Tf2Sound.Instance.RandomCountdownSound(10), Tf2Sound.Instance.RandomGoSound,
-        Tf2Sound.Instance.FiveMinutesLeftSound
+        Tf2Sound.Instance.FiveMinutesLeftSound, Tf2Sound.Instance.RandomUpgradeStationSound
     };
-
-    public GeneralConfigPane(ConfigZero.GeneralConfigZero config) : base(config) { }
 
 
     public override void DrawLabel()
@@ -151,7 +151,7 @@ public class GeneralConfigPane : ConfigPane<ConfigZero.GeneralConfigZero>
 
     private void PlaySoundTest()
     {
-        var selectedSound = testSounds.Random();
+        var selectedSound = TestSounds.Random();
         if (SoundEngine.IsPlaying(TestSoundId)) return;
         SoundEngine.PlaySoundAsync(selectedSound, Config.ApplySfxVolume, Config.Volume.Value, TestSoundId);
     }

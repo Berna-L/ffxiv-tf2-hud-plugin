@@ -1,4 +1,8 @@
-﻿using Dalamud.Data;
+﻿using CriticalCommonLib;
+using CriticalCommonLib.Crafting;
+using CriticalCommonLib.Services;
+using CriticalCommonLib.Services.Ui;
+using Dalamud.Data;
 using Dalamud.Game;
 using Dalamud.Game.ClientState;
 using Dalamud.Game.ClientState.Conditions;
@@ -11,6 +15,7 @@ using Dalamud.IoC;
 using Dalamud.Plugin;
 using FFXIVClientStructs.FFXIV.Client.Game.Event;
 using FFXIVClientStructs.FFXIV.Client.Game.InstanceContent;
+using CriticalCommonLib_Service = CriticalCommonLib.Service;
 
 namespace Tf2Hud;
 
@@ -49,6 +54,7 @@ public class Service
     [PluginService]
     public static PartyList PartyList { get; private set; } = null!;
 
+
     public static ContentDirector? ContentDirector
     {
         get
@@ -59,6 +65,45 @@ public class Service
                 if (d is null) return null;
                 return d->ContentDirector;
             }
+        }
+    }
+
+    public static class CriticalCommonLib
+    {
+        public static CharacterMonitor CharacterMonitor { get; private set; } = null!;
+        public static GameUiManager GameUiManager { get; private set; } = null!;
+        public static CraftMonitor CraftMonitor { get; private set; } = null!;
+        public static GameInterface GameInterface { get; private set; } = null!;
+        public static OdrScanner OdrScanner { get; private set; } = null!;
+        public static InventoryScanner InventoryScanner { get; private set; } = null!;
+        public static FrameworkService FrameworkService { get; private set; } = null!;
+
+        public static InventoryMonitor InventoryMonitor { get; private set; } = null!;
+
+        public static void Initialize()
+        {
+            CriticalCommonLib_Service.ExcelCache = new ExcelCache(DataManager);
+            CharacterMonitor = new CharacterMonitor();
+            GameUiManager = new GameUiManager();
+            CraftMonitor = new CraftMonitor(GameUiManager);
+            GameInterface = new GameInterface();
+            OdrScanner = new OdrScanner(CharacterMonitor);
+            InventoryScanner = new InventoryScanner(CharacterMonitor, GameUiManager, GameInterface, OdrScanner);
+            FrameworkService = new FrameworkService(Framework);
+            InventoryMonitor = new InventoryMonitor(CharacterMonitor, CraftMonitor, InventoryScanner, FrameworkService);
+            InventoryScanner.Enable();
+        }
+
+        public static void Dispose()
+        {
+            InventoryMonitor.Dispose();
+            FrameworkService.Dispose();
+            InventoryScanner.Dispose();
+            OdrScanner.Dispose();
+            GameInterface.Dispose();
+            CraftMonitor.Dispose();
+            GameUiManager.Dispose();
+            CharacterMonitor.Dispose();
         }
     }
 }

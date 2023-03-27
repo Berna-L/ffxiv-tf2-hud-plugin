@@ -7,6 +7,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tf2Hud", "Tf2Hud\Tf2Hud.csp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KamiLib", "KamiLib\KamiLib.csproj", "{3685EA97-A6D9-4AA3-8E32-8D264E145315}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CriticalCommonLib", "CriticalCommonLib\CriticalCommonLib.csproj", "{27310CC3-B76C-4297-A825-2773C57E140D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LuminaSupplemental.Excel", "LuminaSupplemental\src\LuminaSupplemental.Excel\LuminaSupplemental.Excel.csproj", "{2D9D70CF-9823-4E05-92CE-3B74A666E7CB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -25,6 +29,14 @@ Global
 		{3685EA97-A6D9-4AA3-8E32-8D264E145315}.Debug|x64.Build.0 = Debug|x64
 		{3685EA97-A6D9-4AA3-8E32-8D264E145315}.Release|x64.ActiveCfg = Release|x64
 		{3685EA97-A6D9-4AA3-8E32-8D264E145315}.Release|x64.Build.0 = Release|x64
+		{27310CC3-B76C-4297-A825-2773C57E140D}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{27310CC3-B76C-4297-A825-2773C57E140D}.Debug|x64.Build.0 = Debug|Any CPU
+		{27310CC3-B76C-4297-A825-2773C57E140D}.Release|x64.ActiveCfg = Release|Any CPU
+		{27310CC3-B76C-4297-A825-2773C57E140D}.Release|x64.Build.0 = Release|Any CPU
+		{2D9D70CF-9823-4E05-92CE-3B74A666E7CB}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{2D9D70CF-9823-4E05-92CE-3B74A666E7CB}.Debug|x64.Build.0 = Debug|Any CPU
+		{2D9D70CF-9823-4E05-92CE-3B74A666E7CB}.Release|x64.ActiveCfg = Release|Any CPU
+		{2D9D70CF-9823-4E05-92CE-3B74A666E7CB}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using CriticalCommonLib.Models;
+using CriticalCommonLib.Services;
 using Dalamud.Game;
+using Dalamud.Logging;
 using KamiLib;
 using Lumina.Excel.GeneratedSheets;
 using Tf2Hud.Common.Audio;
@@ -19,6 +22,9 @@ public class Tf2VoiceLinesModule : IDisposable
     private readonly CountdownState countdownState;
     private readonly ConfigZero.GeneralConfigZero generalConfig;
     private readonly ConfigZero.VoiceLinesConfigZero voiceLinesConfig;
+    private bool augmentationResponsePlayedHereAlready;
+    private bool augmentationTokenResponsePending;
+    private bool inventoryAlreadyLoaded;
 
     private bool playedForFiveMinutesLeft;
 
@@ -30,7 +36,16 @@ public class Tf2VoiceLinesModule : IDisposable
         countdownState = CountdownState.Instance();
         countdownHook = new CountdownHook(countdownState, Service.Condition);
 
+
         Service.Framework.Update += OnUpdate;
+
+        Service.ClientState.TerritoryChanged += OnTerritoryChanged;
+
+        if (Service.CriticalCommonLib.CharacterMonitor is not null)
+        {
+            PluginLog.Debug("opa me inscrevi aqui hein");
+            Service.CriticalCommonLib.InventoryMonitor.OnInventoryChanged += OnInventoryChanged;
+        }
 
         Service.DutyState.DutyStarted += OnStart;
 
@@ -46,8 +61,35 @@ public class Tf2VoiceLinesModule : IDisposable
 
         Service.DutyState.DutyStarted -= OnStart;
 
+        if (Service.CriticalCommonLib.InventoryMonitor is not null)
+            Service.CriticalCommonLib.InventoryMonitor.OnInventoryChanged -= OnInventoryChanged;
+
+        Service.ClientState.TerritoryChanged -= OnTerritoryChanged;
+
         Service.Framework.Update -= OnUpdate;
+
         countdownHook.Dispose();
+    }
+
+    private void OnInventoryChanged(
+        Dictionary<ulong, Dictionary<InventoryCategory, List<InventoryItem>>> inventories,
+        InventoryMonitor.ItemChanges changedItems)
+    {
+        if (!inventoryAlreadyLoaded)
+        {
+            inventoryAlreadyLoaded = true;
+            return;
+        }
+
+        foreach (var newItem in changedItems.NewItems)
+            if (AugmentationToken.IsToken(newItem.ItemId) ||
+                (AugmentationToken.IsExchangeableForToken(newItem.ItemId) &&
+                 AugmentationToken.HasEnoughForToken(inventories)))
+            {
+                augmentationTokenResponsePending = true;
+                if (Service.ContentDirector is null) // not in a duty
+                    ShouldPlayAugmentationToken();
+            }
     }
 
     private void OnUpdate(Framework framework)
@@ -140,6 +182,28 @@ public class Tf2VoiceLinesModule : IDisposable
     {
         return voiceLinesConfig.Enabled && trigger.Enabled;
     }
+
+    private void OnTerritoryChanged(object? sender, ushort e)
+    {
+        augmentationResponsePlayedHereAlready = false;
+        ShouldPlayAugmentationToken();
+    }
+
+    private void ShouldPlayAugmentationToken()
+    {
+        if (augmentationTokenResponsePending && augmentationResponsePlayedHereAlready)
+        {
+            augmentationTokenResponsePending = false;
+            if (voiceLinesConfig.AugmentationToken.Enabled)
+            {
+                SoundEngine.PlaySoundAsync(Tf2Sound.Instance.RandomUpgradeStationSound, generalConfig.ApplySfxVolume,
+                                           generalConfig.Volume.Value);
+                voiceLinesConfig.AugmentationToken.Heard.Value = true;
+                KamiCommon.SaveConfiguration();
+            }
+        }
+    }
+
 
     private static bool IsHighEndDuty()
     {

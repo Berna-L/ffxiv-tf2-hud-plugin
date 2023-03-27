@@ -15,22 +15,20 @@ public class Tf2Sound
 {
     public static readonly Tf2Sound Instance = new();
 
-    public Setting<string> Tf2InstallFolder { private get; set; } = new("");
+    private static readonly string[] MannUpSounds = Enumerable.Range(1, 15)
+                                                              .Select(i => i.ToString().PadLeft(2, '0'))
+                                                              .Select(i => $"sound/vo/mvm_mann_up_mode{i}.mp3")
+                                                              .ToArray();
 
-    public Task<Audio?> VictorySound => ReadMiscTf2SoundFile("sound/misc/your_team_won.wav");
-    public Task<Audio?> FailSound => ReadMiscTf2SoundFile("sound/misc/your_team_lost.wav");
-    public Task<Audio?> ScoredSound => ReadMiscTf2SoundFile("sound/ui/scored.wav");
+    private static readonly string[] GoSounds = Enumerable.Range(1, 7)
+                                                          .Select(i => i.ToString().PadLeft(2, '0'))
+                                                          .Select(
+                                                              i =>
+                                                                  $"sound/vo/compmode/cm_admin_compbeginsstart_{i}.mp3")
+                                                          .ToArray();
 
-    public Task<Audio?> RandomMannUpSound => ReadVoiceTf2SoundFile(MannUpSounds.Random());
 
-    private static string[] MannUpSounds => Enumerable.Range(1, 15)
-                                                      .Select(i => i.ToString().PadLeft(2, '0'))
-                                                      .Select(i => $"sound/vo/mvm_mann_up_mode{i}.mp3")
-                                                      .ToArray();
-
-    public Task<Audio?> RandomGoSound => ReadVoiceTf2SoundFile(GoSounds.Random());
-
-    private static IDictionary<int, string[]> CountdownSounds => new[]
+    private static readonly IDictionary<int, string[]> CountdownSounds = new[]
     {
         new KeyValuePair<int, string[]>(1, new[] { "sound/vo/compmode/cm_admin_compbegins01.mp3" }),
         new KeyValuePair<int, string[]>(2, new[] { "sound/vo/compmode/cm_admin_compbegins02.mp3" }),
@@ -48,12 +46,25 @@ public class Tf2Sound
         })
     }.ToImmutableDictionary();
 
-    private static string[] GoSounds => Enumerable.Range(1, 7)
-                                                  .Select(i => i.ToString().PadLeft(2, '0'))
-                                                  .Select(i => $"sound/vo/compmode/cm_admin_compbeginsstart_{i}.mp3")
-                                                  .ToArray();
+
+    public string[] UpgradeStationSounds = Enumerable.Range(1, 11)
+                                                     .Select(i => i.ToString().PadLeft(2, '0'))
+                                                     .Select(i => $"sound/vo/mvm_get_to_upgrade{i}.mp3")
+                                                     .ToArray();
+
+    public Setting<string> Tf2InstallFolder { private get; set; } = new("");
+
+    public Task<Audio?> VictorySound => ReadMiscTf2SoundFile("sound/misc/your_team_won.wav");
+    public Task<Audio?> FailSound => ReadMiscTf2SoundFile("sound/misc/your_team_lost.wav");
+    public Task<Audio?> ScoredSound => ReadMiscTf2SoundFile("sound/ui/scored.wav");
+
+    public Task<Audio?> RandomMannUpSound => ReadVoiceTf2SoundFile(MannUpSounds.Random());
+
+    public Task<Audio?> RandomGoSound => ReadVoiceTf2SoundFile(GoSounds.Random());
 
     public Task<Audio?> FiveMinutesLeftSound => ReadVoiceTf2SoundFile("sound/vo/announcer_ends_5min.mp3");
+
+    public Task<Audio?> RandomUpgradeStationSound => ReadVoiceTf2SoundFile(UpgradeStationSounds.Random());
 
     public Task<Audio?> RandomCountdownSound(int i)
     {
@@ -61,7 +72,6 @@ public class Tf2Sound
                                   ? null
                                   : ReadVoiceTf2SoundFile(CountdownSounds[i].Random()));
     }
-
 
     private Task<Audio?> ReadVoiceTf2SoundFile(string soundFilePath)
     {

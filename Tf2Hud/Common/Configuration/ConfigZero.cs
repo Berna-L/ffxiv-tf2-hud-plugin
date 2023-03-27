@@ -122,14 +122,18 @@ public class ConfigZero : BaseConfiguration
     public class VoiceLinesConfigZero : ModuleConfiguration
     {
         public readonly VoiceLineTrigger AdministratorCountdown = new("Administrator Countdown",
-                                                                      "Makes the Administrator countdown with a countdown. Wow!" +
+                                                                      "Makes the Administrator count down with a countdown. Wow!" +
                                                                       "\nHas rare chance of being extra spicy if you have friends with you.");
+
+        public readonly VoiceLineTrigger AugmentationToken = new("Upgrade Station with Augmentation Token",
+                                                                 "Plays a random Administrator voice line from MvM" +
+                                                                 "\nafter getting an augmentation token for the current Savage Raid series.");
 
         public readonly VoiceLineTrigger FiveMinutesLeft = new("Five minutes left",
                                                                "Reminds you when it's five minutes left in the so-called \"Mission\".");
 
         public readonly VoiceLineTrigger MannUp = new("Mann Up when starting a High-End Duty",
-                                                      "Plays a random Administrator voiceline from Mann Up mode" +
+                                                      "Plays a random Administrator voice line from Mann Up mode" +
                                                       "\nwhen starting a duty classified as High-End in the Duty Finder.");
 
 
