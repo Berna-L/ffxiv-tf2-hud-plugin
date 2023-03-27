@@ -22,7 +22,7 @@ public class Tf2RedScoreWindow : Tf2TeamScoreWindow
             ImGuiHelper.TextShadow(Team.Name);
         }
 
-        ImGuiHelper.ForegroundTextShadow(Tf2ScoreFont, Score.ToString(),
+        ImGuiHelper.ForegroundTextShadow("RedScoreNumber", Tf2ScoreFont, Score.ToString(),
                                          ImGui.GetCursorScreenPos() + new Vector2(10, -85));
     }
 }

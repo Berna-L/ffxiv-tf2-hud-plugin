@@ -1,4 +1,6 @@
 ﻿using System.Numerics;
+using Dalamud.Interface.Raii;
+using FFXIVClientStructs.FFXIV.Client.UI.Agent;
 using ImGuiNET;
 using KamiLib.Drawing;
 
@@ -23,10 +25,18 @@ public static class ImGuiHelper
         ImGui.Text(text);
     }
 
-    public static void ForegroundTextShadow(ImFontPtr font, string text, Vector2 position)
+    public static void ForegroundTextShadow(string id, ImFontPtr font, string text, Vector2 position)
     {
-        ImGui.GetForegroundDrawList().AddText(font, 100.0f, position + DefaultShadowOffset, Colors.Black.ToU32(), text);
-        ImGui.GetForegroundDrawList().AddText(font, 100.0f, position, Colors.White.ToU32(), text);
+        var calcTextSize = CalcTextSize(font, text);
+        ImGui.SetNextWindowSizeConstraints(calcTextSize + new Vector2(20, 20), calcTextSize + new Vector2(20, 20));
+        ImGui.SetNextWindowBgAlpha(0f);
+        ImGui.SetNextWindowPos(position - new Vector2(20, 20));
+        using var borderRemove = ImRaii.PushStyle(ImGuiStyleVar.WindowBorderSize, 0f);
+        ImGui.Begin($"{id}##window", ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoScrollWithMouse | ImGuiWindowFlags.NoScrollbar |
+                                  ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoMouseInputs);
+        ImGui.GetWindowDrawList().AddText(font, 100.0f, position + DefaultShadowOffset, Colors.Black.ToU32(), text);
+        ImGui.GetWindowDrawList().AddText(font, 100.0f, position, Colors.White.ToU32(), text);
+        ImGui.End();
     }
 
     public static Vector2 CalcTextSize(ImFontPtr fontPtr, string text)

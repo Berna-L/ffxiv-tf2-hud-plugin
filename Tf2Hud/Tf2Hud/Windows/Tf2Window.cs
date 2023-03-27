@@ -21,7 +21,7 @@ public abstract class Tf2Window : Window
     protected Tf2Window(string name, Tf2Team team) : base(
         name,
         ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoScrollWithMouse | ImGuiWindowFlags.NoScrollbar |
-        ImGuiWindowFlags.NoResize)
+        ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoMouseInputs)
     {
         Team = team;
         PositionCondition = ImGuiCond.Always;

@@ -21,7 +21,7 @@ public class Tf2BluScoreWindow : Tf2TeamScoreWindow
         }
 
         var calcTextSize = ImGuiHelper.CalcTextSize(Tf2ScoreFont, Score.ToString());
-        ImGuiHelper.ForegroundTextShadow(Tf2ScoreFont, Score.ToString(),
+        ImGuiHelper.ForegroundTextShadow("BluScoreNumber", Tf2ScoreFont, Score.ToString(),
                                          ImGui.GetCursorScreenPos() + ImGui.GetContentRegionAvail() with { Y = -85 } -
                                          calcTextSize with { Y = 0 });
     }

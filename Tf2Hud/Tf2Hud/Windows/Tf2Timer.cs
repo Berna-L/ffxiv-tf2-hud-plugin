@@ -71,21 +71,21 @@ public class Tf2Timer : Tf2Window
     private void DrawTimerCircle()
     {
         if (MaxTime is null || TimeRemaining is null) return;
-        ImGui.GetForegroundDrawList()
+        ImGui.GetWindowDrawList()
              .AddCircleFilled(CircleCenter, CircleRadius, new Vector4(49 / 255f, 44 / 255f, 41 / 255f, 1f).ToU32());
         var startAngle = GetAngleValue(0);
         var normalizedTimeRemaining = (float)((MaxTime - (MaxTime - TimeRemaining)) / (float)MaxTime);
-        var color = (normalizedTimeRemaining > 0.1f ? TanLight : Colors.Red).ToU32();
-        ImGui.GetForegroundDrawList().PathArcTo(CircleCenter, CircleRadius, startAngle,
+        var color = (normalizedTimeRemaining > 0.25f ? TanLight : Colors.Red).ToU32();
+        ImGui.GetWindowDrawList().PathArcTo(CircleCenter, CircleRadius, startAngle,
                                                 GetAngleValue(Math.Min(0.5f, normalizedTimeRemaining)));
-        ImGui.GetForegroundDrawList().PathLineTo(CircleCenter);
-        ImGui.GetForegroundDrawList().PathFillConvex(color);
+        ImGui.GetWindowDrawList().PathLineTo(CircleCenter);
+        ImGui.GetWindowDrawList().PathFillConvex(color);
         if (normalizedTimeRemaining >= 0.5f)
         {
-            ImGui.GetForegroundDrawList().PathArcTo(CircleCenter, CircleRadius, GetAngleValue(0.5f),
+            ImGui.GetWindowDrawList().PathArcTo(CircleCenter, CircleRadius, GetAngleValue(0.5f),
                                                     GetAngleValue(normalizedTimeRemaining));
-            ImGui.GetForegroundDrawList().PathLineTo(CircleCenter);
-            ImGui.GetForegroundDrawList().PathFillConvex(color);
+            ImGui.GetWindowDrawList().PathLineTo(CircleCenter);
+            ImGui.GetWindowDrawList().PathFillConvex(color);
         }
     }
 
