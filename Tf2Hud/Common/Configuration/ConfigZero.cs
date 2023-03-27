@@ -126,8 +126,9 @@ public class ConfigZero : BaseConfiguration
                                                                       "\nHas rare chance of being extra spicy if you have friends with you.");
 
         public readonly VoiceLineTrigger AugmentationToken = new("Upgrade Station with Augmentation Token",
-                                                                 "Plays a random Administrator voice line from MvM" +
-                                                                 "\nafter getting an augmentation token for the current Savage Raid series.");
+                                                                 "Plays a random Administrator voice line from MvM after getting" +
+                                                                 "\nan augmentation token for the current Savage Raid series" +
+                                                                 "\nor having enough books or coins to exchange for one.");
 
         public readonly VoiceLineTrigger FiveMinutesLeft = new("Five minutes left",
                                                                "Reminds you when it's five minutes left in the so-called \"Mission\".");
