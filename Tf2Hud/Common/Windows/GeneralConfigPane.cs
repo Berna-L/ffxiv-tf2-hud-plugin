@@ -47,7 +47,7 @@ public class GeneralConfigPane : ConfigPane<ConfigZero.GeneralConfigZero>
     {
         DrawTeamSection();
 
-        if (Service.PluginInterface.IsDev) DrawClassSection();
+        if (CriticalCommonLib.Service.Interface.IsDev) DrawClassSection();
 
         DrawVolumeSection();
 

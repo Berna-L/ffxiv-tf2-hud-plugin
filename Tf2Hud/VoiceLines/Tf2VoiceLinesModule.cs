@@ -34,12 +34,12 @@ public class Tf2VoiceLinesModule : IDisposable
         this.generalConfig = generalConfig;
         this.voiceLinesConfig = voiceLinesConfig;
         countdownState = CountdownState.Instance();
-        countdownHook = new CountdownHook(countdownState, Service.Condition);
+        countdownHook = new CountdownHook(countdownState, CriticalCommonLib.Service.Condition);
 
 
-        Service.Framework.Update += OnUpdate;
+        CriticalCommonLib.Service.Framework.Update += OnUpdate;
 
-        Service.ClientState.TerritoryChanged += OnTerritoryChanged;
+        CriticalCommonLib.Service.ClientState.TerritoryChanged += OnTerritoryChanged;
 
         if (Service.CriticalCommonLib.CharacterMonitor is not null)
         {
@@ -64,9 +64,9 @@ public class Tf2VoiceLinesModule : IDisposable
         if (Service.CriticalCommonLib.InventoryMonitor is not null)
             Service.CriticalCommonLib.InventoryMonitor.OnInventoryChanged -= OnInventoryChanged;
 
-        Service.ClientState.TerritoryChanged -= OnTerritoryChanged;
+        CriticalCommonLib.Service.ClientState.TerritoryChanged -= OnTerritoryChanged;
 
-        Service.Framework.Update -= OnUpdate;
+        CriticalCommonLib.Service.Framework.Update -= OnUpdate;
 
         countdownHook.Dispose();
     }
@@ -185,14 +185,18 @@ public class Tf2VoiceLinesModule : IDisposable
 
     private void OnTerritoryChanged(object? sender, ushort e)
     {
-        augmentationResponsePlayedHereAlready = false;
+        if (augmentationTokenResponsePending)
+        {
+            augmentationResponsePlayedHereAlready = false;
+        }
         ShouldPlayAugmentationToken();
     }
 
     private void ShouldPlayAugmentationToken()
     {
-        if (augmentationTokenResponsePending && augmentationResponsePlayedHereAlready)
+        if (augmentationTokenResponsePending && !augmentationResponsePlayedHereAlready)
         {
+            augmentationResponsePlayedHereAlready = true;
             augmentationTokenResponsePending = false;
             if (voiceLinesConfig.AugmentationToken.Enabled)
             {
@@ -209,7 +213,7 @@ public class Tf2VoiceLinesModule : IDisposable
     {
         var contentDirector = Service.ContentDirector;
         if (contentDirector is null) return false;
-        return Service.DataManager.GetExcelSheet<ContentFinderCondition>()?
+        return CriticalCommonLib.Service.Data.GetExcelSheet<ContentFinderCondition>()?
                    .FirstOrDefault(cfc => cfc.Content == contentDirector.Value.Director.ContentId)?
                    .HighEndDuty ?? false;
     }

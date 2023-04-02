@@ -17,9 +17,9 @@ public abstract class Constants
     private static IDictionary<uint, ClassJob> InitCombatJobs()
     {
         // A combat job is one that has a JobIndex.
-        if (Service.DataManager == null) throw new ApplicationException("DataManager not initialized!");
+        if (CriticalCommonLib.Service.Data == null) throw new ApplicationException("DataManager not initialized!");
 
-        var classJobSheet = Service.DataManager.GetExcelSheet<ClassJob>();
+        var classJobSheet = CriticalCommonLib.Service.Data.GetExcelSheet<ClassJob>();
         if (classJobSheet == null) throw new ApplicationException("ClassJob sheet unavailable!");
         var jobList = new List<ClassJob>();
         for (var i = 0u; i < classJobSheet.RowCount; i++)

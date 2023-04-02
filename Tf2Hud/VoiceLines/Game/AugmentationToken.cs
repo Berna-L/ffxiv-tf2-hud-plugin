@@ -61,7 +61,7 @@ public static class AugmentationToken
     public static bool HasEnoughForToken(
         Dictionary<ulong, Dictionary<InventoryCategory, List<InventoryItem>>> inventories)
     {
-        var temp = inventories[Service.ClientState.LocalContentId]
+        var temp = inventories[CriticalCommonLib.Service.ClientState.LocalContentId]
                    .SelectMany(i => i.Value)
                    .Select(i => new KeyValuePair<uint, uint>(i.ItemId, i.Quantity));
         var idsAndQuantities = new Dictionary<uint, uint>();

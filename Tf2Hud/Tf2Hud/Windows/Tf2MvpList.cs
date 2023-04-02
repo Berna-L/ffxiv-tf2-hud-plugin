@@ -34,7 +34,7 @@ public class Tf2MvpList : Tf2Window
         Size = new Vector2(ScorePanelWidth * 2, MvpListHeight);
         jobIconSets = new JobIconSets();
         playerNameFont =
-            Service.PluginInterface.UiBuilder.GetGameFontHandle(new GameFontStyle(GameFontFamily.Axis, 18));
+            CriticalCommonLib.Service.Interface.UiBuilder.GetGameFontHandle(new GameFontStyle(GameFontFamily.Axis, 18));
         Position = DefaultPosition;
         PartyList = new List<Tf2MvpMember>();
         PlayerTeam = Tf2Team.Red;

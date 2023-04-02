@@ -57,12 +57,12 @@ public class Tf2HudModule : IDisposable
         else
             tf2InstallFolder = this.configZero.General.Tf2InstallPath.Value;
 
-        Service.CommandManager.AddHandler(CloseWinPanel, new CommandInfo(OnCloseWinPanelCommand)
+        CriticalCommonLib.Service.Commands.AddHandler(CloseWinPanel, new CommandInfo(OnCloseWinPanelCommand)
         {
             HelpMessage = "Closes the win panel immediately if needed."
         });
 
-        Service.PluginInterface.UiBuilder.BuildFonts += LoadTf2Fonts;
+        CriticalCommonLib.Service.Interface.UiBuilder.BuildFonts += LoadTf2Fonts;
 
         KamiCommon.WindowManager.AddWindow(new Tf2BluScoreWindow());
         KamiCommon.WindowManager.AddWindow(new Tf2RedScoreWindow());
@@ -72,7 +72,7 @@ public class Tf2HudModule : IDisposable
         Service.DutyState.DutyStarted += OnStart;
         Service.DutyState.DutyCompleted += OnComplete;
         Service.DutyState.DutyWiped += OnWipe;
-        Service.Framework.Update += OnUpdate;
+        CriticalCommonLib.Service.Framework.Update += OnUpdate;
 
         Tf2Sound.Instance.Tf2InstallFolder = this.configZero.General.Tf2InstallPath;
 
@@ -85,7 +85,7 @@ public class Tf2HudModule : IDisposable
     {
         get
         {
-            var localPlayer = Service.ClientState.LocalPlayer;
+            var localPlayer = CriticalCommonLib.Service.ClientState.LocalPlayer;
             if (localPlayer is null) return new Tf2MvpMember();
             return new Tf2MvpMember
             {
@@ -98,13 +98,13 @@ public class Tf2HudModule : IDisposable
 
     public void Dispose()
     {
-        Service.PluginInterface.UiBuilder.BuildFonts -= LoadTf2Fonts;
+        CriticalCommonLib.Service.Interface.UiBuilder.BuildFonts -= LoadTf2Fonts;
         Service.DutyState.DutyStarted -= OnStart;
         Service.DutyState.DutyCompleted -= OnComplete;
         Service.DutyState.DutyWiped -= OnWipe;
-        Service.Framework.Update -= OnUpdate;
+        CriticalCommonLib.Service.Framework.Update -= OnUpdate;
 
-        Service.CommandManager.RemoveHandler(CloseWinPanel);
+        CriticalCommonLib.Service.Commands.RemoveHandler(CloseWinPanel);
     }
 
     private void OnCloseWinPanelCommand(string command, string arguments)
@@ -170,17 +170,17 @@ public class Tf2HudModule : IDisposable
         }
         else
         {
-            tf2Font = Service.PluginInterface.UiBuilder
-                             .GetGameFontHandle(new GameFontStyle(GameFontFamily.Meidinger, 60))
-                             .ImFont;
+            tf2Font = CriticalCommonLib.Service.Interface.UiBuilder
+                                       .GetGameFontHandle(new GameFontStyle(GameFontFamily.Meidinger, 60))
+                                       .ImFont;
 
-            tf2ScoreFont = Service.PluginInterface.UiBuilder
-                                  .GetGameFontHandle(new GameFontStyle(GameFontFamily.Meidinger, 130))
-                                  .ImFont;
+            tf2ScoreFont = CriticalCommonLib.Service.Interface.UiBuilder
+                                            .GetGameFontHandle(new GameFontStyle(GameFontFamily.Meidinger, 130))
+                                            .ImFont;
 
-            tf2SecondaryFont = Service.PluginInterface.UiBuilder
-                                      .GetGameFontHandle(new GameFontStyle(GameFontFamily.Axis, 40))
-                                      .ImFont;
+            tf2SecondaryFont = CriticalCommonLib.Service.Interface.UiBuilder
+                                                .GetGameFontHandle(new GameFontStyle(GameFontFamily.Axis, 40))
+                                                .ImFont;
         }
 
         Tf2Window.UpdateFontPointers(tf2Font, tf2ScoreFont, tf2SecondaryFont);
@@ -239,14 +239,14 @@ public class Tf2HudModule : IDisposable
                 ClearScores();
                 break;
             case ScoreBehaviorKind.ResetIfDutyChanged:
-                if (Service.ClientState.TerritoryType != lastDutyTerritory) ClearScores();
+                if (CriticalCommonLib.Service.ClientState.TerritoryType != lastDutyTerritory) ClearScores();
                 break;
             case ScoreBehaviorKind.ResetUponClosingGame:
             default:
                 break;
         }
 
-        lastDutyTerritory = Service.ClientState.TerritoryType;
+        lastDutyTerritory = CriticalCommonLib.Service.ClientState.TerritoryType;
     }
 
     private void ClearScores()
@@ -297,7 +297,7 @@ public class Tf2HudModule : IDisposable
     {
         if (Service.PartyList.Length == 0)
         {
-            if (Service.ClientState.LocalPlayer is null) return new List<Tf2MvpMember>();
+            if (CriticalCommonLib.Service.ClientState.LocalPlayer is null) return new List<Tf2MvpMember>();
             return new[]
             {
                 LocalTf2MvpMember
@@ -315,7 +315,7 @@ public class Tf2HudModule : IDisposable
     private unsafe void UpdateTarget()
     {
         var playerId = PlayerState.Instance()->ObjectId;
-        var targetObject = Service.ObjectTable.FirstOrDefault(go => go.ObjectId == playerId)?.TargetObject;
+        var targetObject = CriticalCommonLib.Service.Objects.FirstOrDefault(go => go.ObjectId == playerId)?.TargetObject;
         if (targetObject?.SubKind == (byte)BattleNpcSubKind.Enemy && targetObject is BattleNpc battleNpc)
         {
             if (battleNpc.Name.TextValue != lastEnemyTarget?.Name.TextValue &&

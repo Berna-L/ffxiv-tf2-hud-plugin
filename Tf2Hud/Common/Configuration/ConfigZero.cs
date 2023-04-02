@@ -37,7 +37,7 @@ public class ConfigZero : BaseConfiguration
     public void Save()
     {
         PluginVersion = PluginVersion.Current;
-        File.WriteAllText(Service.PluginInterface.ConfigFile.FullName,
+        File.WriteAllText(CriticalCommonLib.Service.Interface.ConfigFile.FullName,
                           JsonConvert.SerializeObject(this, Formatting.Indented));
     }
 

@@ -33,7 +33,7 @@ public sealed class Plugin : IDalamudPlugin
         pluginInterface.Create<CriticalCommonLib.Service>();
 
         Service.CriticalCommonLib.Initialize();
-        KamiCommon.Initialize(Service.PluginInterface, Name, () => Config?.Save());
+        KamiCommon.Initialize(CriticalCommonLib.Service.Interface, Name, () => Config?.Save());
         Config = InitConfig();
 
         Config.Save();
@@ -43,17 +43,16 @@ public sealed class Plugin : IDalamudPlugin
 
         KamiCommon.WindowManager.AddWindow(new ConfigWindow(Config));
 
-        Service.PluginInterface.UiBuilder.RebuildFonts();
+        CriticalCommonLib.Service.Interface.UiBuilder.RebuildFonts();
 
-
-        Service.CommandManager.AddHandler(CommandName, new CommandInfo(OnConfigCommand)
+        CriticalCommonLib.Service.Commands.AddHandler(CommandName, new CommandInfo(OnConfigCommand)
         {
             HelpMessage = "Opens the Team Fortress Fantasy configuration window"
         });
 
 
-        Service.PluginInterface.UiBuilder.Draw += DrawUserInterface;
-        Service.PluginInterface.UiBuilder.OpenConfigUi += DrawConfigWindow;
+        CriticalCommonLib.Service.Interface.UiBuilder.Draw += DrawUserInterface;
+        CriticalCommonLib.Service.Interface.UiBuilder.OpenConfigUi += DrawConfigWindow;
     }
 
     public ConfigZero Config { get; init; }
@@ -66,13 +65,13 @@ public sealed class Plugin : IDalamudPlugin
         tf2HudModule?.Dispose();
         WindowSystem.RemoveAllWindows();
         Service.CriticalCommonLib.Dispose();
-        Service.CommandManager.RemoveHandler(CommandName);
+        CriticalCommonLib.Service.Commands.RemoveHandler(CommandName);
     }
 
 
     private static ConfigZero InitConfig()
     {
-        var configFile = Service.PluginInterface.ConfigFile.FullName;
+        var configFile = CriticalCommonLib.Service.Interface.ConfigFile.FullName;
         if (!File.Exists(configFile)) return new ConfigZero();
 
         var configText = File.ReadAllText(configFile);
@@ -93,10 +92,10 @@ public sealed class Plugin : IDalamudPlugin
             };
 
 
-            if (Service.PluginInterface.IsTesting || Service.PluginInterface.IsDev)
+            if (CriticalCommonLib.Service.Interface.IsTesting || CriticalCommonLib.Service.Interface.IsDev)
             {
-                Service.PluginInterface.ConfigFile.MoveTo(
-                    Service.PluginInterface.ConfigFile.FullName + $".{unixTimeSeconds}.old", true);
+                CriticalCommonLib.Service.Interface.ConfigFile.MoveTo(
+                    CriticalCommonLib.Service.Interface.ConfigFile.FullName + $".{unixTimeSeconds}.old", true);
             }
 
             return config;
@@ -104,8 +103,6 @@ public sealed class Plugin : IDalamudPlugin
         catch (Exception e)
         {
             if (e.StackTrace is not null) LogError(e.StackTrace);
-            // var unixTimeSeconds = DateTimeOffset.Now.ToUnixTimeSeconds();
-            // Service.PluginInterface.ConfigFile.MoveTo(Service.PluginInterface.ConfigFile.FullName + $".{unixTimeSeconds}.old", true);
             Chat.PrintError(
                 $"There was an error while reading your configuration file and it was reset. The old file is available in your pluginConfigs folder, as Tf2Hud.json.{unixTimeSeconds}.old.");
             return new ConfigZero();

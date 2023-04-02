@@ -31,7 +31,7 @@ public class Tf2WinPanel : IDisposable
         MvpListWindow.PlayerTeam = PlayerTeam;
         MvpListWindow.WinningTeam = PlayerTeam;
         MvpListWindow.PartyList = initialPartyList;
-        Service.Framework.Update += OnUpdate;
+        CriticalCommonLib.Service.Framework.Update += OnUpdate;
     }
 
     private static Tf2BluScoreWindow BluScoreWindow => KamiCommon.WindowManager.GetWindowOfType<Tf2BluScoreWindow>()!;
@@ -55,7 +55,7 @@ public class Tf2WinPanel : IDisposable
 
     public void Dispose()
     {
-        Service.Framework.Update -= OnUpdate;
+        CriticalCommonLib.Service.Framework.Update -= OnUpdate;
     }
 
     private void OnUpdate(Framework framework)
