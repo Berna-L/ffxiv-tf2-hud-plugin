@@ -17,9 +17,9 @@ public class WinPanelConfigPane : ModuleConfigPane<ConfigZero.WinPanelConfigZero
             .AddConfigCheckbox("Repositioning mode", Config.RepositionMode,
                                "Shows the component and enables the controls below. Disable to use it.")
             .AddIndent(2)
+            .BeginDisabled(!Config.RepositionMode)
             .AddString("Position:")
             .SameLine()
-            .BeginDisabled(!Config.RepositionMode)
             .AddDragFloat("##WinPanelXPosition", Config.PositionX, 0, ImGui.GetMainViewport().Size.X,
                           100.0f)
             .SameLine()
@@ -29,6 +29,9 @@ public class WinPanelConfigPane : ModuleConfigPane<ConfigZero.WinPanelConfigZero
                           100.0f)
             .SameLine()
             .AddButton("Default", () => Config.RestoreDefaultPosition())
+            .AddString("Scale:")
+            .SameLine()
+            .AddDragFloat("##TimerScale", Config.Scale, 0, 10f, 100.0f)
             .EndDisabled()
             .AddIndent(-2)
             .Draw();

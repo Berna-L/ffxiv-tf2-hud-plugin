@@ -16,9 +16,9 @@ public class TimerConfigPane : ModuleConfigPane<ConfigZero.TimerConfigZero>
             .AddConfigCheckbox("Repositioning mode", Config.RepositionMode,
                                "Enables you to move this component. Disable to use it.")
             .AddIndent(2)
+            .BeginDisabled(!Config.RepositionMode)
             .AddString("Position:")
             .SameLine()
-            .BeginDisabled(!Config.RepositionMode)
             .AddDragFloat("##TimerXPosition", Config.PositionX, 0, ImGui.GetMainViewport().Size.X, 100.0f)
             .SameLine()
             .AddString("x")
@@ -26,6 +26,9 @@ public class TimerConfigPane : ModuleConfigPane<ConfigZero.TimerConfigZero>
             .AddDragFloat("##TimerYPosition", Config.PositionY, 0, ImGui.GetMainViewport().Size.Y, 100.0f)
             .SameLine()
             .AddButton("Default", () => Config.RestoreDefaultPosition())
+            .AddString("Scale:")
+            .SameLine()
+            .AddDragFloat("##TimerScale", Config.Scale, 0, 10f, 100.0f)
             .EndDisabled()
             .AddIndent(-2)
             .Draw();

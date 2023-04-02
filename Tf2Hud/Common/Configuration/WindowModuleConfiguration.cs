@@ -18,6 +18,8 @@ public abstract class WindowModuleConfiguration : ModuleConfiguration
     public Setting<float> PositionX { get; set; }
     public Setting<float> PositionY { get; set; }
 
+    public Setting<float> Scale { get; set; } = new(1.0f);
+
     public Vector2 GetPosition()
     {
         return new Vector2(PositionX.Value, PositionY.Value);
