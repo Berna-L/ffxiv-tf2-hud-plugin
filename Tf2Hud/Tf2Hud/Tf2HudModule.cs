@@ -169,7 +169,7 @@ public class Tf2HudModule : IDisposable
         {
             var resourceFolder = Path.Combine(tf2InstallFolder, "tf", "resource");
             tf2Font = ImGui.GetIO().Fonts
-                           .AddFontFromFileTTF(Path.Combine(resourceFolder, "tf2.ttf"), 60);
+                           .AddFontFromFileTTF(Path.Combine(resourceFolder, "tf2.ttf"), 120);
 
             tf2ScoreFont = ImGui.GetIO().Fonts
                                 .AddFontFromFileTTF(Path.Combine(resourceFolder, "tf2.ttf"), 130);

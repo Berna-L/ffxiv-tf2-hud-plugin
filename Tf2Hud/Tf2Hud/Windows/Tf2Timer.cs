@@ -10,23 +10,23 @@ namespace Tf2Hud.Tf2Hud.Windows;
 
 public class Tf2Timer : Tf2Window
 {
-    private const int CircleRadius = 25;
+    private float CircleRadius => 25 * Scale;
     private readonly ConfigZero configZero;
 
     public Tf2Timer(ConfigZero configZero) : base("##Tf2Timer", Tf2Team.Blu)
     {
         this.configZero = configZero;
-        Size = new Vector2(220, 70);
         PositionCondition = ImGuiCond.Always;
     }
 
-    private static Vector2 CircleCenter => ImGui.GetWindowPos() + new Vector2(185, 35);
+    private Vector2 CircleCenter => ImGui.GetWindowPos() + ImGui.GetWindowSize() - new Vector2(35 * Scale, 35 * Scale);
 
     public long? TimeRemaining { private get; set; }
     public long? MaxTime { private get; set; }
 
     public override void Draw()
     {
+        Size = new Vector2(220 * Scale, 70 * Scale);
         Position = configZero.Timer.GetPosition();
         if (TimeRemaining is null or 0)
         {
@@ -51,28 +51,40 @@ public class Tf2Timer : Tf2Window
         if (MaxTime < TimeRemaining) MaxTime = TimeRemaining;
 
         DrawTimerText();
-        ImGui.SameLine();
         DrawTimerCircle();
     }
 
     private void DrawTimerText()
     {
-        using (ImRaii.PushFont(Tf2Font))
-        {
-            var text = $"{TimeRemaining / 60}:{(TimeRemaining % 60).ToString()?.PadLeft(2, '0')}";
-            var regionAvailable = ImGui.GetContentRegionAvail();
-            var timerSize = ImGui.CalcTextSize(text);
-            ImGui.SetCursorPosX(((regionAvailable.X - (CircleRadius * 2) - timerSize.X) / 2) + 10);
-            ImGui.SetCursorPosY(((regionAvailable.Y - timerSize.Y) / 2) + 10);
-            ImGui.TextColored(TanLight, text);
-        }
+        var text = $"{TimeRemaining / 60}:{(TimeRemaining % 60).ToString()?.PadLeft(2, '0')}";
+        var regionAvailable = ImGui.GetContentRegionAvail();
+        var timerSize = CalculateTextSize(Tf2Font, text, Scale / 2);
+        ImGui.SetCursorPosX(((regionAvailable.X - (CircleRadius * 2) - timerSize.X) / 2) + 5);
+        ImGui.SetCursorPosY(((regionAvailable.Y - timerSize.Y) / 2) + 10);
+        // ImGui.TextColored(TanLight, text);
+        ImGui.GetWindowDrawList().AddText(Tf2Font, Tf2Font.FontSize / 2 * Scale, ImGui.GetCursorScreenPos(), TanLight.ToU32(),  text);
     }
+    
+    private static Vector2 CalculateTextSize(ImFontPtr font, string text, float scale)
+    {
+
+        var textSize = ImGui.CalcTextSize(text);
+        var fontScalar = font.FontSize / textSize.Y;
+
+        var textWidth = textSize.X * fontScalar;
+
+        return new Vector2(textWidth, font.FontSize) * scale;
+    }
+
+
+    private float Scale => configZero.Timer.Scale.Value;
 
     private void DrawTimerCircle()
     {
         if (MaxTime is null || TimeRemaining is null) return;
+        var timerBackground = new Vector4(49 / 255f, 44 / 255f, 41 / 255f, 1f).ToU32();
         ImGui.GetWindowDrawList()
-             .AddCircleFilled(CircleCenter, CircleRadius, new Vector4(49 / 255f, 44 / 255f, 41 / 255f, 1f).ToU32());
+             .AddCircleFilled(CircleCenter, CircleRadius, timerBackground);
         var startAngle = GetAngleValue(0);
         var normalizedTimeRemaining = (float)((MaxTime - (MaxTime - TimeRemaining)) / (float)MaxTime);
         var color = (normalizedTimeRemaining > 0.25f ? TanLight : Colors.Red).ToU32();
