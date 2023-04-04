@@ -68,11 +68,12 @@ public class Tf2HudModule : IDisposable
         KamiCommon.WindowManager.AddWindow(new Tf2RedScoreWindow());
         KamiCommon.WindowManager.AddWindow(new Tf2MvpList());
         KamiCommon.WindowManager.AddWindow(new Tf2Timer(this.configZero));
-
+        
         Service.DutyState.DutyStarted += OnStart;
         Service.DutyState.DutyCompleted += OnComplete;
         Service.DutyState.DutyWiped += OnWipe;
         CriticalCommonLib.Service.Framework.Update += OnUpdate;
+        CriticalCommonLib.Service.ClientState.TerritoryChanged += OnTerritoryChange;
 
         Tf2Sound.Instance.Tf2InstallFolder = this.configZero.General.Tf2InstallPath;
 
@@ -98,6 +99,7 @@ public class Tf2HudModule : IDisposable
 
     public void Dispose()
     {
+        CriticalCommonLib.Service.ClientState.TerritoryChanged -= OnTerritoryChange;
         CriticalCommonLib.Service.Interface.UiBuilder.BuildFonts -= LoadTf2Fonts;
         Service.DutyState.DutyStarted -= OnStart;
         Service.DutyState.DutyCompleted -= OnComplete;
@@ -105,6 +107,11 @@ public class Tf2HudModule : IDisposable
         CriticalCommonLib.Service.Framework.Update -= OnUpdate;
 
         CriticalCommonLib.Service.Commands.RemoveHandler(CloseWinPanel);
+    }
+
+    private void OnTerritoryChange(object? sender, ushort e)
+    {
+        lastEnemyTarget = null;
     }
 
     private void OnCloseWinPanelCommand(string command, string arguments)
