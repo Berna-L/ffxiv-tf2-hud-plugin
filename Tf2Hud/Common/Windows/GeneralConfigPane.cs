@@ -143,7 +143,7 @@ public class GeneralConfigPane : ConfigPane<ConfigZero.GeneralConfigZero>
                .SameLine()
                .AddIconButton("##TF2InstallFolderButton", FontAwesomeIcon.Folder,
                               () => openFolderDialog(Config.Tf2InstallPath))
-               .AddString("Press the folder button above to set the Team Fortress 2 install folder.\\n" +
+               .AddString("Press the folder button above to set the Team Fortress 2 install folder.\n" +
                           "The path should end with ...steamapps\\common\\Team Fortress 2.")
                .EndConditional()
                .Draw();

@@ -155,7 +155,9 @@ public class Tf2HudModule : IDisposable
                 {
                     var path = libraryFolder["path"];
                     if (path is null) continue;
-                    return Path.Combine(path.ToString(), "steamapps", "common", "Team Fortress 2");
+                    var installRootFolder = Path.Combine(path.ToString(), "steamapps", "common", "Team Fortress 2");
+                    if (!File.Exists(Path.Combine(installRootFolder, "tf", "tf2_misc_dir.vpk"))) continue;
+                    return installRootFolder;
                 }
         }
 
@@ -164,7 +166,7 @@ public class Tf2HudModule : IDisposable
 
     private void LoadTf2Fonts()
     {
-        if (tf2InstallFolder is not null)
+        if (FilesExist())
         {
             var resourceFolder = Path.Combine(tf2InstallFolder, "tf", "resource");
             tf2Font = ImGui.GetIO().Fonts
@@ -178,11 +180,11 @@ public class Tf2HudModule : IDisposable
         else
         {
             tf2Font = CriticalCommonLib.Service.Interface.UiBuilder
-                                       .GetGameFontHandle(new GameFontStyle(GameFontFamily.Meidinger, 60))
+                                       .GetGameFontHandle(new GameFontStyle(GameFontFamily.JupiterNumeric, 50))
                                        .ImFont;
 
             tf2ScoreFont = CriticalCommonLib.Service.Interface.UiBuilder
-                                            .GetGameFontHandle(new GameFontStyle(GameFontFamily.Meidinger, 130))
+                                            .GetGameFontHandle(new GameFontStyle(GameFontFamily.JupiterNumeric, 115))
                                             .ImFont;
 
             tf2SecondaryFont = CriticalCommonLib.Service.Interface.UiBuilder
@@ -191,6 +193,13 @@ public class Tf2HudModule : IDisposable
         }
 
         Tf2Window.UpdateFontPointers(tf2Font, tf2ScoreFont, tf2SecondaryFont);
+    }
+
+    private bool FilesExist()
+    {
+        return tf2InstallFolder is not null
+               && File.Exists(Path.Combine(tf2InstallFolder, "tf", "resource", "tf2.ttf"))
+               && File.Exists(Path.Combine(tf2InstallFolder, "tf", "resource", "tf2secondary.ttf"));
     }
 
     private void OnUpdate(Framework? framework)
