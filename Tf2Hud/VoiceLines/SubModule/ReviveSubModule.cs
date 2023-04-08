@@ -25,7 +25,10 @@ public class ReviveSubModule: VoiceLinesSubModule
         if (player is null) return;
         var currentClass = GeneralConfig.Class.CurrentClass(player);
         if (currentClass is null) return;
-        SoundEngine.PlaySoundAsync(Tf2Sound.Instance.RandomReviveSound(currentClass.Value), GeneralConfig);
-        WasHeard();
+        if (ShouldPlay)
+        {
+            SoundEngine.PlaySoundAsync(Tf2Sound.Instance.RandomReviveSound(currentClass.Value), GeneralConfig);
+            WasHeard();
+        }
     }
 }

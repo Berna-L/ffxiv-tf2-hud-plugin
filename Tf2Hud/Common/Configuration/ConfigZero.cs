@@ -151,6 +151,10 @@ public class ConfigZero : BaseConfiguration
                                                             "The Administrator will tell you if you are" +
                                                             "\nthe last one alive in your party.");
 
+        public readonly VoiceLineTrigger FlawlessVictory = new("Flawless Victory",
+                                                               "The Administrator will congratulate you" +
+                                                               "\nif your party finishes a Duty without casualties.");
+
 
         public VoiceLinesConfigZero()
         {

@@ -14,7 +14,7 @@ public class VoiceLineConfigPane : ModuleConfigPane<ConfigZero.VoiceLinesConfigZ
     private IEnumerable<VoiceLineTrigger> Triggers => new[]
     {
         Config.MannUp, Config.AdministratorCountdown, Config.FiveMinutesLeft, Config.AugmentationToken,
-        Config.Revive, Config.LastOneAlive
+        Config.Revive, Config.LastOneAlive, Config.FlawlessVictory
     }.OrderBy(t => t.Name);
 
     public override void Draw()

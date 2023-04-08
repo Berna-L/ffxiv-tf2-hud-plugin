@@ -22,6 +22,10 @@ public class LastOneAliveSubModule : VoiceLinesSubModule
 
     private void OnLastOneAlive()
     {
-        SoundEngine.PlaySoundAsync(Tf2Sound.Instance.RandomLastOneAliveSound, GeneralConfig);
+        if (ShouldPlay)
+        {
+            SoundEngine.PlaySoundAsync(Tf2Sound.Instance.RandomLastOneAliveSound, GeneralConfig);
+            WasHeard();
+        }
     }
 }

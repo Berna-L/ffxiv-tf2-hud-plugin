@@ -49,7 +49,7 @@ public class Tf2Sound
     }.ToImmutableDictionary();
 
 
-    public string[] UpgradeStationSounds = Enumerable.Range(1, 11)
+    public readonly string[] UpgradeStationSounds = Enumerable.Range(1, 11)
                                                      .Select(i => i.ToString().PadLeft(2, '0'))
                                                      .Select(i => $"sound/vo/mvm_get_to_upgrade{i}.mp3")
                                                      .ToArray();
@@ -95,13 +95,19 @@ public class Tf2Sound
         return ReadVoiceTf2SoundFile($"sound/vo/{className}_mvm_resurrect{i}.mp3");
     }
     
-    public string[] LastOneAliveSounds = Enumerable.Range(1, 4)
+    public readonly string[] LastOneAliveSounds = Enumerable.Range(1, 4)
                                                      .Select(i => i.ToString().PadLeft(2, '0'))
                                                      .Select(i => $"sound/vo/announcer_am_lastmanalive{i}.mp3")
                                                      .ToArray();
     
     public Task<Audio?> RandomLastOneAliveSound => ReadVoiceTf2SoundFile(LastOneAliveSounds.Random());
 
+    public readonly string[] FlawlessVictorySounds = Enumerable.Range(1, 3)
+                                                            .Select(i => i.ToString().PadLeft(2, '0'))
+                                                            .Select(i => $"sound/vo/announcer_am_flawlessvictory{i}.mp3")
+                                                            .ToArray();
+    
+    public Task<Audio?> RandomFlawlessVictorySound => ReadVoiceTf2SoundFile(FlawlessVictorySounds.Random());
 
     private Task<Audio?> ReadVoiceTf2SoundFile(string soundFilePath)
     {
