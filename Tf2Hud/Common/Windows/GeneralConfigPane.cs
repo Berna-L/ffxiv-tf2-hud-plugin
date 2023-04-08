@@ -71,7 +71,6 @@ public class GeneralConfigPane : ConfigPane<ConfigZero.GeneralConfigZero>
         var infoBox = InfoBox.Instance;
         infoBox
             .AddTitle("Your TF2 Class")
-            .AddString("Note: This will be used in the future...", Colors.Orange)
             .AddConfigCheckbox("Set a TF2 Class per job", Config.Class.UsePerJob,
                                "Check to define a TF2 Class per Combat Job.\nUncheck to use the same TF2 Class for all jobs.")
             .StartConditional(!Config.Class.UsePerJob)

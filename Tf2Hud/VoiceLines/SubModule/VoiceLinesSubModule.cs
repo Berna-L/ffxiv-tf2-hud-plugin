@@ -1,4 +1,5 @@
 ﻿using System;
+using KamiLib;
 using Tf2Hud.Common.Configuration;
 
 namespace Tf2Hud.VoiceLines.SubModule;
@@ -19,4 +20,10 @@ public abstract class VoiceLinesSubModule: IDisposable
     protected bool ShouldPlay => VoiceLinesConfig.Enabled && Trigger.Enabled;
 
     public abstract void Dispose();
+
+    protected void WasHeard()
+    {
+        Trigger.Heard.Value = true;
+        KamiCommon.SaveConfiguration();
+    }
 }

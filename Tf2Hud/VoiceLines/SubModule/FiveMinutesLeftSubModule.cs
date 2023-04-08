@@ -32,8 +32,7 @@ public class FiveMinutesLeftSubModule: VoiceLinesSubModule
             playedForFiveMinutesLeft = true;
             SoundEngine.PlaySoundAsync(Tf2Sound.Instance.FiveMinutesLeftSound, GeneralConfig.ApplySfxVolume,
                                        GeneralConfig.Volume.Value);
-            VoiceLinesConfig.FiveMinutesLeft.Heard.Value = true;
-            KamiCommon.SaveConfiguration();
+            WasHeard();
         }
     }
 }

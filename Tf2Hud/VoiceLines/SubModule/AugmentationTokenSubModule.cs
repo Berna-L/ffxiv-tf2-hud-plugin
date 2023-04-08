@@ -70,8 +70,7 @@ public class AugmentationTokenSubModule: VoiceLinesSubModule
             {
                 SoundEngine.PlaySoundAsync(Tf2Sound.Instance.RandomUpgradeStationSound, GeneralConfig.ApplySfxVolume,
                                            GeneralConfig.Volume.Value);
-                VoiceLinesConfig.AugmentationToken.Heard.Value = true;
-                KamiCommon.SaveConfiguration();
+                WasHeard();
             }
         }
     }

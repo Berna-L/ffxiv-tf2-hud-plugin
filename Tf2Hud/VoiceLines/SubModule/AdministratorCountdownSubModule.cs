@@ -91,8 +91,7 @@ public class AdministratorCountdownSubModule: VoiceLinesSubModule
             countdownPlayedFor.Add(0);
             var sound = Tf2Sound.Instance.RandomGoSound;
             SoundEngine.PlaySoundAsync(sound, GeneralConfig.ApplySfxVolume, GeneralConfig.Volume.Value);
-            VoiceLinesConfig.AdministratorCountdown.Heard.Value = true;
-            KamiCommon.SaveConfiguration();
+            WasHeard();
         }
     }
 

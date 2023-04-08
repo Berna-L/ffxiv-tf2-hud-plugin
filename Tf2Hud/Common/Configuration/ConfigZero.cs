@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Dalamud.Game.ClientState.Objects.SubKinds;
 using ImGuiNET;
 using KamiLib.Configuration;
 using Newtonsoft.Json;
@@ -81,6 +82,11 @@ public class ConfigZero : BaseConfiguration
                                     c.Key, Tf2ClassHelper.GetTf2ClassFromXivCombatClass(c.Value)))
                             .ToDictionary(it => it.Key, it => new Setting<Tf2Class>(it.Value));
         }
+
+        public Tf2Class? CurrentClass(PlayerCharacter localPlayer)
+        {
+            return UsePerJob ? ClassPerJob[localPlayer.ClassJob.Id].Value : GlobalClass.Value;
+        }
     }
 
     public class TimerConfigZero : WindowModuleConfiguration
@@ -136,6 +142,10 @@ public class ConfigZero : BaseConfiguration
         public readonly VoiceLineTrigger MannUp = new("Mann Up when starting a High-End Duty",
                                                       "Plays a random Administrator voice line from Mann Up mode" +
                                                       "\nwhen starting a duty classified as High-End in the Duty Finder.");
+
+        public readonly VoiceLineTrigger Revive = new("Resurrection",
+                                                      "Plays a random MvM revive line for your TF2 Class" +
+                                                      "\nif you get revived by another player.");
 
 
         public VoiceLinesConfigZero()

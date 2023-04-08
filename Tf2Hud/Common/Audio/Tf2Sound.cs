@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
@@ -7,6 +8,7 @@ using Dalamud.Utility;
 using KamiLib.Configuration;
 using NAudio.Wave;
 using Sledge.Formats.Packages;
+using Tf2Hud.Common.Model;
 using Tf2Hud.Common.Util;
 
 namespace Tf2Hud.Common.Audio;
@@ -71,6 +73,26 @@ public class Tf2Sound
         return Task.Run(() => !CountdownSounds.ContainsKey(i)
                                   ? null
                                   : ReadVoiceTf2SoundFile(CountdownSounds[i].Random()));
+    }
+
+    public IDictionary<Tf2Class, int> ReviveSounds = new[]
+    {
+        new KeyValuePair<Tf2Class, int>(Tf2Class.Scout, 6),
+        new KeyValuePair<Tf2Class, int>(Tf2Class.Soldier, 6),
+        new KeyValuePair<Tf2Class, int>(Tf2Class.Pyro, 0),
+        new KeyValuePair<Tf2Class, int>(Tf2Class.Demoman, 11),
+        new KeyValuePair<Tf2Class, int>(Tf2Class.Heavy, 7),
+        new KeyValuePair<Tf2Class, int>(Tf2Class.Engineer, 3),
+        new KeyValuePair<Tf2Class, int>(Tf2Class.Medic, 3),
+        new KeyValuePair<Tf2Class, int>(Tf2Class.Sniper, 4),
+        new KeyValuePair<Tf2Class, int>(Tf2Class.Spy, 9),
+    }.ToImmutableDictionary();
+
+    public Task<Audio?> RandomReviveSound(Tf2Class tf2Class)
+    {
+        var i = Random.Shared.Next(ReviveSounds[tf2Class]).ToString().PadLeft(2, '0');
+        var className = Enum.GetName(tf2Class)?.ToLower();
+        return ReadVoiceTf2SoundFile($"{className}_mvm_resurrect_{i}.mp3");
     }
 
     private Task<Audio?> ReadVoiceTf2SoundFile(string soundFilePath)

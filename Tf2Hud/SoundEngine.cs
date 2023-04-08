@@ -8,6 +8,7 @@ using Dalamud.Logging;
 using NAudio.Wave;
 using Tf2Hud.Common;
 using Tf2Hud.Common.Audio;
+using Tf2Hud.Common.Configuration;
 
 namespace Tf2Hud;
 
@@ -25,6 +26,11 @@ public static class SoundEngine
         SoundState.Remove(id);
     }
 
+    public static void PlaySoundAsync(Task<Audio?> audioTask, ConfigZero.GeneralConfigZero settings, string? id = null)
+    {
+        PlaySoundAsync(audioTask, settings.ApplySfxVolume, settings.Volume.Value, id);
+    }
+
     public static void PlaySoundAsync(
         Task<Audio?> audioTask, bool useGameSfxVolume, int volume = 100, string? id = null)
     {
@@ -32,6 +38,11 @@ public static class SoundEngine
         {
             if (past.IsCompletedSuccessfully) PlaySound(past.Result, useGameSfxVolume, volume, id);
         });
+    }
+
+    public static void PlaySound(Audio? waveAudio, ConfigZero.GeneralConfigZero settings, string? id = null)
+    {
+        PlaySound(waveAudio, settings.ApplySfxVolume, settings.Volume.Value, id);
     }
 
     // Copied from PeepingTom plugin, by ascclemens:

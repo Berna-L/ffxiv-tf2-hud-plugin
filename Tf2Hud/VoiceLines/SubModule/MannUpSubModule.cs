@@ -26,8 +26,7 @@ public class MannUpSubModule: VoiceLinesSubModule
         {
             SoundEngine.PlaySoundAsync(Tf2Sound.Instance.RandomMannUpSound, GeneralConfig.ApplySfxVolume,
                                        GeneralConfig.Volume.Value);
-            VoiceLinesConfig.MannUp.Heard.Value = true;
-            KamiCommon.SaveConfiguration();
+            WasHeard();
         }
 
     }

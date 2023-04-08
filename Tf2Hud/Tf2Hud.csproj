@@ -29,7 +29,7 @@
     <!-- Copied from NoTankYou -->
     <Target Name="GetGitHash" BeforeTargets="GetAssemblyVersion" Returns="InformationalVersion">
         <Exec Command="git rev-parse --short HEAD" ConsoleToMSBuild="true" StandardOutputImportance="low">
-            <Output TaskParameter="ConsoleOutput" PropertyName="GitCommitHash"/>
+            <Output TaskParameter="ConsoleOutput" PropertyName="GitCommitHash" />
         </Exec>
 
         <PropertyGroup>
@@ -51,15 +51,15 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="DalamudPackager" Version="2.1.11"/>
-        <PackageReference Include="Gameloop.Vdf" Version="0.6.2"/>
-        <PackageReference Include="JetBrains.Annotations" Version="2022.3.1"/>
-        <PackageReference Include="NAudio" Version="2.1.0"/>
-        <PackageReference Include="NAudio.Lame" Version="2.0.1"/>
-        <PackageReference Include="NAudio.Wasapi" Version="2.1.0"/>
-        <PackageReference Include="Pilz.Dalamud" Version="0.2.0"/>
-        <PackageReference Include="Sledge.Formats.Packages" Version="1.0.1"/>
-        <PackageReference Include="Sledge.Formats.Texture" Version="1.0.3"/>
+        <PackageReference Include="DalamudPackager" Version="2.1.11" />
+        <PackageReference Include="Gameloop.Vdf" Version="0.6.2" />
+        <PackageReference Include="JetBrains.Annotations" Version="2022.3.1" />
+        <PackageReference Include="NAudio" Version="2.1.0" />
+        <PackageReference Include="NAudio.Lame" Version="2.0.1" />
+        <PackageReference Include="NAudio.Wasapi" Version="2.1.0" />
+        <PackageReference Include="Pilz.Dalamud" Version="0.2.0" />
+        <PackageReference Include="Sledge.Formats.Packages" Version="1.0.1" />
+        <PackageReference Include="Sledge.Formats.Texture" Version="1.0.3" />
         <Reference Include="FFXIVClientStructs">
             <HintPath>$(DalamudLibPath)FFXIVClientStructs.dll</HintPath>
             <Private>false</Private>
@@ -95,8 +95,8 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\CriticalCommonLib\CriticalCommonLib.csproj"/>
-        <ProjectReference Include="..\KamiLib\KamiLib.csproj"/>
+        <ProjectReference Include="..\CriticalCommonLib\CriticalCommonLib.csproj" />
+        <ProjectReference Include="..\KamiLib\KamiLib.csproj" />
     </ItemGroup>
 
 
