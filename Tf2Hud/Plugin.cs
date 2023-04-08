@@ -32,7 +32,7 @@ public sealed class Plugin : IDalamudPlugin
         pluginInterface.Create<Service>();
         pluginInterface.Create<CriticalCommonLib.Service>();
 
-        Service.CriticalCommonLib.Initialize();
+        Service.Initialize();
         KamiCommon.Initialize(CriticalCommonLib.Service.Interface, Name, () => Config?.Save());
         Config = InitConfig();
 
@@ -64,7 +64,7 @@ public sealed class Plugin : IDalamudPlugin
         tf2VoiceLinesModule?.Dispose();
         tf2HudModule?.Dispose();
         WindowSystem.RemoveAllWindows();
-        Service.CriticalCommonLib.Dispose();
+        Service.Dispose();
         CriticalCommonLib.Service.Commands.RemoveHandler(CommandName);
     }
 

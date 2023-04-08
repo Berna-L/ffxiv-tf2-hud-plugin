@@ -1,20 +1,13 @@
-﻿using System.Threading.Tasks;
-using CriticalCommonLib;
+﻿using CriticalCommonLib;
 using CriticalCommonLib.Crafting;
 using CriticalCommonLib.Services;
 using CriticalCommonLib.Services.Ui;
-using Dalamud.Data;
-using Dalamud.Game;
-using Dalamud.Game.ClientState;
-using Dalamud.Game.ClientState.Conditions;
-using Dalamud.Game.ClientState.Objects;
 using Dalamud.Game.ClientState.Party;
-using Dalamud.Game.Command;
 using Dalamud.Game.DutyState;
 using Dalamud.IoC;
-using Dalamud.Plugin;
 using FFXIVClientStructs.FFXIV.Client.Game.Event;
 using FFXIVClientStructs.FFXIV.Client.Game.InstanceContent;
+using Tf2Hud.Common.Service;
 using CriticalCommonLib_Service = CriticalCommonLib.Service;
 
 namespace Tf2Hud;
@@ -26,6 +19,19 @@ public class Service
     [PluginService]
     public static PartyList PartyList { get; private set; } = null!;
 
+    public static ReviveService Revive { get; private set; } = null!;
+
+    public static void Initialize()
+    {
+        CriticalCommonLib.CommonLibInitialize();
+        Revive = new ReviveService();
+    }
+
+    public static void Dispose()
+    {
+        Revive.Dispose();
+        CriticalCommonLib.CommonLibDispose();
+    }
 
     public static ContentDirector? ContentDirector
     {
@@ -52,7 +58,7 @@ public class Service
 
         public static InventoryMonitor InventoryMonitor { get; private set; } = null!;
 
-        public static void Initialize()
+        public static void CommonLibInitialize()
         {
             CriticalCommonLib_Service.ExcelCache = new ExcelCache(CriticalCommonLib_Service.Data);
             CharacterMonitor = new CharacterMonitor();
@@ -67,7 +73,7 @@ public class Service
             InventoryScanner.Enable();
         }
 
-        public static void Dispose()
+        public static void CommonLibDispose()
         {
             InventoryMonitor.Dispose();
             FrameworkService.Dispose();
