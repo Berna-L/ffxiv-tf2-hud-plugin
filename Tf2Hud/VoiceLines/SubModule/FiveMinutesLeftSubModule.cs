@@ -25,9 +25,9 @@ public class FiveMinutesLeftSubModule: VoiceLinesSubModule
     private void OnUpdate(Framework framework)
     {
         if (ShouldPlay &&
-            Service.DutyState.IsDutyStarted &&
+            Services.DutyState.IsDutyStarted &&
             !playedForFiveMinutesLeft &&
-            (Service.ContentDirector?.ContentTimeLeft ?? int.MaxValue) < 5 * 60)
+            (Services.ContentDirector?.ContentTimeLeft ?? int.MaxValue) < 5 * 60)
         {
             playedForFiveMinutesLeft = true;
             SoundEngine.PlaySoundAsync(Tf2Sound.Instance.FiveMinutesLeftSound, GeneralConfig.ApplySfxVolume,

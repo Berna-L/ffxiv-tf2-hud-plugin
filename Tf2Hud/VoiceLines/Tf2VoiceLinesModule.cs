@@ -17,6 +17,7 @@ public sealed class Tf2VoiceLinesModule : IDisposable
         subModules.Add(new MannUpSubModule(generalConfig, voiceLinesConfig));
         subModules.Add(new AdministratorCountdownSubModule(generalConfig, voiceLinesConfig));
         subModules.Add(new ReviveSubModule(generalConfig, voiceLinesConfig));
+        subModules.Add(new LastOneAliveSubModule(generalConfig, voiceLinesConfig));
     }
 
 

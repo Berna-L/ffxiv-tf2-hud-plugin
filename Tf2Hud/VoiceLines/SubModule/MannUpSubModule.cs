@@ -12,12 +12,12 @@ public class MannUpSubModule: VoiceLinesSubModule
         ConfigZero.GeneralConfigZero generalConfig, ConfigZero.VoiceLinesConfigZero voiceLinesConfig) : base(
         generalConfig, voiceLinesConfig, voiceLinesConfig.MannUp)
     {
-        Service.DutyState.DutyStarted += OnStart;
+        Services.DutyState.DutyStarted += OnStart;
     }
 
     public override void Dispose()
     {
-        Service.DutyState.DutyStarted -= OnStart;
+        Services.DutyState.DutyStarted -= OnStart;
     }
 
     private void OnStart(object? sender, ushort e)
@@ -35,7 +35,7 @@ public class MannUpSubModule: VoiceLinesSubModule
     {
         get
         {
-            var contentDirector = Service.ContentDirector;
+            var contentDirector = Services.ContentDirector;
             if (contentDirector is null) return false;
             return CriticalCommonLib.Service.Data.GetExcelSheet<ContentFinderCondition>()?
                        .FirstOrDefault(cfc => cfc.Content == contentDirector.Value.Director.ContentId)?

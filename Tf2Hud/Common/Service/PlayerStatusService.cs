@@ -10,7 +10,7 @@ using Dalamud.Hooking;
 
 namespace Tf2Hud.Common.Service;
 
-public unsafe class ReviveService: IDisposable
+public unsafe class PlayerStatusService: IDisposable
 {
 
     public enum ReviveType
@@ -43,12 +43,16 @@ public unsafe class ReviveService: IDisposable
         24859u // Techno Pigeon, I mean, Techne Makre (SGE)
     }.ToImmutableHashSet();
 
-    public event EventHandler<ReviveType> OnRevive;
+    public delegate void LastOneAlive();
+
+    public event LastOneAlive? OnLastOneAlive;
+    public event EventHandler<ReviveType>? OnRevive;
     private bool playerWasDead;
+    private bool wasLastOneAlive;
     private bool healerLimitBreakThreeApplied;
 
 
-    public ReviveService()
+    public PlayerStatusService()
     {
         CriticalCommonLib.Service.Framework.Update += OnUpdate;
         
@@ -78,6 +82,12 @@ public unsafe class ReviveService: IDisposable
 
     private void OnUpdate(Framework framework)
     {
+        RevivedCheck();
+        LastOneAliveCheck();
+    }
+
+    private void RevivedCheck()
+    {
         var player = CriticalCommonLib.Service.ClientState.LocalPlayer;
         if (player is null) return;
         if (player.IsDead)
@@ -91,15 +101,47 @@ public unsafe class ReviveService: IDisposable
             if (player.StatusList.Any(s => s.StatusId is Weakness or BrinkOfDeath))
             {
                 //InvokeSafely is from an internal extension in Dalamud :(
-                this.OnRevive.Invoke(this, ReviveType.Normal);
+                this.OnRevive?.Invoke(this, ReviveType.Normal);
             }
 
             if (healerLimitBreakThreeApplied)
             {
-                this.OnRevive.Invoke(this, ReviveType.LimitBreak);
+                this.OnRevive?.Invoke(this, ReviveType.LimitBreak);
             }
         }
+
         playerWasDead = false;
     }
 
+    private void LastOneAliveCheck()
+    {
+        // Don't care if you aren't in an <i>actual</i> party
+        if (Services.PartyList.Length < 2) return;
+        var player = CriticalCommonLib.Service.ClientState.LocalPlayer;
+        if (player is null) return;
+        if (player.IsDead)
+        {
+            wasLastOneAlive = false;
+            return;
+        }
+        foreach (var partyMember in Services.PartyList)
+        {
+            if (partyMember.GameObject is null) continue;
+            if (partyMember.GameObject.ObjectId != player.ObjectId)
+            {
+                if (!partyMember.GameObject.IsDead)
+                {
+                    wasLastOneAlive = false;
+                    return;
+                }
+            }
+        }
+
+        if (!wasLastOneAlive)
+        {
+            OnLastOneAlive?.Invoke();
+        }
+
+        wasLastOneAlive = true;
+    }
 }

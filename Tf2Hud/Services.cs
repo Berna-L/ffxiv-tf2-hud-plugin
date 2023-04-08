@@ -12,24 +12,24 @@ using CriticalCommonLib_Service = CriticalCommonLib.Service;
 
 namespace Tf2Hud;
 
-public class Service
+public class Services
 {
     [PluginService]
     public static DutyState DutyState { get; private set; } = null!;
     [PluginService]
     public static PartyList PartyList { get; private set; } = null!;
 
-    public static ReviveService Revive { get; private set; } = null!;
+    public static PlayerStatusService PlayerStatus { get; private set; } = null!;
 
     public static void Initialize()
     {
         CriticalCommonLib.CommonLibInitialize();
-        Revive = new ReviveService();
+        PlayerStatus = new PlayerStatusService();
     }
 
     public static void Dispose()
     {
-        Revive.Dispose();
+        PlayerStatus.Dispose();
         CriticalCommonLib.CommonLibDispose();
     }
 

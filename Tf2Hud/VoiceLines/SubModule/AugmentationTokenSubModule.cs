@@ -18,14 +18,14 @@ public class AugmentationTokenSubModule: VoiceLinesSubModule
         ConfigZero.GeneralConfigZero generalConfig, ConfigZero.VoiceLinesConfigZero voiceLinesConfig) : base(
         generalConfig, voiceLinesConfig, voiceLinesConfig.AugmentationToken)
     {
-        Service.CriticalCommonLib.InventoryMonitor.OnInventoryChanged += OnInventoryChanged;
+        Services.CriticalCommonLib.InventoryMonitor.OnInventoryChanged += OnInventoryChanged;
         CriticalCommonLib.Service.ClientState.TerritoryChanged += OnTerritoryChanged;
 
     }
     
     public override void Dispose()
     {
-        Service.CriticalCommonLib.InventoryMonitor.OnInventoryChanged -= OnInventoryChanged;
+        Services.CriticalCommonLib.InventoryMonitor.OnInventoryChanged -= OnInventoryChanged;
         CriticalCommonLib.Service.ClientState.TerritoryChanged -= OnTerritoryChanged;
 
     }
@@ -46,7 +46,7 @@ public class AugmentationTokenSubModule: VoiceLinesSubModule
                  AugmentationToken.HasEnoughForToken(inventories)))
             {
                 augmentationTokenResponsePending = true;
-                if (Service.ContentDirector is null) // not in a duty
+                if (Services.ContentDirector is null) // not in a duty
                     ShouldPlayAugmentationToken();
             }
     }

@@ -11,15 +11,15 @@ public class ReviveSubModule: VoiceLinesSubModule
     public ReviveSubModule(ConfigZero.GeneralConfigZero generalConfig, ConfigZero.VoiceLinesConfigZero voiceLinesConfig)
         : base(generalConfig, voiceLinesConfig, voiceLinesConfig.Revive)
     {
-        Service.Revive.OnRevive += OnRevive;
+        Services.PlayerStatus.OnRevive += OnRevive;
     }
 
     public override void Dispose()
     {
-        Service.Revive.OnRevive -= OnRevive;
+        Services.PlayerStatus.OnRevive -= OnRevive;
     }
 
-    private void OnRevive(object? sender, ReviveService.ReviveType e)
+    private void OnRevive(object? sender, PlayerStatusService.ReviveType e)
     {
         var player = CriticalCommonLib.Service.ClientState.LocalPlayer;
         if (player is null) return;

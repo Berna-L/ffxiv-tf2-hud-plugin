@@ -69,9 +69,9 @@ public class Tf2HudModule : IDisposable
         KamiCommon.WindowManager.AddWindow(new Tf2MvpList());
         KamiCommon.WindowManager.AddWindow(new Tf2Timer(this.configZero));
         
-        Service.DutyState.DutyStarted += OnStart;
-        Service.DutyState.DutyCompleted += OnComplete;
-        Service.DutyState.DutyWiped += OnWipe;
+        Services.DutyState.DutyStarted += OnStart;
+        Services.DutyState.DutyCompleted += OnComplete;
+        Services.DutyState.DutyWiped += OnWipe;
         CriticalCommonLib.Service.Framework.Update += OnUpdate;
         CriticalCommonLib.Service.ClientState.TerritoryChanged += OnTerritoryChange;
 
@@ -101,9 +101,9 @@ public class Tf2HudModule : IDisposable
     {
         CriticalCommonLib.Service.ClientState.TerritoryChanged -= OnTerritoryChange;
         CriticalCommonLib.Service.Interface.UiBuilder.BuildFonts -= LoadTf2Fonts;
-        Service.DutyState.DutyStarted -= OnStart;
-        Service.DutyState.DutyCompleted -= OnComplete;
-        Service.DutyState.DutyWiped -= OnWipe;
+        Services.DutyState.DutyStarted -= OnStart;
+        Services.DutyState.DutyCompleted -= OnComplete;
+        Services.DutyState.DutyWiped -= OnWipe;
         CriticalCommonLib.Service.Framework.Update -= OnUpdate;
 
         CriticalCommonLib.Service.Commands.RemoveHandler(CloseWinPanel);
@@ -220,8 +220,8 @@ public class Tf2HudModule : IDisposable
         if (Timer is null) return;
         var enabled = configZero.Timer.Enabled;
         var timerMoveMode = configZero.Timer.RepositionMode;
-        var contentDirector = Service.ContentDirector;
-        if (Service.DutyState.IsDutyStarted)
+        var contentDirector = Services.ContentDirector;
+        if (Services.DutyState.IsDutyStarted)
         {
             Timer.Team = playerTeam;
             Timer.IsOpen = enabled;
@@ -311,7 +311,7 @@ public class Tf2HudModule : IDisposable
 
     private static List<Tf2MvpMember> GetPartyList()
     {
-        if (Service.PartyList.Length == 0)
+        if (Services.PartyList.Length == 0)
         {
             if (CriticalCommonLib.Service.ClientState.LocalPlayer is null) return new List<Tf2MvpMember>();
             return new[]
@@ -320,8 +320,8 @@ public class Tf2HudModule : IDisposable
             }.ToList();
         }
 
-        PluginLog.LogDebug($"{Service.PartyList.Length} people in the party");
-        return Service.PartyList.OrderBy(pm => pm.ClassJob.GameData?.Role ?? int.MaxValue).Select(pm => new Tf2MvpMember
+        PluginLog.LogDebug($"{Services.PartyList.Length} people in the party");
+        return Services.PartyList.OrderBy(pm => pm.ClassJob.GameData?.Role ?? int.MaxValue).Select(pm => new Tf2MvpMember
         {
             ClassJobId = pm.ClassJob.Id,
             Name = pm.Name.TextValue

@@ -147,6 +147,10 @@ public class ConfigZero : BaseConfiguration
                                                       "Plays a random MvM revive line for your TF2 Class" +
                                                       "\nif you get revived by another player.");
 
+        public readonly VoiceLineTrigger LastOneAlive = new("Last one alive",
+                                                            "The Administrator will tell you if you are" +
+                                                            "\nthe last one alive in your party.");
+
 
         public VoiceLinesConfigZero()
         {

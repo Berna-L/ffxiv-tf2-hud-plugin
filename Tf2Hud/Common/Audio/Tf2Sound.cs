@@ -94,6 +94,14 @@ public class Tf2Sound
         var className = Enum.GetName(tf2Class)?.ToLower();
         return ReadVoiceTf2SoundFile($"sound/vo/{className}_mvm_resurrect{i}.mp3");
     }
+    
+    public string[] LastOneAliveSounds = Enumerable.Range(1, 4)
+                                                     .Select(i => i.ToString().PadLeft(2, '0'))
+                                                     .Select(i => $"sound/vo/announcer_am_lastmanalive{i}.mp3")
+                                                     .ToArray();
+    
+    public Task<Audio?> RandomLastOneAliveSound => ReadVoiceTf2SoundFile(LastOneAliveSounds.Random());
+
 
     private Task<Audio?> ReadVoiceTf2SoundFile(string soundFilePath)
     {
