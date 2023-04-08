@@ -92,7 +92,7 @@ public class Tf2Sound
     {
         var i = Random.Shared.Next(ReviveSounds[tf2Class]).ToString().PadLeft(2, '0');
         var className = Enum.GetName(tf2Class)?.ToLower();
-        return ReadVoiceTf2SoundFile($"{className}_mvm_resurrect_{i}.mp3");
+        return ReadVoiceTf2SoundFile($"sound/vo/{className}_mvm_resurrect{i}.mp3");
     }
 
     private Task<Audio?> ReadVoiceTf2SoundFile(string soundFilePath)
