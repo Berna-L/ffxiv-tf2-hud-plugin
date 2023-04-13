@@ -74,10 +74,11 @@ public unsafe class PlayerStatusService: IDisposable
         CriticalCommonLib.Service.Framework.Update -= OnUpdate;
     }
 
-    private void AddToScreenLogWithScreenLogKindDetour(Character* target, Character* source, FlyTextKind logkind, byte option, byte actionkind, int actionid, int val1, int val2, byte damagetype)
+    private void AddToScreenLogWithScreenLogKindDetour(Character* target, Character* source, FlyTextKind flyTextKind, byte option, byte actionKind, int actionId, int val1, int val2, byte damageType)
     {
         // A Healer LB3 always applies a heal to the player (even if they were dead) with the LB3 action attached
-        healerLimitBreakThreeApplied = HealerLimitBreakThree.Contains((uint)actionid);
+        healerLimitBreakThreeApplied = HealerLimitBreakThree.Contains((uint)actionId);
+        this.addToScreenLogWithScreenLogKindHook!.Original(target, source, flyTextKind, option, actionKind, actionId, val1, val2, damageType);
     }
 
     private void OnUpdate(Framework framework)
