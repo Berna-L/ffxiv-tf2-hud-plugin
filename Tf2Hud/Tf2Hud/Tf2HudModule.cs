@@ -57,27 +57,26 @@ public class Tf2HudModule : IDisposable
         else
             tf2InstallFolder = this.configZero.General.Tf2InstallPath.Value;
 
+        Tf2Sound.Instance.Tf2InstallFolder = this.configZero.General.Tf2InstallPath;
+        CriticalCommonLib.Service.Interface.UiBuilder.BuildFonts += LoadTf2Fonts;
+        
         CriticalCommonLib.Service.Commands.AddHandler(CloseWinPanel, new CommandInfo(OnCloseWinPanelCommand)
         {
             HelpMessage = "Closes the win panel immediately if needed."
         });
 
-        CriticalCommonLib.Service.Interface.UiBuilder.BuildFonts += LoadTf2Fonts;
-
         KamiCommon.WindowManager.AddWindow(new Tf2BluScoreWindow());
         KamiCommon.WindowManager.AddWindow(new Tf2RedScoreWindow());
         KamiCommon.WindowManager.AddWindow(new Tf2MvpList());
         KamiCommon.WindowManager.AddWindow(new Tf2Timer(this.configZero));
+
+        tf2WinPanel = new Tf2WinPanel(this.configZero.General, this.configZero.WinPanel, playerTeam, GetPartyList());
         
         Services.DutyState.DutyStarted += OnStart;
         Services.DutyState.DutyCompleted += OnComplete;
         Services.DutyState.DutyWiped += OnWipe;
         CriticalCommonLib.Service.Framework.Update += OnUpdate;
         CriticalCommonLib.Service.ClientState.TerritoryChanged += OnTerritoryChange;
-
-        Tf2Sound.Instance.Tf2InstallFolder = this.configZero.General.Tf2InstallPath;
-
-        tf2WinPanel = new Tf2WinPanel(this.configZero.General, this.configZero.WinPanel, playerTeam, GetPartyList());
     }
 
     private static Tf2Timer? Timer => KamiCommon.WindowManager.GetWindowOfType<Tf2Timer>();
