@@ -26,7 +26,7 @@ namespace Tf2Hud.Tf2Hud;
 
 public class Tf2HudModule : IDisposable
 {
-    public const string CloseWinPanel = "/tf2hudclose";
+    public const string CloseWinPanel = "/tfhudclose";
     private readonly ConfigZero configZero;
     private readonly string? tf2InstallFolder;
 
