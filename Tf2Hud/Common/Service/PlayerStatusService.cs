@@ -116,6 +116,8 @@ public unsafe class PlayerStatusService: IDisposable
 
     private void LastOneAliveCheck()
     {
+        // Ignore if not in a duty
+        if (Services.ContentDirector is null) return;
         // Don't care if you aren't in an <i>actual</i> party
         if (Services.PartyList.Length < 2) return;
         var player = CriticalCommonLib.Service.ClientState.LocalPlayer;
