@@ -36,6 +36,8 @@ public sealed class Plugin : IDalamudPlugin
         KamiCommon.Initialize(CriticalCommonLib.Service.Interface, Name, () => Config?.Save());
         Config = InitConfig();
 
+        TriggerChatAlertsForEarlierVersions(Config);
+        
         Config.Save();
 
         tf2HudModule = new Tf2HudModule(Config);
@@ -53,6 +55,14 @@ public sealed class Plugin : IDalamudPlugin
 
         CriticalCommonLib.Service.Interface.UiBuilder.Draw += DrawUserInterface;
         CriticalCommonLib.Service.Interface.UiBuilder.OpenConfigUi += DrawConfigWindow;
+    }
+
+    private void TriggerChatAlertsForEarlierVersions(ConfigZero config)
+    {
+        if (config.PluginVersion.Before(1, 1, 0))
+        {
+            Chat.Print("Update 1.1.0.0", "Now, you can set the Win Panel to save your scores per duty, even if you close the game. Open /tfconfig to start!");
+        }
     }
 
     public ConfigZero Config { get; init; }
