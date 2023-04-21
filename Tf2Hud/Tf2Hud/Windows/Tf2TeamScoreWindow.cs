@@ -6,5 +6,5 @@ public abstract class Tf2TeamScoreWindow : Tf2Window
 {
     protected Tf2TeamScoreWindow(string name, Tf2Team team) : base(name, team) { }
 
-    public int Score { get; set; } = 0;
+    public uint Score { get; set; } = 0;
 }

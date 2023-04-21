@@ -1,4 +1,5 @@
 ﻿using ImGuiNET;
+using KamiLib;
 using KamiLib.Drawing;
 using Tf2Hud.Common.Configuration;
 using Tf2Hud.Common.Windows;
@@ -45,6 +46,22 @@ public class WinPanelConfigPane : ModuleConfigPane<ConfigZero.WinPanelConfigZero
 
         InfoBox.Instance
                .AddTitle("Scoring persistence")
+               .AddConfigRadio("Save scores per duty", Config.ScoreBehavior,
+                               ScoreBehaviorKind.SavePerDuty,
+                               "The team scores will be saved per duty, even if you close the game or enter another duty.")
+               .AddButton("Check saved scores", () =>
+               {
+                   if (KamiCommon.WindowManager.GetWindowOfType<WinPanelSavedScoresWindow>() is {} window)
+                   {
+                       window.IsOpen = true;
+                   }
+               })
+               .SameLine()
+               .BeginDisabled(!ImGui.GetIO().KeyShift)
+               .AddButton("Reset saved scores", Config.ClearSavedScores)
+               .EndDisabled()
+               .SameLine()
+               .AddHelpMarker("Hold \"Shift\" to enable this button.")
                .AddConfigRadio("Reset scores when I enter an instance of a different duty than the last",
                                Config.ScoreBehavior, ScoreBehaviorKind.ResetIfDutyChanged,
                                "The team scores will be saved between instances of the same duty.\nIf you enter an instance of a different duty, they'll be reset.\n\nThe scores aren't saved between play sessions.")

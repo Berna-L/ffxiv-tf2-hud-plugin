@@ -20,7 +20,9 @@ using Tf2Hud.Common.Audio;
 using Tf2Hud.Common.Configuration;
 using Tf2Hud.Common.Model;
 using Tf2Hud.Tf2Hud.Configuration;
+using Tf2Hud.Tf2Hud.Model;
 using Tf2Hud.Tf2Hud.Windows;
+using Tf2Hud.Tf2Hud.Windows.Configuration;
 
 namespace Tf2Hud.Tf2Hud;
 
@@ -31,14 +33,14 @@ public class Tf2HudModule : IDisposable
     private readonly string? tf2InstallFolder;
 
     private readonly Tf2WinPanel tf2WinPanel;
-    private int enemyTeamScore;
+    private uint enemyTeamScore;
 
     private uint lastDutyTerritory;
     private BattleNpc? lastEnemyTarget;
 
     private Tf2Team playerTeam = Tf2Team.Red;
 
-    private int playerTeamScore;
+    private uint playerTeamScore;
 
     private ImFontPtr tf2Font;
     private ImFontPtr tf2ScoreFont;
@@ -69,7 +71,8 @@ public class Tf2HudModule : IDisposable
         KamiCommon.WindowManager.AddWindow(new Tf2RedScoreWindow());
         KamiCommon.WindowManager.AddWindow(new Tf2MvpList());
         KamiCommon.WindowManager.AddWindow(new Tf2Timer(this.configZero));
-
+        KamiCommon.WindowManager.AddWindow(new WinPanelSavedScoresWindow(this.configZero.WinPanel));
+        
         tf2WinPanel = new Tf2WinPanel(this.configZero.General, this.configZero.WinPanel, playerTeam, GetPartyList());
         
         Services.DutyState.DutyStarted += OnStart;
@@ -250,6 +253,9 @@ public class Tf2HudModule : IDisposable
 
         switch (configZero.WinPanel.ScoreBehavior.Value)
         {
+            case ScoreBehaviorKind.SavePerDuty:
+                RetrieveScoreForCurrentDuty();
+                break;
             case ScoreBehaviorKind.ResetEveryInstance:
                 ClearScores();
                 break;
@@ -262,6 +268,13 @@ public class Tf2HudModule : IDisposable
         }
 
         lastDutyTerritory = CriticalCommonLib.Service.ClientState.TerritoryType;
+    }
+
+    private void RetrieveScoreForCurrentDuty()
+    {
+        var score = configZero.WinPanel.GetScoreForDuty(CriticalCommonLib.Service.ClientState.TerritoryType);
+        playerTeamScore = score.PlayerTeam;
+        enemyTeamScore = score.EnemyTeam;
     }
 
     private void ClearScores()
@@ -277,6 +290,7 @@ public class Tf2HudModule : IDisposable
         tf2WinPanel.Show(playerTeamScore, enemyTeamScore, playerTeamScore + 1, enemyTeamScore, GetPartyList(),
                          GetEnemyName(), playerTeam);
         playerTeamScore += 1;
+        UpdateSavedScores(true);
         SoundEngine.PlaySoundAsync(Tf2Sound.Instance.VictorySound, configZero.General.ApplySfxVolume,
                                    configZero.General.Volume.Value);
     }
@@ -287,9 +301,20 @@ public class Tf2HudModule : IDisposable
         tf2WinPanel.Show(playerTeamScore, enemyTeamScore, playerTeamScore, enemyTeamScore + 1, GetPartyList(),
                          GetEnemyName(), playerTeam.Enemy);
         enemyTeamScore += 1;
+        UpdateSavedScores(false);
         SoundEngine.PlaySoundAsync(Tf2Sound.Instance.FailSound, configZero.General.ApplySfxVolume,
                                    configZero.General.Volume.Value);
         lastEnemyTarget = null;
+    }
+
+    private void UpdateSavedScores(bool playerTeamWon)
+    {
+        var currentScore = configZero.WinPanel.GetScoreForDuty(CriticalCommonLib.Service.ClientState.TerritoryType);
+        configZero.WinPanel.SaveScoreForDuty(CriticalCommonLib.Service.ClientState.TerritoryType, new DutyScore()
+        {
+            PlayerTeam = currentScore.PlayerTeam + (playerTeamWon ? 1u : 0u),
+            EnemyTeam = currentScore.EnemyTeam + (playerTeamWon ? 0u : 1u),
+        });
     }
 
     private Tf2Team UpdatePlayerTeam()

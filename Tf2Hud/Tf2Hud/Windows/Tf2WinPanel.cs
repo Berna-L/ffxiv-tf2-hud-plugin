@@ -14,8 +14,8 @@ public class Tf2WinPanel : IDisposable
 {
     private readonly ConfigZero.GeneralConfigZero generalConfig;
     private readonly ConfigZero.WinPanelConfigZero winPanelConfig;
-    private int enemyTeamScoreToSet;
-    private int playerTeamScoreToSet;
+    private uint enemyTeamScoreToSet;
+    private uint playerTeamScoreToSet;
 
     private long timeOpened;
     private bool waitingForNewScore;
@@ -100,7 +100,7 @@ public class Tf2WinPanel : IDisposable
     }
 
     public void Show(
-        int oldPlayerTeamScore, int oldEnemyTeamScore, int newPlayerTeamScore, int newEnemyTeamScore,
+        uint oldPlayerTeamScore, uint oldEnemyTeamScore, uint newPlayerTeamScore, uint newEnemyTeamScore,
         List<Tf2MvpMember> partyList, string? lastEnemy, Tf2Team winningTeam)
     {
         waitingForNewScore = true;

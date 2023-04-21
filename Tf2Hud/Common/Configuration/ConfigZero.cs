@@ -4,11 +4,13 @@ using System.IO;
 using System.Linq;
 using Dalamud.Game.ClientState.Objects.SubKinds;
 using ImGuiNET;
+using KamiLib;
 using KamiLib.Configuration;
 using Newtonsoft.Json;
 using Tf2Hud.Common.Model;
 using Tf2Hud.Common.Util;
 using Tf2Hud.Tf2Hud.Configuration;
+using Tf2Hud.Tf2Hud.Model;
 using Tf2Hud.Tf2Hud.Windows;
 
 namespace Tf2Hud.Common.Configuration;
@@ -111,8 +113,8 @@ public class ConfigZero : BaseConfiguration
 
         public Setting<ScoreBehaviorKind> ScoreBehavior { get; set; } = new(ScoreBehaviorKind.ResetIfDutyChanged);
         public Setting<int> TimeToClose { get; set; } = new(10);
-
         public Setting<NameDisplayKind> NameDisplay { get; set; } = new(NameDisplayKind.FullName);
+        public IDictionary<ushort, DutyScore> SavedScores { get; set; } = new Dictionary<ushort, DutyScore>();
 
         public override float GetPositionXDefault()
         {
@@ -122,6 +124,26 @@ public class ConfigZero : BaseConfiguration
         public override float GetPositionYDefault()
         {
             return ImGui.GetMainViewport().Size.Y - 500;
+        }
+
+        public DutyScore GetScoreForDuty(ushort duty) => SavedScores.TryGetValue(duty, out var score) ? score : new DutyScore();
+
+        public void ClearSavedScores()
+        {
+            SavedScores.Clear();
+            KamiCommon.SaveConfiguration();
+        }
+
+        public void SaveScoreForDuty(ushort duty, DutyScore dutyScore)
+        {
+            SavedScores[duty] = dutyScore;
+            KamiCommon.SaveConfiguration();
+        }
+
+        public void ClearScoreForDuty(ushort duty)
+        {
+            SavedScores.Remove(duty);
+            KamiCommon.SaveConfiguration();
         }
     }
 

@@ -4,5 +4,6 @@ public enum ScoreBehaviorKind
 {
     ResetEveryInstance,
     ResetIfDutyChanged,
-    ResetUponClosingGame
+    ResetUponClosingGame,
+    SavePerDuty
 }
