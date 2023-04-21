@@ -111,7 +111,7 @@ public class ConfigZero : BaseConfiguration
             Version = 0;
         }
 
-        public Setting<ScoreBehaviorKind> ScoreBehavior { get; set; } = new(ScoreBehaviorKind.ResetIfDutyChanged);
+        public Setting<ScoreBehaviorKind> ScoreBehavior { get; set; } = new(ScoreBehaviorKind.SavePerDuty);
         public Setting<int> TimeToClose { get; set; } = new(10);
         public Setting<NameDisplayKind> NameDisplay { get; set; } = new(NameDisplayKind.FullName);
         public IDictionary<ushort, DutyScore> SavedScores { get; set; } = new Dictionary<ushort, DutyScore>();
