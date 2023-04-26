@@ -23,6 +23,7 @@ public abstract class Tf2Window : Window
         ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoScrollWithMouse | ImGuiWindowFlags.NoScrollbar |
         ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoMouseInputs)
     {
+        RespectCloseHotkey = false;
         Team = team;
         PositionCondition = ImGuiCond.Always;
         BgAlpha = 0.8f;
