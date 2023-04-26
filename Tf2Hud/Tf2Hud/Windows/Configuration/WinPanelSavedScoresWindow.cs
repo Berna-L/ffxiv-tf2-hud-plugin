@@ -59,9 +59,9 @@ public class WinPanelSavedScoresWindow: Window
         ImGui.TableNextColumn();
         ImGui.TableHeader("Duty");
         ImGui.TableNextColumn();
-        ImGui.TableHeader("Your score");
+        ImGui.TableHeader("Your score (completions)");
         ImGui.TableNextColumn();
-        ImGui.TableHeader("Enemy score");
+        ImGui.TableHeader("Enemy score (wipes)");
         ImGui.TableNextColumn();
         ImGui.TableHeader("Delete");
         foreach (var (duty, score) in winPanelConfigZero.SavedScores.OrderBy(s => s.Key))
