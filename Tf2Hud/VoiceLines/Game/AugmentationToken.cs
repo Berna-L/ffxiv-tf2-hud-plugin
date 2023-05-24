@@ -7,44 +7,50 @@ namespace Tf2Hud.VoiceLines.Game;
 
 public static class AugmentationToken
 {
-    private const uint MoonshineBrine = 38386u;
-    private const uint MoonshineTwine = 37387u;
-    private const uint MoonshineShine = 37388u;
+    private const uint DivineSolvent = 40318u;
+    private const uint DivineTwine = 40319u;
+    private const uint DivineShine = 40320u;
 
-    private const uint AbyssosMythosTwo = 38382u;
-    private const uint AbyssosMythosThree = 38383u;
+    private const uint AnabaseiosMythosTwo = 40304u;
+    private const uint AnabaseiosMythosThree = 40305u;
 
     private const uint AglaiaCoin = 36820u;
     private const uint EuphrosyneCoin = 38950u;
 
     private static readonly ImmutableHashSet<uint> ExchangeableForTokens =
-        new[] { AbyssosMythosTwo, AbyssosMythosThree, AglaiaCoin, EuphrosyneCoin }.ToImmutableHashSet();
+        new[]
+        {
+            AnabaseiosMythosTwo, 
+            AnabaseiosMythosThree, 
+            // AglaiaCoin, 
+            // EuphrosyneCoin
+        }.ToImmutableHashSet();
 
 
     private static readonly ImmutableDictionary<uint, ImmutableHashSet<Recipe>>
         RecipesForTokens = new[]
         {
-            // Moonshine Brine
-            new KeyValuePair<uint, ImmutableHashSet<Recipe>>(MoonshineBrine, new[]
+            // Divine Solvent
+            new KeyValuePair<uint, ImmutableHashSet<Recipe>>(DivineSolvent, new[]
             {
                 // With Books
-                new Recipe(new Component(AbyssosMythosThree, 4))
+                new Recipe(new Component(AnabaseiosMythosThree, 4))
             }.ToImmutableHashSet()),
-            // Moonshine Twine
-            new KeyValuePair<uint, ImmutableHashSet<Recipe>>(MoonshineTwine, new[]
+            // Divine Twine
+            new KeyValuePair<uint, ImmutableHashSet<Recipe>>(DivineTwine, new[]
             {
                 // With Books
-                new Recipe(new Component(AbyssosMythosThree, 4)),
+                new Recipe(new Component(AnabaseiosMythosThree, 4)),
                 // With Coins
-                new Recipe(new Component(AglaiaCoin, 1), new Component(EuphrosyneCoin, 1))
+                // new Recipe(new Component(AglaiaCoin, 1), new Component(EuphrosyneCoin, 1))
             }.ToImmutableHashSet()),
-            // Moonshine Shine
-            new KeyValuePair<uint, ImmutableHashSet<Recipe>>(MoonshineShine, new[]
+            // Divine Shine
+            new KeyValuePair<uint, ImmutableHashSet<Recipe>>(DivineShine, new[]
             {
                 // With Books
-                new Recipe(new Component(AbyssosMythosTwo, 4)),
+                new Recipe(new Component(AnabaseiosMythosTwo, 3)),
                 // With Coins
-                new Recipe(new Component(AglaiaCoin, 1), new Component(EuphrosyneCoin, 1))
+                // new Recipe(new Component(AglaiaCoin, 1), new Component(EuphrosyneCoin, 1))
             }.ToImmutableHashSet())
         }.ToImmutableDictionary();
 
