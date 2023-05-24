@@ -57,7 +57,7 @@
         <PackageReference Include="NAudio" Version="2.1.0" />
         <PackageReference Include="NAudio.Lame" Version="2.0.1" />
         <PackageReference Include="NAudio.Wasapi" Version="2.1.0" />
-        <PackageReference Include="Pilz.Dalamud" Version="0.2.0" />
+        <PackageReference Include="Pilz.Dalamud" Version="0.4.0" />
         <PackageReference Include="Sledge.Formats.Packages" Version="1.0.1" />
         <PackageReference Include="Sledge.Formats.Texture" Version="1.0.3" />
         <Reference Include="FFXIVClientStructs">
