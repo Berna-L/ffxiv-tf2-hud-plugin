@@ -140,8 +140,8 @@ public class GeneralConfigPane : ConfigPane<ConfigZero.GeneralConfigZero>
                .EndConditional()
                .StartConditional(!Config.Tf2InstallPathAutoDetected)
                .SameLine()
-               .AddIconButton("##TF2InstallFolderButton", FontAwesomeIcon.Folder,
-                              () => openFolderDialog(Config.Tf2InstallPath))
+               .AddIconButton("TF2InstallFolderButton", FontAwesomeIcon.Folder,
+                              () => OpenFolderDialog(Config.Tf2InstallPath))
                .AddString("Press the folder button above to set the Team Fortress 2 install folder.\n" +
                           "The path should end with ...steamapps\\common\\Team Fortress 2.")
                .EndConditional()
@@ -165,7 +165,7 @@ public class GeneralConfigPane : ConfigPane<ConfigZero.GeneralConfigZero>
         return SoundEngine.IsPlaying(TestSoundId);
     }
 
-    private static void openFolderDialog(Setting<string> filePath)
+    private static void OpenFolderDialog(Setting<string> filePath)
     {
         CommonFileDialogManager.DialogManager.OpenFolderDialog(
             "Select the folder", (s, p) => UpdatePath(s, p, filePath),

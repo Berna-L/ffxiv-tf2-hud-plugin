@@ -19,26 +19,14 @@ public class ConfigWindow : SelectionWindow, IDisposable
 {
     public const String Title = $"{PluginName} — Configuration";
     private static readonly string PluginVersion = GetVersionText();
-
-    internal static readonly FileDialogManager DialogManager = new()
-    {
-        AddedWindowFlags = ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoDocking
-    };
-
+    
     private readonly ConfigZero config;
 
     private readonly GeneralConfigPane generalPane;
     private readonly TimerConfigPane timerPane;
     private readonly VoiceLineConfigPane voiceLinePane;
     private readonly WinPanelConfigPane winPanelPane;
-
-    static ConfigWindow()
-    {
-        DialogManager.CustomSideBarItems.Add((Environment.ExpandEnvironmentVariables("User Folder"),
-                                                 Environment.ExpandEnvironmentVariables("%USERPROFILE%"),
-                                                 FontAwesomeIcon.User, 0));
-    }
-
+    
 
     public ConfigWindow(ConfigZero config) : base(Title, 25.0f)
     {
@@ -57,14 +45,14 @@ public class ConfigWindow : SelectionWindow, IDisposable
 
     public void Dispose()
     {
-        DialogManager.Reset();
+        CommonFileDialogManager.DialogManager.Reset();
     }
 
     public override void Draw()
     {
         base.Draw();
         Flags = ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse;
-        DialogManager.Draw();
+        CommonFileDialogManager.DialogManager.Draw();
     }
 
     protected override IEnumerable<ISelectable> GetSelectables()
@@ -104,7 +92,7 @@ public class ConfigWindow : SelectionWindow, IDisposable
 
     public override void OnClose()
     {
-        DialogManager.Reset();
+        CommonFileDialogManager.DialogManager.Reset();
         config.Timer.RepositionMode.Value = false;
         config.WinPanel.RepositionMode.Value = false;
     }
